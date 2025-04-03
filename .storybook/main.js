@@ -3,20 +3,20 @@ const path = require("path");
 
 module.exports = {
     stories: ["../src/**/*.stories.tsx"],
+
     addons: [
         "@storybook/addon-essentials",
         "@storybook/addon-interactions",
+        "@storybook/addon-webpack5-compiler-babel",
+        "@chromatic-com/storybook"
     ],
+
     // Enable the Storybook Interactions debugger
     // Docs: https://storybook.js.org/addons/@storybook/addon-interactions
     features: {
         interactionsDebugger: true,
     },
-    // Configure Storybook to use Webpack@5.x
-    // Docs: https://github.com/storybookjs/storybook/blob/next/MIGRATION.md#webpack-5
-    core: {
-        builder: "webpack5",
-    },
+
     webpackFinal: async (config) => {
         // Setup @src path resolution for TypeScript files
         config.resolve = {
@@ -97,7 +97,28 @@ module.exports = {
             ],
         })
 
+        config.module?.rules?.push({
+            test: /\.(ts|tsx)$/,
+            use: [
+                {
+                    loader: "babel-loader",
+                    options: {
+                        presets: ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
+                    },
+                },
+            ],
+        });
+
         // Return the final Webpack configuration
         return config;
     },
+
+    framework: {
+        name: "@storybook/react-webpack5",
+        options: {}
+    },
+
+    docs: {
+        autodocs: true
+    }
 };
