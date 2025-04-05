@@ -58,7 +58,7 @@ export function Popup() {
     // Renders the component tree
     return (
         <div className={css.popupContainer}>
-            <div className="mx-4 my-4">
+            <div className="mx-4 my-4 bg-black">
                 <Hello />
                 <hr />
                 <Scroller

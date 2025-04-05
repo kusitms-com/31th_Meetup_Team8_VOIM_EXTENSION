@@ -5,7 +5,7 @@ exports[`component renders 1`] = `
   className="popupContainer"
 >
   <div
-    className="mx-4 my-4"
+    className="mx-4 my-4 bg-black"
   >
     <div
       className="row"
