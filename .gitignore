@@ -1,8 +1,16 @@
 dist/js/*
 storybook-static/*
+node_modules/*
 
-/node_modules
 npm-debug.log
 yarn-error.log
 
 .DS_Store
+
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
