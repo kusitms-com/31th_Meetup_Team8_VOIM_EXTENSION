@@ -92,18 +92,15 @@ module.exports = {
 
         config.module.rules.push({
             test: /\.(ts|tsx)$/,
-            use: [
-                {
-                    loader: "babel-loader",
-                    options: {
-                        presets: [
-                            "@babel/preset-env",
-                            "@babel/preset-react",
-                            "@babel/preset-typescript",
-                        ],
-                    },
-                },
-            ],
+            loader: require.resolve("babel-loader"),
+            options: {
+                presets: [
+                    ["@babel/preset-env", { targets: { node: "current" } }],
+                    "@babel/preset-typescript",
+                    "@babel/preset-react",
+                ],
+                plugins: ["@emotion/babel-plugin"],
+            },
         });
 
         return config;
