@@ -2,7 +2,6 @@ import React from "react";
 import { Hello } from "@src/components/hello";
 import browser, { Tabs } from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
-import css from "./styles.module.css";
 
 // // // //
 
@@ -57,7 +56,7 @@ export function Popup() {
 
     // Renders the component tree
     return (
-        <div className={css.popupContainer}>
+        <div>
             <div className="mx-4 my-4 bg-black">
                 <Hello />
                 <hr />

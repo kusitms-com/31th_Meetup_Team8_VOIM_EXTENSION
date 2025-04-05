@@ -1,9 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`component renders 1`] = `
-<div
-  className="popupContainer"
->
+<div>
   <div
     className="mx-4 my-4 bg-black"
   >
@@ -22,17 +20,15 @@ exports[`component renders 1`] = `
     </div>
     <hr />
     <div
-      className="grid gap-3 grid-cols-2 mt-3 w-full"
+      className="grid w-full grid-cols-2 gap-3 mt-3"
     >
       <button
-        className="btn"
         data-testid="scroll-to-top"
         onClick={[Function]}
       >
         Scroll To Top
       </button>
       <button
-        className="btn"
         data-testid="scroll-to-bottom"
         onClick={[Function]}
       >

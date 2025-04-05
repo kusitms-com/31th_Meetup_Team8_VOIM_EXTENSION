@@ -2100,7 +2100,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-actions@npm:8.6.12, @storybook/addon-actions@npm:^8.6.12":
+"@storybook/addon-actions@npm:8.6.12, @storybook/addon-actions@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/addon-actions@npm:8.6.12"
   dependencies:
@@ -2158,7 +2158,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-essentials@npm:^8.6.12":
+"@storybook/addon-essentials@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/addon-essentials@npm:8.6.12"
   dependencies:
@@ -2189,7 +2189,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/addon-interactions@npm:^8.6.12":
+"@storybook/addon-interactions@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/addon-interactions@npm:8.6.12"
   dependencies:
@@ -2471,7 +2471,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/react-webpack5@npm:^8.6.12":
+"@storybook/react-webpack5@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/react-webpack5@npm:8.6.12"
   dependencies:
@@ -2490,7 +2490,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/react@npm:8.6.12, @storybook/react@npm:^8.6.12":
+"@storybook/react@npm:*, @storybook/react@npm:8.6.12, @storybook/react@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/react@npm:8.6.12"
   dependencies:
@@ -2515,7 +2515,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@storybook/test@npm:8.6.12, @storybook/test@npm:^8.6.12":
+"@storybook/test@npm:8.6.12, @storybook/test@npm:^8.0.0":
   version: 8.6.12
   resolution: "@storybook/test@npm:8.6.12"
   dependencies:
@@ -2798,7 +2798,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^18.0.2":
+"@types/react-dom@npm:^18.2.0":
   version: 18.3.6
   resolution: "@types/react-dom@npm:18.3.6"
   peerDependencies:
@@ -2827,7 +2827,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18.0.2":
+"@types/react@npm:^18.2.0":
   version: 18.3.20
   resolution: "@types/react@npm:18.3.20"
   dependencies:
@@ -2862,6 +2862,15 @@ __metadata:
   version: 2.0.3
   resolution: "@types/stack-utils@npm:2.0.3"
   checksum: 10c0/1f4658385ae936330581bcb8aa3a066df03867d90281cdf89cc356d404bd6579be0f11902304e1f775d92df22c6dd761d4451c804b0a4fba973e06211e9bd77c
+  languageName: node
+  linkType: hard
+
+"@types/storybook__react@npm:^5.2.1":
+  version: 5.2.1
+  resolution: "@types/storybook__react@npm:5.2.1"
+  dependencies:
+    "@storybook/react": "npm:*"
+  checksum: 10c0/1d55729f7d02a00ee89fa822833fbda9f8d890aa930de81939b979d7d47790e9788f52174c7b4075f40b5f2f5bc80f2fface5e5f2ee2a717cb0da863f20a8f39
   languageName: node
   linkType: hard
 
@@ -9012,18 +9021,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:18":
-  version: 18.3.1
-  resolution: "react-dom@npm:18.3.1"
-  dependencies:
-    loose-envify: "npm:^1.1.0"
-    scheduler: "npm:^0.23.2"
-  peerDependencies:
-    react: ^18.3.1
-  checksum: 10c0/a752496c1941f958f2e8ac56239172296fcddce1365ce45222d04a1947e0cc5547df3e8447f855a81d6d39f008d7c32eab43db3712077f09e3f67c4874973e85
-  languageName: node
-  linkType: hard
-
 "react-dom@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
   version: 19.1.0
   resolution: "react-dom@npm:19.1.0"
@@ -9032,6 +9029,18 @@ __metadata:
   peerDependencies:
     react: ^19.1.0
   checksum: 10c0/3e26e89bb6c67c9a6aa86cb888c7a7f8258f2e347a6d2a15299c17eb16e04c19194e3452bc3255bd34000a61e45e2cb51e46292392340432f133e5a5d2dfb5fc
+  languageName: node
+  linkType: hard
+
+"react-dom@npm:^18.2.0":
+  version: 18.3.1
+  resolution: "react-dom@npm:18.3.1"
+  dependencies:
+    loose-envify: "npm:^1.1.0"
+    scheduler: "npm:^0.23.2"
+  peerDependencies:
+    react: ^18.3.1
+  checksum: 10c0/a752496c1941f958f2e8ac56239172296fcddce1365ce45222d04a1947e0cc5547df3e8447f855a81d6d39f008d7c32eab43db3712077f09e3f67c4874973e85
   languageName: node
   linkType: hard
 
@@ -9088,19 +9097,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:18":
+"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
+  version: 19.1.0
+  resolution: "react@npm:19.1.0"
+  checksum: 10c0/530fb9a62237d54137a13d2cfb67a7db6a2156faed43eecc423f4713d9b20c6f2728b026b45e28fcd72e8eadb9e9ed4b089e99f5e295d2f0ad3134251bdd3698
+  languageName: node
+  linkType: hard
+
+"react@npm:^18.2.0":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: 10c0/283e8c5efcf37802c9d1ce767f302dd569dd97a70d9bb8c7be79a789b9902451e0d16334b05d73299b20f048cbc3c7d288bbbde10b701fa194e2089c237dbea3
-  languageName: node
-  linkType: hard
-
-"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
-  version: 19.1.0
-  resolution: "react@npm:19.1.0"
-  checksum: 10c0/530fb9a62237d54137a13d2cfb67a7db6a2156faed43eecc423f4713d9b20c6f2728b026b45e28fcd72e8eadb9e9ed4b089e99f5e295d2f0ad3134251bdd3698
   languageName: node
   linkType: hard
 
@@ -9863,7 +9872,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"storybook@npm:^8.6.12":
+"storybook@npm:^8.0.0":
   version: 8.6.12
   resolution: "storybook@npm:8.6.12"
   dependencies:
@@ -10769,20 +10778,21 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.10.4"
     "@chromatic-com/storybook": "npm:^3"
     "@pmmmwh/react-refresh-webpack-plugin": "npm:^0.5.16"
-    "@storybook/addon-actions": "npm:^8.6.12"
-    "@storybook/addon-essentials": "npm:^8.6.12"
-    "@storybook/addon-interactions": "npm:^8.6.12"
+    "@storybook/addon-actions": "npm:^8.0.0"
+    "@storybook/addon-essentials": "npm:^8.0.0"
+    "@storybook/addon-interactions": "npm:^8.0.0"
     "@storybook/addon-webpack5-compiler-babel": "npm:^3.0.6"
-    "@storybook/react": "npm:^8.6.12"
-    "@storybook/react-webpack5": "npm:^8.6.12"
-    "@storybook/test": "npm:^8.6.12"
+    "@storybook/react": "npm:^8.0.0"
+    "@storybook/react-webpack5": "npm:^8.0.0"
+    "@storybook/test": "npm:^8.0.0"
     "@types/chrome": "npm:^0.0.124"
     "@types/identity-obj-proxy": "npm:^3"
     "@types/jest": "npm:^29.5.14"
     "@types/node": "npm:^14.11.8"
-    "@types/react": "npm:^18.0.2"
-    "@types/react-dom": "npm:^18.0.2"
+    "@types/react": "npm:^18.2.0"
+    "@types/react-dom": "npm:^18.2.0"
     "@types/react-test-renderer": "npm:^17.0.1"
+    "@types/storybook__react": "npm:^5.2.1"
     "@types/webextension-polyfill": "npm:^0.9.0"
     "@typescript-eslint/eslint-plugin": "npm:^4.4.1"
     "@typescript-eslint/parser": "npm:^4.4.1"
@@ -10802,12 +10812,13 @@ __metadata:
     postcss: "npm:^8.4.31"
     postcss-loader: "npm:^8.1.1"
     prettier: "npm:^2.1.2"
-    react: "npm:18"
-    react-dom: "npm:18"
+    react: "npm:^18.2.0"
+    react-docgen-typescript: "npm:^2.2.2"
+    react-dom: "npm:^18.2.0"
     react-refresh: "npm:^0.17.0"
     react-test-renderer: "npm:^18.0.0"
     sass-loader: "npm:^16.0.5"
-    storybook: "npm:^8.6.12"
+    storybook: "npm:^8.0.0"
     style-loader: "npm:^4.0.0"
     tailwindcss: "npm:^3.0.8"
     ts-jest: "npm:^29.3.1"
