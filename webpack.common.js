@@ -3,15 +3,19 @@ const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
+
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
         backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
         popup: path.join(__dirname, "src/popup/index.tsx"),
+        content: path.join(__dirname, "src/content/index.tsx"),
+        injected: path.join(__dirname, "src/content/injected.tsx"),
     },
     output: {
         path: path.join(__dirname, "dist/js"),
         filename: "[name].js",
+        clean: true,
     },
     module: {
         rules: [
