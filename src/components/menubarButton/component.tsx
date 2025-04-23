@@ -4,6 +4,7 @@ import styled from "@emotion/styled";
 interface ButtonProps {
     isSelected: boolean;
     theme?: boolean;
+    onClick?: () => void;
 }
 
 const Button = styled.button<ButtonProps>`
