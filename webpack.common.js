@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
@@ -47,4 +48,13 @@ module.exports = {
             "@src": path.resolve(__dirname, "src/"),
         },
     },
+    plugins: [
+        new CopyWebpackPlugin({
+            patterns: [
+                { from: "public/popup.html", to: "../ " },
+                { from: "public/manifest.json", to: "../" },
+                { from: "public/icons", to: "../icons" },
+            ],
+        }),
+    ],
 };
