@@ -2,6 +2,7 @@ import React from "react";
 import { Hello } from "@src/components/hello";
 import browser, { Tabs } from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
+import { MenubarButton } from "@src/components/menubarButton";
 
 // // // //
 
@@ -57,9 +58,10 @@ export function Popup() {
     // Renders the component tree
     return (
         <div>
-            <div className="mx-4 my-4 bg-black">
+            <div className="w-[500px] y-[500px] bg-white">
                 <Hello />
                 <hr />
+                <MenubarButton isSelected={true} text="최호" />
                 <Scroller
                     onClickScrollTop={() => {
                         executeScript(scrollToTopPosition);

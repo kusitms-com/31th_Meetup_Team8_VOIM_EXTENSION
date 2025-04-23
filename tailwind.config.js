@@ -4,7 +4,7 @@ module.exports = {
         extend: {
             colors: {
                 // 그레이스케일
-                greyscale: {
+                grayscale: {
                     100: "#FEFEFE",
                     200: "#F5F7FB",
                     300: "#EAEDF4",
