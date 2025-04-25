@@ -3,7 +3,6 @@ const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 
-
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
@@ -58,7 +57,7 @@ module.exports = {
                 { from: "public/popup.html", to: "../" },
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
-                { from: "src/assets/fonts", to: "../assets/fonts" },
+                { from: "src/assets/images", to: "../assets/images" },
             ],
         }),
     ],

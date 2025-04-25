@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import FloatingButton from "../components/FloatingButton";
-import Modal from "../components/Modal";
+import { FloatingButton } from "@src/components/floatingButton";
+import { Menubar } from "@src/components/menu";
+import { MenubarButton } from "@src/components/menubarButton";
+import "../css/app.css";
 
 interface AppProps {
     extensionId: string;
@@ -17,28 +19,17 @@ const App = ({ extensionId }: AppProps) => {
                 onClick={openModal}
                 iconUrl={`chrome-extension://${extensionId}/icons/icon.png`}
             />
-            <Modal isOpen={isModalOpen} onClose={closeModal}>
-                <div className="text-center">
-                    <h2 className="mb-4 text-2xl font-bold text-gray-800">
-                        익스텐션 창
-                    </h2>
-                    <p className="mb-4 text-gray-600">
-                        여기에 원하는 내용을 넣으세요.
-                    </p>
-                    <div className="p-4 mb-4 bg-gray-100 rounded-lg">
-                        <p className="text-sm text-gray-500">
-                            이 창은 React, Emotion, TypeScript, Tailwind CSS로
-                            만들어졌습니다.
-                        </p>
-                    </div>
-                    <button
-                        className="px-4 py-2 text-white transition-colors bg-blue-500 rounded hover:bg-blue-600"
-                        onClick={closeModal}
-                    >
-                        닫기
-                    </button>
-                </div>
-            </Modal>
+            <Menubar
+                url={`chrome-extension://${extensionId}`}
+                isOpen={isModalOpen}
+                onClose={closeModal}
+            >
+                <MenubarButton isSelected={false} text="고대비 모드" />
+                <MenubarButton isSelected={false} text="커서 크기 및 색상" />
+                <MenubarButton isSelected={false} text="글자 설정" />
+                <MenubarButton isSelected={false} text="서비스 설정" />
+                <MenubarButton isSelected={false} text="내 정보 설정" />
+            </Menubar>
         </>
     );
 };
