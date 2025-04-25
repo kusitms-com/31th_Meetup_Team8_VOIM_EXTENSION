@@ -58,6 +58,7 @@ export function Menubar({ isOpen, onClose, children, url }: ModalProps) {
                     </div>
                 </div>
 
+
                 <div className="flex flex-col gap-5">{children}</div>
             </ModalContainer>
         </ModalOverlay>
