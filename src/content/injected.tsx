@@ -6,7 +6,11 @@ const container = document.getElementById(
     "floating-button-extension-container",
 );
 
-if (container) {
+const extensionId = container?.getAttribute("data-extension-id");
+
+if (container && typeof extensionId === "string") {
     const root = createRoot(container);
-    root.render(<App />);
+    root.render(<App extensionId={extensionId} />);
+} else {
+    console.error("확장 ID가 없거나 잘못된 형식입니다.");
 }

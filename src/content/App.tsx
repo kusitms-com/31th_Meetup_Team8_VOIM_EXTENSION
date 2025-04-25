@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import FloatingButton from "../components/FloatingButton";
 import Modal from "../components/Modal";
 
-const App = () => {
+interface AppProps {
+    extensionId: string;
+}
+const App = ({ extensionId }: AppProps) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const openModal = () => setIsModalOpen(true);
@@ -12,24 +15,24 @@ const App = () => {
         <>
             <FloatingButton
                 onClick={openModal}
-                iconUrl="chrome-extension://jeppkpjgeheckphiogogbffdenhlkclh/icons/icon-58.png"
+                iconUrl={`chrome-extension://${extensionId}/icons/icon.png`}
             />
             <Modal isOpen={isModalOpen} onClose={closeModal}>
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold mb-4 text-gray-800">
+                    <h2 className="mb-4 text-2xl font-bold text-gray-800">
                         익스텐션 창
                     </h2>
-                    <p className="text-gray-600 mb-4">
+                    <p className="mb-4 text-gray-600">
                         여기에 원하는 내용을 넣으세요.
                     </p>
-                    <div className="bg-gray-100 p-4 rounded-lg mb-4">
+                    <div className="p-4 mb-4 bg-gray-100 rounded-lg">
                         <p className="text-sm text-gray-500">
                             이 창은 React, Emotion, TypeScript, Tailwind CSS로
                             만들어졌습니다.
                         </p>
                     </div>
                     <button
-                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        className="px-4 py-2 text-white transition-colors bg-blue-500 rounded hover:bg-blue-600"
                         onClick={closeModal}
                     >
                         닫기

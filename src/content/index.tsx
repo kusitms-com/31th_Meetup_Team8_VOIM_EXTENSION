@@ -1,5 +1,3 @@
-console.log("Content script 실행됨");
-
 const EXTENSION_CONTAINER_ID = "floating-button-extension-container";
 
 if (!document.getElementById(EXTENSION_CONTAINER_ID)) {
@@ -7,6 +5,10 @@ if (!document.getElementById(EXTENSION_CONTAINER_ID)) {
 
     const container = document.createElement("div");
     container.id = EXTENSION_CONTAINER_ID;
+
+    const extensionId = chrome.runtime.id;
+    container.setAttribute("data-extension-id", extensionId);
+
     document.body.appendChild(container);
     console.log("컨테이너 생성 완료:", container);
 
@@ -17,12 +19,6 @@ if (!document.getElementById(EXTENSION_CONTAINER_ID)) {
     script.onload = function () {
         console.log("스크립트 로드 완료");
         script.remove();
-
-        // ✅ chrome.storage.local에 확장 프로그램 ID 저장
-        const extensionId = chrome.runtime.id;
-        chrome.storage.local.set({ extensionId }, () => {
-            console.log("확장 프로그램 ID 저장됨:", extensionId);
-        });
     };
 
     (document.head || document.documentElement).appendChild(script);
