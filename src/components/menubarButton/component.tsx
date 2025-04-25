@@ -15,7 +15,6 @@ const Button = styled.div<ButtonProps>`
     text-align: left;
 `;
 
-// // // //
 interface MenubarButtonProps {
     isSelected: boolean;
     text: string;
