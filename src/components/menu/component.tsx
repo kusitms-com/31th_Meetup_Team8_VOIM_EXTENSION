@@ -1,4 +1,5 @@
 import React from "react";
+import browser from "webextension-polyfill";
 import styled from "@emotion/styled";
 
 interface ModalProps {
@@ -41,11 +42,29 @@ export function Menubar({ isOpen, onClose, children, url }: ModalProps) {
         }
     };
 
+    const handleResetSettings = () => {
+        browser.runtime
+            .sendMessage({
+                type: "RESET_SETTINGS",
+            })
+            .then((response) => {
+                if (response && response.success) {
+                    console.log("설정이 초기화되었습니다.");
+                }
+            })
+            .catch((error) => {
+                console.error("메시지 전송 중 오류:", error);
+            });
+    };
+
     return (
         <ModalOverlay isOpen={isOpen} onClick={handleOverlayClick}>
             <ModalContainer className="font-koddi bg-grayscale-100">
                 <div className="flex justify-between mb-6 font-24-Bold">
-                    <div className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer">
+                    <div
+                        className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer"
+                        onClick={handleResetSettings}
+                    >
                         <img
                             src={url + "/assets/images/arrow-rotate.png"}
                             alt="설정 초기화"
