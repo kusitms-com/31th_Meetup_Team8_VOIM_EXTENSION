@@ -4,26 +4,16 @@ import { Menubar } from "@src/components/menu";
 import { MenubarButton } from "@src/components/menubarButton";
 import "../css/app.css";
 
-interface AppProps {
-    extensionId: string;
-}
-const App = ({ extensionId }: AppProps) => {
+const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const extensionId = chrome.runtime.id;
     const openModal = () => setIsModalOpen(true);
     const closeModal = () => setIsModalOpen(false);
 
     return (
         <>
-            <FloatingButton
-                onClick={openModal}
-                iconUrl={`chrome-extension://${extensionId}/icons/icon.png`}
-            />
-            <Menubar
-                url={`chrome-extension://${extensionId}`}
-                isOpen={isModalOpen}
-                onClose={closeModal}
-            >
+            <FloatingButton onClick={openModal} />
+            <Menubar isOpen={isModalOpen} onClose={closeModal}>
                 <MenubarButton isSelected={false} text="고대비 모드" />
                 <MenubarButton isSelected={false} text="커서 크기 및 색상" />
                 <MenubarButton isSelected={false} text="글자 설정" />

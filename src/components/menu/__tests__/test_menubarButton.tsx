@@ -6,7 +6,7 @@ describe("Menubar", () => {
     it("renders closed menubar correctly", () => {
         const tree = renderer
             .create(
-                <Menubar url={"ASd"} isOpen={false} onClose={() => {}}>
+                <Menubar isOpen={false} onClose={() => {}}>
                     <div>메뉴바 콘텐츠</div>
                 </Menubar>,
             )
@@ -17,7 +17,7 @@ describe("Menubar", () => {
     it("renders open menubar correctly", () => {
         const tree = renderer
             .create(
-                <Menubar url={"ASd"} isOpen={true} onClose={() => {}}>
+                <Menubar isOpen={true} onClose={() => {}}>
                     <div>메뉴바 콘텐츠</div>
                 </Menubar>,
             )
@@ -28,7 +28,7 @@ describe("Menubar", () => {
     it("renders with custom content correctly", () => {
         const tree = renderer
             .create(
-                <Menubar url={"ASd"} isOpen={true} onClose={() => {}}>
+                <Menubar isOpen={true} onClose={() => {}}>
                     <div>
                         <h2>커스텀 제목</h2>
                         <p>커스텀 내용입니다.</p>
@@ -43,7 +43,7 @@ describe("Menubar", () => {
     it("renders with complex nested content correctly", () => {
         const tree = renderer
             .create(
-                <Menubar url={"ASd"} isOpen={true} onClose={() => {}}>
+                <Menubar isOpen={true} onClose={() => {}}>
                     <div className="nested-content">
                         <h2>중첩된 콘텐츠</h2>
                         <ul>

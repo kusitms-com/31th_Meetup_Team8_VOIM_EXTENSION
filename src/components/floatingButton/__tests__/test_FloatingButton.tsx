@@ -7,12 +7,7 @@ describe("FloatingButton", () => {
     it("renders correctly with default props", () => {
         const mockOnClick = jest.fn();
         const tree = renderer
-            .create(
-                <FloatingButton
-                    onClick={mockOnClick}
-                    iconUrl="/public/icons/icon.png"
-                />,
-            )
+            .create(<FloatingButton onClick={mockOnClick} />)
             .toJSON();
         expect(tree).toMatchSnapshot();
     });
@@ -20,24 +15,14 @@ describe("FloatingButton", () => {
     it("renders with different icon URL", () => {
         const mockOnClick = jest.fn();
         const tree = renderer
-            .create(
-                <FloatingButton
-                    onClick={mockOnClick}
-                    iconUrl="/public/icons/icon.png"
-                />,
-            )
+            .create(<FloatingButton onClick={mockOnClick} />)
             .toJSON();
         expect(tree).toMatchSnapshot();
     });
 
     it("applies select-none class", () => {
         const mockOnClick = jest.fn();
-        const tree = renderer.create(
-            <FloatingButton
-                onClick={mockOnClick}
-                iconUrl="/public/icons/icon.png"
-            />,
-        );
+        const tree = renderer.create(<FloatingButton onClick={mockOnClick} />);
 
         const rootInstance = tree.root;
         const buttonContainer = rootInstance.findByProps({

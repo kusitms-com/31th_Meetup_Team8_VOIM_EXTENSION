@@ -1,9 +1,9 @@
 import React from "react";
 import styled from "@emotion/styled";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface FloatingButtonProps {
     onClick: () => void;
-    iconUrl: string;
 }
 
 const ButtonContainer = styled.div`
@@ -31,11 +31,13 @@ const ButtonImage = styled.img`
     object-fit: contain;
 `;
 
-export function FloatingButton({ onClick, iconUrl }: FloatingButtonProps) {
-    console.log("FloatingButton iconUrl:", iconUrl);
+export function FloatingButton({ onClick }: FloatingButtonProps) {
     return (
         <ButtonContainer onClick={onClick} className="select-none">
-            <ButtonImage src={iconUrl} alt="Floating Button" />
+            <ButtonImage
+                src={getExtensionUrl("icons/icon.png")}
+                alt="Floating Button"
+            />
         </ButtonContainer>
     );
 }

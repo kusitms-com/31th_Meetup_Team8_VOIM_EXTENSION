@@ -2,7 +2,6 @@ import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import Menubar from "../component";
 
-// Meta information for the component
 const meta: Meta<typeof Menubar> = {
     title: "Components/Menubar",
     component: Menubar,
@@ -15,7 +14,6 @@ const meta: Meta<typeof Menubar> = {
 export default meta;
 type Story = StoryObj<typeof Menubar>;
 
-// Helper component to control the modal state
 const MenubarController: React.FC<{ initialState?: boolean }> = ({
     initialState = false,
 }) => {
@@ -30,11 +28,7 @@ const MenubarController: React.FC<{ initialState?: boolean }> = ({
                 Open Menubar
             </button>
 
-            <Menubar
-                url={"ASd"}
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
-            >
+            <Menubar isOpen={isOpen} onClose={() => setIsOpen(false)}>
                 <div className="p-4">
                     <h2 className="mb-4 text-xl font-bold">Menubar Content</h2>
                     <p className="mb-2">
@@ -57,17 +51,14 @@ const MenubarController: React.FC<{ initialState?: boolean }> = ({
     );
 };
 
-// Basic story
 export const Default: Story = {
     render: () => <MenubarController />,
 };
 
-// Initially open story
 export const InitiallyOpen: Story = {
     render: () => <MenubarController initialState={true} />,
 };
 
-// Story with custom content
 export const WithCustomContent: Story = {
     render: () => {
         const [isOpen, setIsOpen] = useState(false);
@@ -81,11 +72,7 @@ export const WithCustomContent: Story = {
                     Open Custom Menubar
                 </button>
 
-                <Menubar
-                    url={"ASd"}
-                    isOpen={isOpen}
-                    onClose={() => setIsOpen(false)}
-                >
+                <Menubar isOpen={isOpen} onClose={() => setIsOpen(false)}>
                     <div className="p-4">
                         <h2 className="mb-4 text-xl font-bold">Settings</h2>
                         <div className="space-y-4">
@@ -141,7 +128,6 @@ export const WithCustomContent: Story = {
     },
 };
 
-// Mobile view story
 export const MobileView: Story = {
     parameters: {
         viewport: {

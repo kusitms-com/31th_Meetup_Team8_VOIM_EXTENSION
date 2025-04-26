@@ -1,4 +1,3 @@
-// content.ts
 const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 
 if (!document.getElementById(EXTENSION_IFRAME_ID)) {
@@ -8,7 +7,6 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
     iframe.id = EXTENSION_IFRAME_ID;
     iframe.src = chrome.runtime.getURL("iframe.html");
 
-    // iframe 스타일 설정
     iframe.style.cssText = `
         position: fixed;
         top: 0;

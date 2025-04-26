@@ -1,12 +1,12 @@
 import React from "react";
 import browser from "webextension-polyfill";
 import styled from "@emotion/styled";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     children: React.ReactNode;
-    url: string;
 }
 
 const ModalOverlay = styled.div<{ isOpen: boolean }>`
@@ -35,7 +35,7 @@ const ModalContainer = styled.div`
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
 `;
 
-export function Menubar({ isOpen, onClose, children, url }: ModalProps) {
+export function Menubar({ isOpen, onClose, children }: ModalProps) {
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
             onClose();
@@ -66,14 +66,16 @@ export function Menubar({ isOpen, onClose, children, url }: ModalProps) {
                         onClick={handleResetSettings}
                     >
                         <img
-                            src={url + "/assets/images/arrow-rotate.png"}
+                            src={getExtensionUrl(
+                                "assets/images/arrow-rotate.png",
+                            )}
                             alt="설정 초기화"
                         />
                         <div>설정 초기화</div>
                     </div>
                     <div onClick={onClose} className="py-[18px] cursor-pointer">
                         <img
-                            src={url + "/assets/images/delete.png"}
+                            src={getExtensionUrl("assets/images/delete.png")}
                             alt="나가기"
                         />
                     </div>
