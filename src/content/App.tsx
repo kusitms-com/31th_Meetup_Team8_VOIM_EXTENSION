@@ -1,17 +1,33 @@
 import React, { useState } from "react";
+import styled from "@emotion/styled";
+
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menu";
 import { MenubarButton } from "@src/components/menubarButton";
+
 import "../css/app.css";
+
+const AppWrapper = styled.div`
+    pointer-events: auto;
+`;
 
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const extensionId = chrome.runtime.id;
-    const openModal = () => setIsModalOpen(true);
-    const closeModal = () => setIsModalOpen(false);
+    const openModal = () => {
+        setIsModalOpen(true);
+        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: false },
+            "*",
+        );
+    };
 
     return (
-        <>
+        <AppWrapper>
             <FloatingButton onClick={openModal} />
             <Menubar isOpen={isModalOpen} onClose={closeModal}>
                 <MenubarButton isSelected={false} text="고대비 모드" />
@@ -20,7 +36,7 @@ const App = () => {
                 <MenubarButton isSelected={false} text="서비스 설정" />
                 <MenubarButton isSelected={false} text="내 정보 설정" />
             </Menubar>
-        </>
+        </AppWrapper>
     );
 };
 
