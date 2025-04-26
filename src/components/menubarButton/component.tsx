@@ -33,7 +33,7 @@ export function MenubarButton({
             isSelected={isSelected}
             onClick={onClick}
             theme={theme}
-            className={`bg-grayscale-100 font-32-Bold font-koddi cursor-pointer ${
+            className={`bg-grayscale-100 font-32-Bold font-koddi cursor-pointer flex items-center ${
                 isSelected
                     ? "bg-grayscale-900 text-grayscale-200"
                     : "text-grayscale-900 hover:bg-grayscale-200"

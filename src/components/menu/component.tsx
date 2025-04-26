@@ -18,6 +18,8 @@ const ModalOverlay = styled.div<{ isOpen: boolean }>`
     align-items: center;
     justify-content: center;
     z-index: 10000;
+    background: rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(15px);
 `;
 
 const ModalContainer = styled.div`
@@ -57,7 +59,6 @@ export function Menubar({ isOpen, onClose, children, url }: ModalProps) {
                         />
                     </div>
                 </div>
-
 
                 <div className="flex flex-col gap-5">{children}</div>
             </ModalContainer>
