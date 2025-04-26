@@ -28,7 +28,8 @@
             "resources": [
                 "js/injected.js",
                 "icons/icon.png",
-                "assets/images/*"
+                "assets/images/*",
+                "iframe.html"
             ],
             "matches": ["<all_urls>"]
         }

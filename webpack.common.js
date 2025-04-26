@@ -9,7 +9,7 @@ module.exports = {
         backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
         popup: path.join(__dirname, "src/popup/index.tsx"),
         content: path.join(__dirname, "src/content/index.tsx"),
-        injected: path.join(__dirname, "src/content/injected.tsx"),
+        iframe: path.join(__dirname, "src/content/iframe.tsx"),
     },
     output: {
         path: path.join(__dirname, "dist/js"),
@@ -57,6 +57,7 @@ module.exports = {
                 { from: "public/popup.html", to: "../" },
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
+                { from: "src/iframe/iframe.html", to: "../" },
                 { from: "src/assets/images", to: "../assets/images" },
             ],
         }),
