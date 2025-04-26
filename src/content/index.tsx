@@ -7,10 +7,10 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
 
     iframe.style.cssText = `
         position: fixed;
-        top: 0;
-        right: 0;
-        width: auto;
-        height: auto;
+        top: 70px;
+        right: 20px;
+        width: 65px;
+        height: 65px;
         border: none;
         background: transparent;
     `;
@@ -19,9 +19,13 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
             if (event.data.isOpen) {
                 iframe.style.width = "100%";
                 iframe.style.height = "100%";
+                iframe.style.top = "0";
+                iframe.style.right = "0";
             } else {
-                iframe.style.width = "auto";
-                iframe.style.height = "auto";
+                iframe.style.width = "65px";
+                iframe.style.height = "65px";
+                iframe.style.top = "70px";
+                iframe.style.right = "20px";
             }
         }
     });

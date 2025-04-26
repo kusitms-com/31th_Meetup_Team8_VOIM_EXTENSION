@@ -8,9 +8,9 @@ interface FloatingButtonProps {
 
 const ButtonContainer = styled.div`
     position: fixed;
-    top: 70px;
-    right: 20px;
     width: 58px;
+    right: 5px;
+    top: 5px;
     height: 58px;
     display: flex;
     align-items: center;
