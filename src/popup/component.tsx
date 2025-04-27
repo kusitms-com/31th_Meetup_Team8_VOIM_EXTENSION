@@ -3,6 +3,7 @@ import { Hello } from "@src/components/hello";
 import browser, { Tabs } from "webextension-polyfill";
 import { Scroller } from "@src/components/scroller";
 import { MenubarButton } from "@src/components/menubarButton";
+import GetDarkmode from "@src/popup/darkmode/getDarkmode";
 
 // // // //
 
@@ -62,6 +63,7 @@ export function Popup() {
                 <Hello />
                 <hr />
                 <MenubarButton isSelected={true} text="최호" />
+                <GetDarkmode />
                 <Scroller
                     onClickScrollTop={() => {
                         executeScript(scrollToTopPosition);
