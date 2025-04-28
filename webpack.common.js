@@ -58,7 +58,7 @@ module.exports = {
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
                 { from: "src/iframe/iframe.html", to: "../" },
-                { from: "src/assets/images", to: "../assets/images" },
+                { from: "public/images", to: "../images" },
             ],
         }),
     ],
