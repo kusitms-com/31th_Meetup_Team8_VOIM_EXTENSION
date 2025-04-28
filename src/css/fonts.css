@@ -1,26 +1,7 @@
 @font-face {
-    font-family: "KoddiUDOnGothic";
-    src: url("../assets/fonts/KoddiUDOnGothic-Regular.woff2") format("woff2"),
-        url("../assets/fonts/KoddiUDOnGothic-Regular.woff") format("woff");
-    font-weight: 400;
+    font-family: "KoddiUDOnGothic-Regular";
+    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/KoddiUDOnGothic-Regular.woff")
+        format("woff");
+    font-weight: normal;
     font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "KoddiUDOnGothic";
-    src: url("../assets/fonts/KoddiUDOnGothic-Bold.woff2") format("woff2"),
-        url("../assets/fonts/KoddiUDOnGothic-Bold.woff") format("woff");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-}
-
-@font-face {
-    font-family: "KoddiUDOnGothic";
-    src: url("../assets/fonts/KoddiUDOnGothic-ExtraBold.woff2") format("woff2"),
-        url("../assets/fonts/KoddiUDOnGothic-ExtraBold.woff") format("woff");
-    font-weight: 800;
-    font-style: normal;
-    font-display: swap;
 }

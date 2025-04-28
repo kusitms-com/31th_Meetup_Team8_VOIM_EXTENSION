@@ -8,10 +8,13 @@ module.exports = {
     entry: {
         backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
         popup: path.join(__dirname, "src/popup/index.tsx"),
+        content: path.join(__dirname, "src/content/index.tsx"),
+        iframe: path.join(__dirname, "src/content/iframe.tsx"),
     },
     output: {
         path: path.join(__dirname, "dist/js"),
         filename: "[name].js",
+        clean: true,
     },
     module: {
         rules: [
@@ -54,7 +57,8 @@ module.exports = {
                 { from: "public/popup.html", to: "../" },
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
-                { from: "src/assets/fonts", to: "../assets/fonts" },
+                { from: "src/iframe/iframe.html", to: "../" },
+                { from: "src/assets/images", to: "../assets/images" },
             ],
         }),
     ],

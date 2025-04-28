@@ -7,7 +7,7 @@ interface ButtonProps {
     onClick?: () => void;
 }
 
-const Button = styled.button<ButtonProps>`
+const Button = styled.div<ButtonProps>`
     padding: 20px 20px;
     width: 420px;
     height: 80px;
@@ -15,7 +15,6 @@ const Button = styled.button<ButtonProps>`
     text-align: left;
 `;
 
-// // // //
 interface MenubarButtonProps {
     isSelected: boolean;
     text: string;
@@ -34,11 +33,11 @@ export function MenubarButton({
             isSelected={isSelected}
             onClick={onClick}
             theme={theme}
-            className={`${
+            className={`bg-grayscale-100 font-32-Bold font-koddi cursor-pointer flex items-center ${
                 isSelected
                     ? "bg-grayscale-900 text-grayscale-200"
                     : "text-grayscale-900 hover:bg-grayscale-200"
-            } font-32-Bold `}
+            } `}
         >
             {text}
         </Button>
