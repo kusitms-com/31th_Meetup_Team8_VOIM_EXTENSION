@@ -187,7 +187,7 @@ export default [
         ],
         languageOptions: {
             env: {
-                jest: true,
+                jestDom: true,
             },
         },
     },

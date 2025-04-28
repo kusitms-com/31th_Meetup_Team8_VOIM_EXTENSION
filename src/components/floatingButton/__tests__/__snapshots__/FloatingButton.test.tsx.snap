@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`FloatingButton applies select-none class 1`] = `
+exports[`FloatingButton select-none 클래스가 적용된다 1`] = `
 <div
   className="select-none css-190eaou"
   onClick={[MockFunction]}
@@ -13,20 +13,7 @@ exports[`FloatingButton applies select-none class 1`] = `
 </div>
 `;
 
-exports[`FloatingButton renders correctly with default props 1`] = `
-<div
-  className="select-none css-190eaou"
-  onClick={[MockFunction]}
->
-  <img
-    alt="Floating Button"
-    className="css-mn1htw"
-    src="/images/icon.png"
-  />
-</div>
-`;
-
-exports[`FloatingButton renders with different icon URL 1`] = `
+exports[`FloatingButton 기본 속성으로 올바르게 렌더링된다 1`] = `
 <div
   className="select-none css-190eaou"
   onClick={[MockFunction]}

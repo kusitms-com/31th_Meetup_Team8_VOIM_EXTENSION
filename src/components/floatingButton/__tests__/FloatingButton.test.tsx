@@ -11,14 +11,6 @@ describe("FloatingButton", () => {
         expect(tree).toMatchSnapshot();
     });
 
-    it("다른 아이콘 URL로 렌더링된다", () => {
-        const mockOnClick = jest.fn();
-        const tree = renderer
-            .create(<FloatingButton onClick={mockOnClick} />)
-            .toJSON();
-        expect(tree).toMatchSnapshot();
-    });
-
     it("select-none 클래스가 적용된다", () => {
         const mockOnClick = jest.fn();
         const tree = renderer.create(<FloatingButton onClick={mockOnClick} />);

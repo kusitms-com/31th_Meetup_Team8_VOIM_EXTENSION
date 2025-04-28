@@ -5,7 +5,7 @@ describe("getExtensionUrl", () => {
         jest.restoreAllMocks();
     });
 
-    it("should return chrome.runtime.getURL(path) if chrome.runtime.getURL exists", () => {
+    it("chrome.runtime.getURL이 존재하면 chrome.runtime.getURL(path)를 반환해야 한다", () => {
         const mockGetURL = jest.fn(
             (path: string) => `chrome-extension://fakeid/${path}`,
         );
@@ -22,12 +22,15 @@ describe("getExtensionUrl", () => {
         expect(result).toBe("chrome-extension://fakeid/test.png");
     });
 
-    it("should return `/images/path` if chrome.runtime.getURL does not exist", () => {
-        // @ts-ignore - chrome 삭제 (존재하지 않는 상황 시뮬레이션)
-        delete global.chrome;
+    it("chrome.runtime.getURL이 존재하지 않으면 `/images/path`를 반환해야 한다", () => {
+        const originalChrome = global.chrome;
+        global.chrome = undefined as any;
 
-        const result = getExtensionUrl("test.png");
-
-        expect(result).toBe("/images/test.png");
+        try {
+            const result = getExtensionUrl("test.png");
+            expect(result).toBe("/images/test.png");
+        } finally {
+            global.chrome = originalChrome;
+        }
     });
 });

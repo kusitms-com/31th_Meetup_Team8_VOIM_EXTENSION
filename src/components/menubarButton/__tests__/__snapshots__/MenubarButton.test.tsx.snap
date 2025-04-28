@@ -1,37 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`MenubarButton renders selected button correctly 1`] = `
-<button
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"
->
-  선택된 버튼
-</button>
-`;
-
-exports[`MenubarButton renders unselected button correctly 1`] = `
-<button
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
->
-  선택되지 않은 버튼
-</button>
-`;
-
-exports[`MenubarButton renders with both selected and theme props correctly 1`] = `
-<button
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"
->
-  선택된 테마 버튼
-</button>
-`;
-
-exports[`MenubarButton renders with theme prop correctly 1`] = `
-<button
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
->
-  테마 적용 버튼
-</button>
-`;
-
 exports[`MenubarButton 선택 상태와 테마 속성이 모두 적용된 버튼이 올바르게 렌더링된다 1`] = `
 <button
   className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"

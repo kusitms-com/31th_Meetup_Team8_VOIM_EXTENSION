@@ -37,6 +37,7 @@ jobs:
       with:
         script: |
           const fs = require('fs');
+          const core = require('@actions/core'); // core 임포트 추가
           try {
             // 커버리지 결과 파일이 있는지 확인
             const coverageSummary = fs.existsSync('./coverage/coverage-summary.json') 
@@ -72,7 +73,7 @@ jobs:
           } catch (error) {
             console.error('Error generating summary:', error);
           }
-          
+
     - name: Report test results as PR comment
       if: always()
       uses: marocchino/sticky-pull-request-comment@v2
