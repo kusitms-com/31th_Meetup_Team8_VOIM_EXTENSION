@@ -37,7 +37,6 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const core = require('@actions/core'); // core 임포트 추가
           try {
             // 커버리지 결과 파일이 있는지 확인
             const coverageSummary = fs.existsSync('./coverage/coverage-summary.json') 
@@ -64,8 +63,8 @@ jobs:
               summaryMessage += `| Lines | ${total.lines.pct}% |\n\n`;
             }
             
-            // 요약 작성
-            core.summary
+            // 요약 작성 (core.summary는 미리 정의되어 있음)
+            summary
               .addHeading('Lint and Test Results')
               .addRaw(summaryMessage)
               .write();
