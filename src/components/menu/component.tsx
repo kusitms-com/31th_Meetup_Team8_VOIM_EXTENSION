@@ -66,18 +66,13 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
                         onClick={handleResetSettings}
                     >
                         <img
-                            src={getExtensionUrl(
-                                "assets/images/arrow-rotate.png",
-                            )}
+                            src={getExtensionUrl("arrow-rotate.png")}
                             alt="설정 초기화"
                         />
                         <div>설정 초기화</div>
                     </div>
                     <div onClick={onClose} className="py-[18px] cursor-pointer">
-                        <img
-                            src={getExtensionUrl("assets/images/delete.png")}
-                            alt="나가기"
-                        />
+                        <img src={getExtensionUrl("delete.png")} alt="나가기" />
                     </div>
                 </div>
 
