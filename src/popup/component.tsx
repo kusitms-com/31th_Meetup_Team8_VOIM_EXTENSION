@@ -6,7 +6,7 @@ export function Popup() {
         <div>
             <div className="w-[500px] y-[500px] bg-white">
                 <hr />
-                <MenubarButton isSelected={true} text="최호" />
+                <MenubarButton isSelected={true} text="버튼" />
             </div>
         </div>
     );

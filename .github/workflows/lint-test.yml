@@ -31,52 +31,6 @@ jobs:
       run: yarn test --coverage
       continue-on-error: true
 
-    - name: Generate test summary
-      if: always()
-      uses: actions/github-script@v7
-      GITHUB_TOKEN: ${{ secrets.ACTIONS_DEPLOY_KEY }}
-      with:
-        env:
-          LINT_STATUS: ${{ steps.lint.outcome }}
-          TEST_STATUS: ${{ steps.test.outcome }}
-        script: |
-          const fs = require('fs');
-          try {
-            // 커버리지 결과 파일이 있는지 확인
-            const coverageSummary = fs.existsSync('./coverage/coverage-summary.json') 
-              ? JSON.parse(fs.readFileSync('./coverage/coverage-summary.json', 'utf8'))
-              : null;
-            
-            let summaryMessage = `### Lint and Test Results\n\n`;
-            
-            // Lint 결과
-            summaryMessage += `#### Lint Status: ${lintOutcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
-            
-            // 테스트 결과
-            summaryMessage += `#### Test Status: ${testOutcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
-            
-            // 커버리지 결과가 있으면 추가
-            if (coverageSummary && coverageSummary.total) {
-              const total = coverageSummary.total;
-              summaryMessage += `#### Coverage Summary:\n`;
-              summaryMessage += `| Category | Coverage |\n`;
-              summaryMessage += `| -------- | -------- |\n`;
-              summaryMessage += `| Statements | ${total.statements.pct}% |\n`;
-              summaryMessage += `| Branches | ${total.branches.pct}% |\n`;
-              summaryMessage += `| Functions | ${total.functions.pct}% |\n`;
-              summaryMessage += `| Lines | ${total.lines.pct}% |\n\n`;
-            }
-            
-            // 요약 작성 (core.summary는 미리 정의되어 있음)
-            summary
-              .addHeading('Lint and Test Results')
-              .addRaw(summaryMessage)
-              .write();
-              
-          } catch (error) {
-            console.error('Error generating summary:', error);
-          }
-
     - name: Report test results as PR comment
       if: always()
       uses: marocchino/sticky-pull-request-comment@v2
