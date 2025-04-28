@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { MenubarButton } from "@src/components/menubarButton";
 
 export function Popup() {
