@@ -19,6 +19,16 @@ afterEach(() => {
 });
 
 describe("Menubar", () => {
+    it("컴포넌트가 올바르게 렌더링된다 (스냅샷)", () => {
+        const { container } = render(
+            <Menubar isOpen={true} onClose={() => {}}>
+                hello
+            </Menubar>,
+        );
+
+        expect(container).toMatchSnapshot();
+    });
+
     it("isOpen이 true이면 모달이 보여야 한다", () => {
         render(
             <Menubar isOpen={true} onClose={() => {}}>
