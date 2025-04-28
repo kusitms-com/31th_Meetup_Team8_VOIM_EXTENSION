@@ -45,7 +45,4 @@ export const WithInteraction: Story = {
             },
         },
     },
-    play: async ({ canvasElement, args }) => {
-        console.log("Play function executed");
-    },
 };

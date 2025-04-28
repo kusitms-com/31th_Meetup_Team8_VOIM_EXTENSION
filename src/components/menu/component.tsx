@@ -1,7 +1,8 @@
 import React from "react";
 import browser from "webextension-polyfill";
 import styled from "@emotion/styled";
-import { getExtensionUrl } from "@src/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { logger } from "@src/utils/logger";
 
 interface ModalProps {
     isOpen: boolean;
@@ -49,11 +50,11 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
             })
             .then((response) => {
                 if (response && response.success) {
-                    console.log("설정이 초기화되었습니다.");
+                    logger.debug("설정이 초기화되었습니다.");
                 }
             })
             .catch((error) => {
-                console.error("메시지 전송 중 오류:", error);
+                logger.error("메시지 전송 중 오류:", error);
             });
     };
 
