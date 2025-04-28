@@ -36,6 +36,9 @@ jobs:
       uses: actions/github-script@v7
       GITHUB_TOKEN: ${{ secrets.ACTIONS_DEPLOY_KEY }}
       with:
+        env:
+          LINT_STATUS: ${{ steps.lint.outcome }}
+          TEST_STATUS: ${{ steps.test.outcome }}
         script: |
           const fs = require('fs');
           try {
@@ -47,10 +50,10 @@ jobs:
             let summaryMessage = `### Lint and Test Results\n\n`;
             
             // Lint 결과
-            summaryMessage += `#### Lint Status: ${steps.lint.outcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
+            summaryMessage += `#### Lint Status: ${lintOutcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
             
             // 테스트 결과
-            summaryMessage += `#### Test Status: ${steps.test.outcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
+            summaryMessage += `#### Test Status: ${testOutcome === 'success' ? '✅ Passed' : '❌ Failed'}\n\n`;
             
             // 커버리지 결과가 있으면 추가
             if (coverageSummary && coverageSummary.total) {
