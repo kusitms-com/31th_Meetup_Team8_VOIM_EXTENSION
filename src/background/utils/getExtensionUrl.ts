@@ -1,13 +1,11 @@
 export function getExtensionUrl(path: string): string {
-    const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-
     if (
         typeof chrome !== "undefined" &&
         chrome.runtime &&
         chrome.runtime.getURL
     ) {
-        return chrome.runtime.getURL(cleanPath);
+        return chrome.runtime.getURL(path);
     } else {
-        return `/images/${cleanPath}`;
+        return `/images/${path}`;
     }
 }

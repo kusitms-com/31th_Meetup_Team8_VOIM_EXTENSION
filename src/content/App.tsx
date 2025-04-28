@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import styled from "@emotion/styled";
 
 import { FloatingButton } from "@src/components/floatingButton";
-import { Menubar } from "@src/components/menu";
+import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
 
 import "../css/app.css";
