@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
+import theme from "@src/css/theme";
 
 interface ButtonProps {
     isSelected: boolean;
@@ -7,12 +8,21 @@ interface ButtonProps {
     onClick?: () => void;
 }
 
-const Button = styled.div<ButtonProps>`
-    padding: 20px 20px;
-    width: 420px;
-    height: 80px;
-    border-radius: 14px;
-    text-align: left;
+const Button = styled.button<ButtonProps>`
+    background-color: ${(props) =>
+        props.isSelected
+            ? theme.colors.grayscale[900]
+            : theme.colors.grayscale[100]};
+    color: ${(props) =>
+        props.isSelected
+            ? theme.colors.grayscale[200]
+            : theme.colors.grayscale[900]};
+    &:hover {
+        background-color: ${(props) =>
+            props.isSelected
+                ? theme.colors.grayscale[900]
+                : theme.colors.grayscale[200]};
+    }
 `;
 
 interface MenubarButtonProps {
@@ -33,11 +43,7 @@ export function MenubarButton({
             isSelected={isSelected}
             onClick={onClick}
             theme={theme}
-            className={`bg-grayscale-100 font-32-Bold font-koddi cursor-pointer flex items-center ${
-                isSelected
-                    ? "bg-grayscale-900 text-grayscale-200"
-                    : "text-grayscale-900 hover:bg-grayscale-200"
-            } `}
+            className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5"
         >
             {text}
         </Button>

@@ -1,7 +1,7 @@
 import React from "react";
-import browser from "webextension-polyfill";
 import styled from "@emotion/styled";
-import { getExtensionUrl } from "@src/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { logger } from "@src/utils/logger";
 
 interface ModalProps {
     isOpen: boolean;
@@ -15,7 +15,6 @@ const ModalOverlay = styled.div<{ isOpen: boolean }>`
     left: 0;
     width: 100%;
     height: 100%;
-    display: ${(props) => (props.isOpen ? "flex" : "none")};
     align-items: center;
     justify-content: center;
     z-index: 10000;
@@ -43,19 +42,23 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
     };
 
     const handleResetSettings = () => {
-        browser.runtime
+        chrome.runtime
             .sendMessage({
                 type: "RESET_SETTINGS",
             })
             .then((response) => {
                 if (response && response.success) {
-                    console.log("설정이 초기화되었습니다.");
+                    logger.debug("설정이 초기화되었습니다.");
                 }
             })
             .catch((error) => {
-                console.error("메시지 전송 중 오류:", error);
+                logger.error("메시지 전송 중 오류:", error);
             });
     };
+
+    if (!isOpen) {
+        return null;
+    }
 
     return (
         <ModalOverlay isOpen={isOpen} onClick={handleOverlayClick}>

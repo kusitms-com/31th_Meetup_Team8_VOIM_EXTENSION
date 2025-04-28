@@ -3,14 +3,14 @@ import { MenubarButton } from "../component";
 import renderer from "react-test-renderer";
 
 describe("MenubarButton", () => {
-    it("renders selected button correctly", () => {
+    it("선택된 버튼이 올바르게 렌더링된다", () => {
         const tree = renderer
             .create(<MenubarButton isSelected={true} text="선택된 버튼" />)
             .toJSON();
         expect(tree).toMatchSnapshot();
     });
 
-    it("renders unselected button correctly", () => {
+    it("선택되지 않은 버튼이 올바르게 렌더링된다", () => {
         const tree = renderer
             .create(
                 <MenubarButton isSelected={false} text="선택되지 않은 버튼" />,
@@ -19,7 +19,7 @@ describe("MenubarButton", () => {
         expect(tree).toMatchSnapshot();
     });
 
-    it("renders with theme prop correctly", () => {
+    it("테마 속성이 적용된 버튼이 올바르게 렌더링된다", () => {
         const tree = renderer
             .create(
                 <MenubarButton
@@ -32,7 +32,7 @@ describe("MenubarButton", () => {
         expect(tree).toMatchSnapshot();
     });
 
-    it("renders with both selected and theme props correctly", () => {
+    it("선택 상태와 테마 속성이 모두 적용된 버튼이 올바르게 렌더링된다", () => {
         const tree = renderer
             .create(
                 <MenubarButton
