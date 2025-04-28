@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import React, { useState } from "react";
 import Menubar from "../component";
+
 import { MenubarButton } from "@src/components/menubarButton";
 import { FloatingButton } from "@src/components/floatingButton";
 
