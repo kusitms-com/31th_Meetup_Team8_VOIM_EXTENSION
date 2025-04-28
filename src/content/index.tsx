@@ -16,6 +16,10 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
         z-index: 2147483647;
     `;
     window.addEventListener("message", (event) => {
+        if (event.source !== iframe.contentWindow) {
+            return;
+        }
+
         if (event.data.type === "RESIZE_IFRAME") {
             if (event.data.isOpen) {
                 iframe.style.width = "100%";
