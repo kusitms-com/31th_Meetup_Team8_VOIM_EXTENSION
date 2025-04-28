@@ -35,7 +35,7 @@ export function FloatingButton({ onClick }: FloatingButtonProps) {
     return (
         <ButtonContainer onClick={onClick} className="select-none">
             <ButtonImage
-                src={getExtensionUrl("icons/icon.png")}
+                src={getExtensionUrl("icon.png")}
                 alt="Floating Button"
             />
         </ButtonContainer>
