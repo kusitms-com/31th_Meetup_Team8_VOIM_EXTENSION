@@ -1,0 +1,94 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FloatingButton applies select-none class 1`] = `
+[
+  <style
+    dangerouslySetInnerHTML={
+      {
+        "__html": ".css-190eaou{position:fixed;width:58px;right:5px;top:5px;height:58px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;cursor:pointer;z-index:9999;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out;}.css-190eaou:hover{-webkit-transform:scale(1.05);-moz-transform:scale(1.05);-ms-transform:scale(1.05);transform:scale(1.05);}",
+      }
+    }
+    data-emotion="css 190eaou"
+  />,
+  <div
+    className="select-none css-190eaou"
+    onClick={[MockFunction]}
+  >
+    <style
+      dangerouslySetInnerHTML={
+        {
+          "__html": ".css-mn1htw{width:100%;height:100%;max-width:58px;max-height:58px;object-fit:contain;}",
+        }
+      }
+      data-emotion="css mn1htw"
+    />
+    <img
+      alt="Floating Button"
+      className="css-mn1htw"
+      src="/images/icon.png"
+    />
+  </div>,
+]
+`;
+
+exports[`FloatingButton renders correctly with default props 1`] = `
+[
+  <style
+    dangerouslySetInnerHTML={
+      {
+        "__html": ".css-190eaou{position:fixed;width:58px;right:5px;top:5px;height:58px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;cursor:pointer;z-index:9999;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out;}.css-190eaou:hover{-webkit-transform:scale(1.05);-moz-transform:scale(1.05);-ms-transform:scale(1.05);transform:scale(1.05);}",
+      }
+    }
+    data-emotion="css 190eaou"
+  />,
+  <div
+    className="select-none css-190eaou"
+    onClick={[MockFunction]}
+  >
+    <style
+      dangerouslySetInnerHTML={
+        {
+          "__html": ".css-mn1htw{width:100%;height:100%;max-width:58px;max-height:58px;object-fit:contain;}",
+        }
+      }
+      data-emotion="css mn1htw"
+    />
+    <img
+      alt="Floating Button"
+      className="css-mn1htw"
+      src="/images/icon.png"
+    />
+  </div>,
+]
+`;
+
+exports[`FloatingButton renders with different icon URL 1`] = `
+[
+  <style
+    dangerouslySetInnerHTML={
+      {
+        "__html": ".css-190eaou{position:fixed;width:58px;right:5px;top:5px;height:58px;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;cursor:pointer;z-index:9999;-webkit-transition:all 0.2s ease-in-out;transition:all 0.2s ease-in-out;}.css-190eaou:hover{-webkit-transform:scale(1.05);-moz-transform:scale(1.05);-ms-transform:scale(1.05);transform:scale(1.05);}",
+      }
+    }
+    data-emotion="css 190eaou"
+  />,
+  <div
+    className="select-none css-190eaou"
+    onClick={[MockFunction]}
+  >
+    <style
+      dangerouslySetInnerHTML={
+        {
+          "__html": ".css-mn1htw{width:100%;height:100%;max-width:58px;max-height:58px;object-fit:contain;}",
+        }
+      }
+      data-emotion="css mn1htw"
+    />
+    <img
+      alt="Floating Button"
+      className="css-mn1htw"
+      src="/images/icon.png"
+    />
+  </div>,
+]
+`;
