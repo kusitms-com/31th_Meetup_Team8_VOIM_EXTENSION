@@ -5,6 +5,10 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
     iframe.id = EXTENSION_IFRAME_ID;
     iframe.src = chrome.runtime.getURL("iframe.html");
 
+    iframe.onerror = function (error) {
+        console.error("Failed to load iframe:", error);
+    };
+
     iframe.style.cssText = `
         position: fixed;
         top: 70px;
