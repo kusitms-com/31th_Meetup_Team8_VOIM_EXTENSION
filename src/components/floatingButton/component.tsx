@@ -32,11 +32,32 @@ const ButtonImage = styled.img`
 `;
 
 export function FloatingButton({ onClick }: FloatingButtonProps) {
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+    const handleClick = () => {
+        setIsMenuOpen((prev) => !prev);
+        onClick();
+    };
+
     return (
-        <ButtonContainer onClick={onClick} className="select-none">
+        <ButtonContainer
+            onClick={handleClick}
+            role="button"
+            aria-haspopup="menu"
+            aria-controls="menubar"
+            aria-expanded={isMenuOpen}
+            aria-label="VOIM"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    handleClick();
+                }
+            }}
+        >
             <ButtonImage
                 src={getExtensionUrl("icon.png")}
-                alt="Floating Button"
+                alt="VOIM 익스텐션"
+                aria-hidden="true"
             />
         </ButtonContainer>
     );

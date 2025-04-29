@@ -13,6 +13,16 @@ const AppWrapper = styled.div`
 
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
+
+    const menuItems = [
+        { id: "high-contrast", text: "고대비 모드" },
+        { id: "cursor", text: "커서 크기 및 색상" },
+        { id: "font", text: "글자 설정" },
+        { id: "service", text: "서비스 설정" },
+        { id: "profile", text: "내 정보 설정" },
+    ];
+
     const openModal = () => {
         setIsModalOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
@@ -20,21 +30,28 @@ const App = () => {
 
     const closeModal = () => {
         setIsModalOpen(false);
+        setSelectedMenu(null);
         window.parent.postMessage(
             { type: "RESIZE_IFRAME", isOpen: false },
             "*",
         );
     };
-
+    const handleMenuClick = (menuId: string) => {
+        setSelectedMenu(menuId === selectedMenu ? null : menuId);
+    };
     return (
         <AppWrapper>
             <FloatingButton onClick={openModal} />
             <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                <MenubarButton isSelected={false} text="고대비 모드" />
-                <MenubarButton isSelected={false} text="커서 크기 및 색상" />
-                <MenubarButton isSelected={false} text="글자 설정" />
-                <MenubarButton isSelected={false} text="서비스 설정" />
-                <MenubarButton isSelected={false} text="내 정보 설정" />
+                {menuItems.map((item) => (
+                    <MenubarButton
+                        key={item.id}
+                        isSelected={selectedMenu === item.id}
+                        text={item.text}
+                        onClick={() => handleMenuClick(item.id)}
+                        ariaLabel={`${item.text} 선택`}
+                    />
+                ))}
             </Menubar>
         </AppWrapper>
     );

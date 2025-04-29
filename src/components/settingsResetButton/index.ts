@@ -1,0 +1,1 @@
+export { SettingsResetButton } from "./component";
