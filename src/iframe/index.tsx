@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App";
+import App from "./iframe";
 import { logger } from "@src/utils/logger";
 
 const container = document.getElementById("root");

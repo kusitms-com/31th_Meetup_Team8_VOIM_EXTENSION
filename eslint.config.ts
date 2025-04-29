@@ -39,8 +39,6 @@ export default [
             "@typescript-eslint/explicit-module-boundary-types": "off",
             "@typescript-eslint/no-explicit-any": "warn",
             "prettier/prettier": "warn",
-
-            "no-restricted-globals": ["error", "chrome", "browser"],
         },
         settings: {
             react: {
