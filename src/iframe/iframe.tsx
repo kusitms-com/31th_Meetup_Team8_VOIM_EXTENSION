@@ -17,9 +17,10 @@ const App = () => {
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
 
     const menuItems = [
-        { id: "high-contrast", text: "고대비 모드" },
-        { id: "cursor", text: "커서 크기 및 색상" },
-        { id: "font", text: "글자 설정" },
+        { id: "high-contrast", text: "고대비 모드 사용하기" },
+        { id: "cursor", text: "커서 크기 및 색상 설정하기" },
+        { id: "font", text: "글자 설정 설정하기" },
+        { id: "shortcut", text: "단축키 안내 보기" },
         { id: "service", text: "서비스 설정" },
         { id: "profile", text: "내 정보 설정" },
     ];
