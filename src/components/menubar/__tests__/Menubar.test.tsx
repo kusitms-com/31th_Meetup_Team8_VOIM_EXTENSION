@@ -1,143 +1,171 @@
-import "@testing-library/jest-dom";
 import React from "react";
-import { render, fireEvent, screen, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import Menubar from "../component";
+import "@testing-library/jest-dom";
 import { logger } from "@src/utils/logger";
 
 jest.mock("@src/background/utils/getExtensionUrl", () => ({
-    getExtensionUrl: (path: string) => `mocked-url/${path}`,
+    getExtensionUrl: jest
+        .fn()
+        .mockImplementation((path) => `mocked-url/${path}`),
 }));
 
-beforeEach(() => {
-    global.chrome = {
-        runtime: {
-            sendMessage: jest
-                .fn()
-                .mockResolvedValue({ success: true }) as jest.Mock,
-        },
-    } as any;
-});
+jest.mock("@src/utils/logger", () => ({
+    logger: {
+        debug: jest.fn(),
+        error: jest.fn(),
+    },
+}));
 
-afterEach(() => {
-    jest.restoreAllMocks();
-});
+jest.mock("@src/components/settingsResetButton", () => ({
+    SettingsResetButton: ({ onClick }: { onClick: () => void }) => (
+        <button data-testid="settings-reset-button" onClick={onClick}>
+            Reset Settings
+        </button>
+    ),
+}));
+
+global.chrome = {
+    runtime: {
+        sendMessage: jest
+            .fn()
+            .mockImplementation(() => Promise.resolve({ success: true })),
+    },
+} as unknown as typeof chrome;
 
 describe("Menubar", () => {
-    it("컴포넌트가 올바르게 렌더링된다 (스냅샷)", () => {
-        const { container } = render(
-            <Menubar isOpen={true} onClose={() => {}}>
-                hello
-            </Menubar>,
+    beforeEach(() => {
+        jest.clearAllMocks();
+        (chrome.runtime.sendMessage as jest.Mock).mockImplementation(() =>
+            Promise.resolve({ success: true }),
         );
-
-        expect(container).toMatchSnapshot();
     });
 
-    it("isOpen이 true이면 모달이 보여야 한다", () => {
+    it("isOpen이 false일 때 렌더링하지 않는다", () => {
         render(
-            <Menubar isOpen={true} onClose={() => {}}>
-                hello
+            <Menubar isOpen={false} onClose={jest.fn()}>
+                <div>Test Content</div>
             </Menubar>,
         );
+
+        expect(screen.queryByTestId("menubar-overlay")).not.toBeInTheDocument();
+    });
+
+    it("isOpen이 true일 때 children을 렌더링한다", () => {
+        render(
+            <Menubar isOpen={true} onClose={jest.fn()}>
+                <div data-testid="test-child">Test Content</div>
+            </Menubar>,
+        );
+
         expect(screen.getByTestId("menubar-overlay")).toBeInTheDocument();
-        expect(screen.getByTestId("reset-settings-text")).toBeInTheDocument();
-        expect(screen.getByTestId("close-icon")).toBeInTheDocument();
-    });
-
-    it("isOpen이 false이면 모달이 안 보여야 한다", () => {
-        render(
-            <Menubar isOpen={false} onClose={() => {}}>
-                hello
-            </Menubar>,
+        expect(screen.getByTestId("menubar-container")).toBeInTheDocument();
+        expect(screen.getByTestId("test-child")).toBeInTheDocument();
+        expect(screen.getByTestId("test-child")).toHaveTextContent(
+            "Test Content",
         );
-        expect(screen.queryByTestId("menubar-overlay")).toBeNull();
-        expect(screen.queryByTestId("reset-settings-text")).toBeNull();
-        expect(screen.queryByTestId("close-icon")).toBeNull();
     });
 
-    it("Overlay 클릭 시 onClose가 호출된다", () => {
-        const onClose = jest.fn();
+    it("닫기 버튼을 클릭하면 onClose가 호출된다", () => {
+        const onCloseMock = jest.fn();
         render(
-            <Menubar isOpen={true} onClose={onClose}>
-                hello
+            <Menubar isOpen={true} onClose={onCloseMock}>
+                <div>Test Content</div>
             </Menubar>,
         );
 
-        const overlay = screen.getByTestId("menubar-overlay");
-        fireEvent.click(overlay);
-
-        expect(onClose).toHaveBeenCalled();
+        fireEvent.click(screen.getByTestId("close-button"));
+        expect(onCloseMock).toHaveBeenCalledTimes(1);
     });
 
-    it("나가기 버튼 클릭 시 onClose가 호출된다", () => {
-        const onClose = jest.fn();
+    it("오버레이를 클릭하면 onClose가 호출된다", () => {
+        const onCloseMock = jest.fn();
         render(
-            <Menubar isOpen={true} onClose={onClose}>
-                hello
+            <Menubar isOpen={true} onClose={onCloseMock}>
+                <div>Test Content</div>
             </Menubar>,
         );
 
-        const closeButton = screen.getByTestId("close-button");
-        fireEvent.click(closeButton);
-
-        expect(onClose).toHaveBeenCalled();
+        fireEvent.click(screen.getByTestId("menubar-overlay"));
+        expect(onCloseMock).toHaveBeenCalledTimes(1);
     });
 
-    it("설정 초기화 버튼 클릭 시 chrome.runtime.sendMessage가 호출된다", async () => {
+    it("컨테이너를 클릭해도 onClose가 호출되지 않는다", () => {
+        const onCloseMock = jest.fn();
         render(
-            <Menubar isOpen={true} onClose={() => {}}>
-                hello
+            <Menubar isOpen={true} onClose={onCloseMock}>
+                <div>Test Content</div>
             </Menubar>,
         );
 
-        const resetButton = screen.getByTestId("reset-settings-button");
-        fireEvent.click(resetButton);
+        fireEvent.click(screen.getByTestId("menubar-container"));
+        expect(onCloseMock).not.toHaveBeenCalled();
+    });
+
+    it("설정 초기화 버튼을 클릭하면 RESET_SETTINGS 메시지를 전송한다", () => {
+        render(
+            <Menubar isOpen={true} onClose={jest.fn()}>
+                <div>Test Content</div>
+            </Menubar>,
+        );
+
+        fireEvent.click(screen.getByTestId("settings-reset-button"));
 
         expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
             type: "RESET_SETTINGS",
         });
     });
 
-    it("children이 제대로 렌더링된다", () => {
+    it("설정 초기화에 성공하면 디버그 로그를 출력한다", async () => {
         render(
-            <Menubar isOpen={true} onClose={() => {}}>
-                <div data-testid="child-element">child</div>
+            <Menubar isOpen={true} onClose={jest.fn()}>
+                <div>Test Content</div>
             </Menubar>,
         );
-        expect(screen.getByTestId("child-element")).toBeInTheDocument();
-        expect(screen.getByText("child")).toBeInTheDocument();
+
+        fireEvent.click(screen.getByTestId("settings-reset-button"));
+
+        await Promise.resolve();
+
+        expect(logger.debug).toHaveBeenCalledWith("설정이 초기화되었습니다.");
     });
 
-    it("설정 초기화 버튼 클릭 시 chrome.runtime.sendMessage 실패 시 에러 로그가 찍힌다", async () => {
-        const errorMessage = "Failed to send message";
-
-        (chrome.runtime.sendMessage as jest.Mock).mockRejectedValueOnce(
-            new Error(errorMessage),
+    it("메시지 전송 중 오류가 발생하면 에러 로그를 출력한다", async () => {
+        const error = new Error("메시지 전송 실패");
+        (global.chrome.runtime.sendMessage as jest.Mock).mockImplementation(
+            () => {
+                return Promise.reject(error);
+            },
         );
 
-        const logError = jest
-            .spyOn(logger, "error")
-            .mockImplementation(() => {});
-
         render(
-            <Menubar isOpen={true} onClose={() => {}}>
-                hello
+            <Menubar
+                isOpen={true}
+                onClose={() => {}}
+                children={<div>test</div>}
+            />,
+        );
+
+        const resetButton = screen.getByTestId("settings-reset-button");
+        fireEvent.click(resetButton);
+
+        await waitFor(() => {
+            expect(logger.error).toHaveBeenCalledWith(
+                "메시지 전송 중 오류:",
+                error,
+            );
+        });
+    });
+
+    it("이미지 URL이 올바르게 생성된다", () => {
+        render(
+            <Menubar isOpen={true} onClose={jest.fn()}>
+                <div>Test Content</div>
             </Menubar>,
         );
 
-        const resetButton = screen.getByTestId("reset-settings-button");
-
-        await act(async () => {
-            fireEvent.click(resetButton);
-
-            await new Promise((resolve) => setTimeout(resolve, 0));
-        });
-
-        expect(logError).toHaveBeenCalledWith(
-            "메시지 전송 중 오류:",
-            expect.any(Error),
-        );
-
-        logError.mockRestore();
+        const closeIcon = screen.getByTestId("close-icon");
+        expect(closeIcon).toHaveAttribute("src", "mocked-url/delete.png");
+        expect(closeIcon).toHaveAttribute("alt", "나가기");
     });
 });

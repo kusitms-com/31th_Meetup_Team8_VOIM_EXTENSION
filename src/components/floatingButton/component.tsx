@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "@emotion/styled";
 import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
 
@@ -32,7 +32,7 @@ const ButtonImage = styled.img`
 `;
 
 export function FloatingButton({ onClick }: FloatingButtonProps) {
-    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const handleClick = () => {
         setIsMenuOpen((prev) => !prev);

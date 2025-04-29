@@ -37,13 +37,15 @@ const App = () => {
             "*",
         );
     };
+
     const handleMenuClick = (menuId: string) => {
         setSelectedMenu(menuId === selectedMenu ? null : menuId);
     };
+
     return (
         <ThemeProvider>
             <AppWrapper>
-                <FloatingButton onClick={openModal} />
+                {!isModalOpen && <FloatingButton onClick={openModal} />}
                 <Menubar isOpen={isModalOpen} onClose={closeModal}>
                     {menuItems.map((item) => (
                         <MenubarButton

@@ -26,8 +26,17 @@ const themeStyles = {
         }
     `,
     yellow: `
-        background-color: #ff0;
-        color: #000;
+        background-color: ${theme.colors.grayscale[800]};
+        color: ${theme.colors.grayscale[100]};
+        
+        &:hover {
+            background-color: ${theme.colors.grayscale[800]};
+            color: ${theme.colors.grayscale[500]};
+        }
+        &:active {
+            background-color: ${theme.colors.grayscale[100]};
+            color: ${theme.colors.grayscale[900]};
+        }
         
         svg path {
             stroke: currentColor;
