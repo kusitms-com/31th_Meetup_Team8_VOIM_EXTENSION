@@ -5,6 +5,7 @@ import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
 
+import { ThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 
 const AppWrapper = styled.div`
@@ -40,20 +41,22 @@ const App = () => {
         setSelectedMenu(menuId === selectedMenu ? null : menuId);
     };
     return (
-        <AppWrapper>
-            <FloatingButton onClick={openModal} />
-            <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                {menuItems.map((item) => (
-                    <MenubarButton
-                        key={item.id}
-                        isSelected={selectedMenu === item.id}
-                        text={item.text}
-                        onClick={() => handleMenuClick(item.id)}
-                        ariaLabel={`${item.text} 선택`}
-                    />
-                ))}
-            </Menubar>
-        </AppWrapper>
+        <ThemeProvider>
+            <AppWrapper>
+                <FloatingButton onClick={openModal} />
+                <Menubar isOpen={isModalOpen} onClose={closeModal}>
+                    {menuItems.map((item) => (
+                        <MenubarButton
+                            key={item.id}
+                            isSelected={selectedMenu === item.id}
+                            text={item.text}
+                            onClick={() => handleMenuClick(item.id)}
+                            ariaLabel={`${item.text} 선택`}
+                        />
+                    ))}
+                </Menubar>
+            </AppWrapper>
+        </ThemeProvider>
     );
 };
 
