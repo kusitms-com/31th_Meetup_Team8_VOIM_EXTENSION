@@ -33,7 +33,7 @@
 
     "content_scripts": [
         {
-            "matches": ["https://www.coupang.com/*"],
+            "matches": ["<all_urls>"],
             "js": ["js/contentScript.js"],
             "run_at": "document_idle"
         }

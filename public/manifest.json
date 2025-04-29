@@ -16,6 +16,24 @@
     "background": {
         "service_worker": "js/backgroundPage.js"
     },
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["js/content.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": [
+                "js/injected.js",
+                "icons/icon.png",
+                "assets/images/*",
+                "iframe.html"
+            ],
+            "matches": ["<all_urls>"]
+        }
+    ],
     "icons": {
         "16": "icons/icon-16.png",
         "32": "icons/icon-32.png",

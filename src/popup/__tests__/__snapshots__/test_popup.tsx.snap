@@ -3,38 +3,14 @@
 exports[`component renders 1`] = `
 <div>
   <div
-    className="mx-4 my-4 bg-black"
+    className="w-[500px] y-[500px] bg-white"
   >
-    <div
-      className="row"
-    >
-      <div
-        className="col-lg-12 text-center"
-      >
-        <p
-          className="lead mb-0"
-        >
-          Example Extension
-        </p>
-      </div>
-    </div>
     <hr />
-    <div
-      className="grid w-full grid-cols-2 gap-3 mt-3"
+    <button
+      className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"
     >
-      <button
-        data-testid="scroll-to-top"
-        onClick={[Function]}
-      >
-        Scroll To Top
-      </button>
-      <button
-        data-testid="scroll-to-bottom"
-        onClick={[Function]}
-      >
-        Scroll To Bottom
-      </button>
-    </div>
+      최호
+    </button>
   </div>
 </div>
 `;
