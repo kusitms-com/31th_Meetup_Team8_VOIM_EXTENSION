@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import { MenubarButton } from "../component";
 import { Meta, StoryObj } from "@storybook/react";
 
