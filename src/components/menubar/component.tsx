@@ -2,6 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
 import { logger } from "@src/utils/logger";
+import { SettingsResetButton } from "../settingsResetButton";
 
 interface ModalProps {
     isOpen: boolean;
@@ -71,19 +72,8 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
                 data-testid="menubar-container"
             >
                 <div className="flex justify-between mb-6 font-24-Bold">
-                    <div
-                        className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer"
-                        onClick={handleResetSettings}
-                        data-testid="reset-settings-button"
-                    >
-                        <img
-                            src={getExtensionUrl("arrow-rotate.png")}
-                            alt="설정 초기화"
-                            data-testid="reset-settings-icon"
-                        />
-                        <div data-testid="reset-settings-text">설정 초기화</div>
-                    </div>
-                    <div
+                    <SettingsResetButton onClick={handleResetSettings} />
+                    <button
                         onClick={onClose}
                         className="py-[18px] cursor-pointer"
                         data-testid="close-button"
@@ -93,7 +83,7 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
                             alt="나가기"
                             data-testid="close-icon"
                         />
-                    </div>
+                    </button>
                 </div>
 
                 <div
