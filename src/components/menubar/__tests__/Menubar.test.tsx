@@ -4,6 +4,10 @@ import { render, fireEvent, screen, act } from "@testing-library/react";
 import Menubar from "../component";
 import { logger } from "@src/utils/logger";
 
+jest.mock("@src/background/utils/getExtensionUrl", () => ({
+    getExtensionUrl: (path: string) => `mocked-url/${path}`,
+}));
+
 beforeEach(() => {
     global.chrome = {
         runtime: {
@@ -35,8 +39,9 @@ describe("Menubar", () => {
                 hello
             </Menubar>,
         );
-        expect(screen.getByText("설정 초기화")).toBeInTheDocument();
-        expect(screen.getByAltText("나가기")).toBeInTheDocument();
+        expect(screen.getByTestId("menubar-overlay")).toBeInTheDocument();
+        expect(screen.getByTestId("reset-settings-text")).toBeInTheDocument();
+        expect(screen.getByTestId("close-icon")).toBeInTheDocument();
     });
 
     it("isOpen이 false이면 모달이 안 보여야 한다", () => {
@@ -45,23 +50,21 @@ describe("Menubar", () => {
                 hello
             </Menubar>,
         );
-        expect(screen.queryByText("설정 초기화")).toBeNull();
-        expect(screen.queryByAltText("나가기")).toBeNull();
+        expect(screen.queryByTestId("menubar-overlay")).toBeNull();
+        expect(screen.queryByTestId("reset-settings-text")).toBeNull();
+        expect(screen.queryByTestId("close-icon")).toBeNull();
     });
 
     it("Overlay 클릭 시 onClose가 호출된다", () => {
         const onClose = jest.fn();
-        const { container } = render(
+        render(
             <Menubar isOpen={true} onClose={onClose}>
                 hello
             </Menubar>,
         );
 
-        const overlay = container.querySelector(".div");
-        expect(overlay).not.toBeNull();
-        if (overlay) {
-            fireEvent.click(overlay);
-        }
+        const overlay = screen.getByTestId("menubar-overlay");
+        fireEvent.click(overlay);
 
         expect(onClose).toHaveBeenCalled();
     });
@@ -74,8 +77,8 @@ describe("Menubar", () => {
             </Menubar>,
         );
 
-        const exitButton = screen.getByAltText("나가기");
-        fireEvent.click(exitButton);
+        const closeButton = screen.getByTestId("close-button");
+        fireEvent.click(closeButton);
 
         expect(onClose).toHaveBeenCalled();
     });
@@ -87,7 +90,7 @@ describe("Menubar", () => {
             </Menubar>,
         );
 
-        const resetButton = screen.getByAltText("설정 초기화");
+        const resetButton = screen.getByTestId("reset-settings-button");
         fireEvent.click(resetButton);
 
         expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
@@ -98,9 +101,10 @@ describe("Menubar", () => {
     it("children이 제대로 렌더링된다", () => {
         render(
             <Menubar isOpen={true} onClose={() => {}}>
-                <div>child</div>
+                <div data-testid="child-element">child</div>
             </Menubar>,
         );
+        expect(screen.getByTestId("child-element")).toBeInTheDocument();
         expect(screen.getByText("child")).toBeInTheDocument();
     });
 
@@ -121,7 +125,7 @@ describe("Menubar", () => {
             </Menubar>,
         );
 
-        const resetButton = screen.getByAltText("설정 초기화");
+        const resetButton = screen.getByTestId("reset-settings-button");
 
         await act(async () => {
             fireEvent.click(resetButton);

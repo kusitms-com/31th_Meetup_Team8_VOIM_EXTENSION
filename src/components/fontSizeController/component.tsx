@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { SizeController } from "../sizeController";
 
 export function FontSizeController() {
-    const [textSize, setTextSize] = useState(28);
+    const [textSize, setTextSize] = useState(24);
 
     function handleSizeChange(type: "plus" | "minus") {
         if (type === "plus") {
-            setTextSize((prev) => prev + 4);
+            setTextSize((prev) => Math.min(prev + 2, 28));
         } else {
-            setTextSize((prev) => prev - 4);
+            setTextSize((prev) => Math.max(prev - 2, 20));
         }
     }
     return (

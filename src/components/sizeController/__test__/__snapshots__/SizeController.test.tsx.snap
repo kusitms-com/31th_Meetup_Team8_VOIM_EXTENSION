@@ -3,10 +3,12 @@
 exports[`SizeController + 버튼 렌더링 1`] = `
 <div
   className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+  onClick={[MockFunction]}
 >
   <img
     alt="plus"
     className="w-[36px] h-[36px]"
+    draggable="false"
     src="/images/plus.png"
   />
 </div>
@@ -15,10 +17,12 @@ exports[`SizeController + 버튼 렌더링 1`] = `
 exports[`SizeController - 버튼 렌더링 1`] = `
 <div
   className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+  onClick={[MockFunction]}
 >
   <img
     alt="minus"
     className="w-[36px] h-[36px]"
+    draggable="false"
     src="/images/minus.png"
   />
 </div>

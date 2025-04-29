@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1`] = `
+<div
+  className="w-[480px] h-[158px] flex-col flex gap-5 font-koddi text-grayscale-900 font-28-Bold"
+>
+  <div>
+    text
+  </div>
+  <div
+    className="p-3 flex justify-between bg-grayscale-200 items-center rounded-[20px]"
+  >
+    <div
+      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+      onClick={[Function]}
+    >
+      <img
+        alt="minus"
+        className="w-[36px] h-[36px]"
+        draggable="false"
+        src="/images/minus.png"
+      />
+    </div>
+    24
+    <div
+      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+      onClick={[Function]}
+    >
+      <img
+        alt="plus"
+        className="w-[36px] h-[36px]"
+        draggable="false"
+        src="/images/plus.png"
+      />
+    </div>
+  </div>
+</div>
+`;
