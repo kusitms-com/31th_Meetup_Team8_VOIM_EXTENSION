@@ -22,7 +22,9 @@ export function ThemeProvider({
 
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-        if (saved) setThemeState(saved);
+        if (saved && ["light", "yellow", "dark"].includes(saved)) {
+            setThemeState(saved as ThemeMode);
+        }
     }, []);
 
     const setThemeLocal = (newTheme: ThemeMode) => {
