@@ -8,7 +8,13 @@ interface SettingsResetButtonProps {
 }
 
 const themeStyles = {
-    dark: `
+    dark: "darkTheme",
+    yellow: "darkTheme",
+    light: "lightTheme",
+} as const;
+
+const themeVariants = {
+    darkTheme: `
         background-color: ${theme.colors.grayscale[800]};
         color: ${theme.colors.grayscale[100]};
         
@@ -25,24 +31,7 @@ const themeStyles = {
             stroke: currentColor;
         }
     `,
-    yellow: `
-        background-color: ${theme.colors.grayscale[800]};
-        color: ${theme.colors.grayscale[100]};
-        
-        &:hover {
-            background-color: ${theme.colors.grayscale[800]};
-            color: ${theme.colors.grayscale[500]};
-        }
-        &:active {
-            background-color: ${theme.colors.grayscale[100]};
-            color: ${theme.colors.grayscale[900]};
-        }
-        
-        svg path {
-            stroke: currentColor;
-        }
-    `,
-    light: `
+    lightTheme: `
         background-color: ${theme.colors.grayscale[200]};
         color: ${theme.colors.grayscale[900]};
         
@@ -54,15 +43,16 @@ const themeStyles = {
             background-color: ${theme.colors.grayscale[900]};
             color: ${theme.colors.grayscale[100]};
         }
-        
+
         svg path {
             stroke: currentColor;
         }
     `,
 };
 
-const Button = styled.button<{ themeMode: "dark" | "yellow" | "light" }>`
-    ${({ themeMode }) => themeStyles[themeMode] || themeStyles.light}
+const Button = styled.button<{ themeMode: keyof typeof themeStyles }>`
+    ${({ themeMode }) =>
+        themeVariants[themeStyles[themeMode]] || themeVariants.lightTheme}
 `;
 
 export function SettingsResetButton({ onClick }: SettingsResetButtonProps) {

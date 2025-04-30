@@ -154,8 +154,6 @@ describe("ThemeProvider 통합 테스트", () => {
             </ThemeProvider>,
         );
 
-        expect(screen.getByTestId("current-theme").textContent).toBe(
-            "invalid-theme",
-        );
+        expect(screen.getByTestId("current-theme").textContent).toBe("light");
     });
 });

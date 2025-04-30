@@ -32,7 +32,7 @@ exports[`SettingsResetButton dark 테마에서 스냅샷이 일치하는지 확�
 exports[`SettingsResetButton light 테마에서 스냅샷이 일치하는지 확인 1`] = `
 <button
   aria-label="설정 초기화"
-  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi css-ehbcqu"
+  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi css-1y28xwh"
   data-testid="reset-settings-button"
   onClick={[MockFunction]}
 >

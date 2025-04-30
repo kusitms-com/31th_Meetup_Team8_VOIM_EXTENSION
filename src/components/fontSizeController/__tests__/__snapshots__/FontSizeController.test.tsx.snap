@@ -8,10 +8,14 @@ exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1
     text
   </div>
   <div
+    aria-labelledby="font-size-label"
     className="p-3 flex justify-between bg-grayscale-200 items-center rounded-[20px]"
+    role="group"
   >
-    <div
+    <button
+      aria-label="크기 감소"
       className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
+      data-testid="size-controller-button"
       onClick={[Function]}
     >
       <img
@@ -20,10 +24,12 @@ exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1
         draggable="false"
         src="/images/minus.png"
       />
-    </div>
+    </button>
     24
-    <div
+    <button
+      aria-label="크기 증가"
       className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
+      data-testid="size-controller-button"
       onClick={[Function]}
     >
       <img
@@ -32,7 +38,7 @@ exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1
         draggable="false"
         src="/images/plus.png"
       />
-    </div>
+    </button>
   </div>
 </div>
 `;

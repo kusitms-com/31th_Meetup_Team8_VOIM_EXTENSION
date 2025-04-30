@@ -1,29 +1,31 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SizeController + 버튼 렌더링 1`] = `
-<div
-  className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
-  onClick={[MockFunction]}
+<button
+  aria-label="크기 증가"
+  class="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
+  data-testid="size-controller-button"
 >
   <img
     alt="plus"
-    className="w-[36px] h-[36px]"
+    class="w-[36px] h-[36px]"
     draggable="false"
     src="/images/plus.png"
   />
-</div>
+</button>
 `;
 
 exports[`SizeController - 버튼 렌더링 1`] = `
-<div
-  className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
-  onClick={[MockFunction]}
+<button
+  aria-label="크기 감소"
+  class="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
+  data-testid="size-controller-button"
 >
   <img
     alt="minus"
-    className="w-[36px] h-[36px]"
+    class="w-[36px] h-[36px]"
     draggable="false"
     src="/images/minus.png"
   />
-</div>
+</button>
 `;
