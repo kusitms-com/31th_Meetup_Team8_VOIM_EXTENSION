@@ -15,6 +15,12 @@ describe("FloatingButton", () => {
         jest.clearAllMocks();
     });
 
+    it("스냅샷 테스트", () => {
+        const { asFragment } = render(<FloatingButton onClick={() => {}} />);
+
+        expect(asFragment()).toMatchSnapshot();
+    });
+
     it("버튼이 올바르게 렌더링된다", () => {
         const handleClick = jest.fn();
         render(<FloatingButton onClick={handleClick} />);

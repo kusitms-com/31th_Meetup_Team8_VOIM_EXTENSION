@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { SettingsResetButton } from "../component";
 import { ThemeProvider, useThemeMode } from "@src/contexts/ThemeContext";
+import renderer from "react-test-renderer";
 import "@testing-library/jest-dom";
 
 const mockLocalStorage = (() => {
@@ -43,6 +44,25 @@ describe("SettingsResetButton", () => {
     const themeModes = ["light", "dark", "yellow"];
 
     themeModes.forEach((themeMode) => {
+        it(`${themeMode} 테마에서 스냅샷이 일치하는지 확인`, () => {
+            mockLocalStorage.getItem.mockReturnValueOnce(themeMode);
+
+            (useThemeMode as jest.Mock).mockImplementation(() => ({
+                theme: themeMode,
+                setTheme: jest.fn(),
+            }));
+
+            const tree = renderer
+                .create(
+                    <ThemeProvider>
+                        <SettingsResetButton onClick={jest.fn()} />
+                    </ThemeProvider>,
+                )
+                .toJSON();
+
+            expect(tree).toMatchSnapshot();
+        });
+
         it(`${themeMode} 테마에서 올바르게 렌더링된다`, () => {
             mockLocalStorage.getItem.mockReturnValueOnce(themeMode);
 

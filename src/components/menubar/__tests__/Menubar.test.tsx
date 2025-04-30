@@ -40,7 +40,15 @@ describe("Menubar", () => {
             Promise.resolve({ success: true }),
         );
     });
+    it("스냅샷 테스트", () => {
+        const { asFragment } = render(
+            <Menubar isOpen={true} onClose={jest.fn()}>
+                <div>Test Content</div>
+            </Menubar>,
+        );
 
+        expect(asFragment()).toMatchSnapshot();
+    });
     it("isOpen이 false일 때 렌더링하지 않는다", () => {
         render(
             <Menubar isOpen={false} onClose={jest.fn()}>

@@ -5,7 +5,6 @@ import { render, fireEvent, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 describe("MenubarButton", () => {
-    // 스냅샷 테스트
     describe("스냅샷 테스트", () => {
         it("선택된 버튼이 올바르게 렌더링된다", () => {
             const tree = renderer
@@ -75,7 +74,6 @@ describe("MenubarButton", () => {
         });
     });
 
-    // 기능 테스트
     describe("기능 테스트", () => {
         it("onClick 이벤트가 올바르게 실행된다", () => {
             const handleClick = jest.fn();
@@ -130,7 +128,6 @@ describe("MenubarButton", () => {
         });
     });
 
-    // 엣지 케이스 테스트
     describe("엣지 케이스 테스트", () => {
         it("매우 긴 텍스트를 올바르게 렌더링한다", () => {
             const longText =
