@@ -1,5 +1,5 @@
 import * as React from "react";
-import { SizeController } from "../components";
+import { SizeController } from "../component";
 import renderer from "react-test-renderer";
 
 describe("SizeController", () => {
