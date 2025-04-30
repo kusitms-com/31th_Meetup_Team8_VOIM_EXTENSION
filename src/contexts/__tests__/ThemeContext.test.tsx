@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import { ThemeProvider, useThemeMode, ThemeMode } from "../ThemeContext";
+import { ThemeProvider, useThemeMode } from "../ThemeContext";
 
 const mockLocalStorage = (() => {
     let store: Record<string, string> = {};

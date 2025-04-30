@@ -141,7 +141,7 @@ describe("SettingsResetButton", () => {
 
     it("유효하지 않은 테마인 경우 기본값(light)을 사용한다", () => {
         (useThemeMode as jest.Mock).mockImplementation(() => ({
-            theme: "invalid-theme" as any,
+            theme: "invalid-theme" as unknown as "light" | "dark" | "yellow",
             setTheme: jest.fn(),
         }));
 

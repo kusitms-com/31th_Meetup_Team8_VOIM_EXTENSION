@@ -14,7 +14,7 @@ describe("getExtensionUrl", () => {
             runtime: {
                 getURL: mockGetURL,
             },
-        } as any;
+        } as unknown as typeof chrome;
 
         const result = getExtensionUrl("test.png");
 
@@ -24,7 +24,7 @@ describe("getExtensionUrl", () => {
 
     it("chrome.runtime.getURL이 존재하지 않으면 `/images/path`를 반환해야 한다", () => {
         const originalChrome = global.chrome;
-        global.chrome = undefined as any;
+        global.chrome = undefined as unknown as typeof chrome;
 
         try {
             const result = getExtensionUrl("test.png");
