@@ -31,7 +31,7 @@ describe("CursorButton", () => {
             "커서: large, yellow",
         ) as HTMLImageElement;
         expect(image).toBeInTheDocument();
-        expect(image.src).toContain("mocked-url/cursor-large-yellow.png");
+        expect(image.src).toContain("/mocked-url/cursor-large-yellow.png");
     });
 
     it("버튼 클릭 시 onClick 핸들러가 호출되어야 한다", () => {
