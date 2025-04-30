@@ -12,7 +12,7 @@ export function SizeController({
 }: SizeControllerProps): JSX.Element {
     return (
         <div
-            className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+            className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
             onClick={onClick}
         >
             <img

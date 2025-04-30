@@ -11,7 +11,7 @@ exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1
     className="p-3 flex justify-between bg-grayscale-200 items-center rounded-[20px]"
   >
     <div
-      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
       onClick={[Function]}
     >
       <img
@@ -23,7 +23,7 @@ exports[`FontSizeController fontSizeController가 올바르게 렌더링된다 1
     </div>
     24
     <div
-      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default hover:bg-purple-dark"
+      className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
       onClick={[Function]}
     >
       <img
