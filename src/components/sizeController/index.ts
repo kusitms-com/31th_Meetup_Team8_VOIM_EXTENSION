@@ -1,1 +1,1 @@
-export { SizeController } from "./components";
+export { SizeController } from "./component";

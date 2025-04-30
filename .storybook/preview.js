@@ -1,11 +1,12 @@
 import "../src/css/app.css";
 import React from "react";
 import { Global, css } from "@emotion/react";
+import { ThemeProvider } from "@src/contexts/ThemeContext";
 
 const preview = {
     decorators: [
         (StoryFn) => (
-            <>
+            <ThemeProvider>
                 <Global
                     styles={css`
                         body {
@@ -15,7 +16,7 @@ const preview = {
                     `}
                 />
                 <StoryFn />
-            </>
+            </ThemeProvider>
         ),
     ],
 };

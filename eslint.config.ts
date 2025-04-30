@@ -39,8 +39,6 @@ export default [
             "@typescript-eslint/explicit-module-boundary-types": "off",
             "@typescript-eslint/no-explicit-any": "warn",
             "prettier/prettier": "warn",
-
-            "no-restricted-globals": ["error", "chrome", "browser"],
         },
         settings: {
             react: {
@@ -186,8 +184,16 @@ export default [
             "**/*.spec.tsx",
         ],
         languageOptions: {
-            env: {
-                jestDom: true,
+            globals: {
+                jest: "readonly",
+                expect: "readonly",
+                describe: "readonly",
+                it: "readonly",
+                test: "readonly",
+                beforeEach: "readonly",
+                afterEach: "readonly",
+                beforeAll: "readonly",
+                afterAll: "readonly",
             },
         },
     },

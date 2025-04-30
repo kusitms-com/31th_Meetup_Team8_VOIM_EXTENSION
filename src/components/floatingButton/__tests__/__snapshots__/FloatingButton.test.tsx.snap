@@ -1,27 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`FloatingButton select-none 클래스가 적용된다 1`] = `
-<div
-  className="select-none css-190eaou"
-  onClick={[MockFunction]}
->
-  <img
-    alt="Floating Button"
-    className="css-mn1htw"
-    src="/images/icon.png"
-  />
-</div>
-`;
-
-exports[`FloatingButton 기본 속성으로 올바르게 렌더링된다 1`] = `
-<div
-  className="select-none css-190eaou"
-  onClick={[MockFunction]}
->
-  <img
-    alt="Floating Button"
-    className="css-mn1htw"
-    src="/images/icon.png"
-  />
-</div>
+exports[`FloatingButton 스냅샷 테스트 1`] = `
+<DocumentFragment>
+  <div
+    aria-controls="menubar"
+    aria-expanded="false"
+    aria-haspopup="menu"
+    aria-label="VOIM"
+    class="css-190eaou"
+    role="button"
+    tabindex="0"
+  >
+    <img
+      alt="VOIM 익스텐션"
+      aria-hidden="true"
+      class="css-mn1htw"
+      src="/mocked-url/icon.png"
+    />
+  </div>
+</DocumentFragment>
 `;
