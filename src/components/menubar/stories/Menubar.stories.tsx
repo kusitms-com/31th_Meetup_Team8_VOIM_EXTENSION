@@ -1,76 +1,46 @@
 import React from "react";
-import { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import Menubar from "../component";
 import { MenubarButton } from "../../menubarButton";
-import { action } from "@storybook/addon-actions";
-import { logger } from "@src/utils/logger";
 
-const mockGetExtensionUrl = (path: string) => `/mock-assets/${path}`;
-const mockChrome = {
-    runtime: {
-        sendMessage: () => Promise.resolve({ success: true }),
-    },
+const meta: Meta<typeof Menubar> = {
+    title: "components/Menubar",
+    component: Menubar,
 };
 
-if (typeof global.chrome === "undefined") {
-    global.chrome = mockChrome as unknown as typeof chrome;
-}
-
-jest.mock("@src/background/utils/getExtensionUrl", () => ({
-    getExtensionUrl: (path: string) => mockGetExtensionUrl(path),
-}));
-
-jest.mock("@src/utils/logger", () => ({
-    logger: {
-        debug: (message: string) => {
-            logger.debug(message);
-        },
-        error: (message: string, error: Error) => console.error(message, error),
-    },
-}));
-
-export default {
-    title: "Components/Menubar",
-    component: Menubar,
-    parameters: {
-        layout: "fullscreen",
-        backgrounds: {
-            default: "light",
-            values: [
-                { name: "light", value: "#FFFFFF" },
-                { name: "dark", value: "#333333" },
-            ],
-        },
-    },
-    argTypes: {
-        isOpen: {
-            control: "boolean",
-            description: "메뉴바가 열려있는지 여부",
-            defaultValue: true,
-        },
-        onClose: {
-            action: "closed",
-            description: "메뉴바를 닫을 때 호출되는 함수",
-        },
-        children: {
-            description: "메뉴바 내부에 표시할 콘텐츠",
-        },
-    },
-    decorators: [
-        (Story) => (
-            <div style={{ height: "100vh", position: "relative" }}>
-                <Story />
-            </div>
-        ),
-    ],
-} as Meta<typeof Menubar>;
-
+export default meta;
 type Story = StoryObj<typeof Menubar>;
+
+// mock getExtensionUrl
+import("@src/background/utils/getExtensionUrl")
+    .then((module) => {
+        (
+            module as { getExtensionUrl: (path: string) => string }
+        ).getExtensionUrl = (path: string) => `/mock-assets/${path}`;
+    })
+    .catch(() => {});
+
+// mock logger
+import("@src/utils/logger")
+    .then((module) => {
+        (
+            module as {
+                logger: {
+                    debug: (...args: unknown[]) => void;
+                    error: (...args: unknown[]) => void;
+                };
+            }
+        ).logger = {
+            debug: () => {},
+            error: console.error,
+        };
+    })
+    .catch(() => {});
 
 export const Default: Story = {
     args: {
         isOpen: true,
-        onClose: action("onClose"),
+        onClose: () => {},
         children: (
             <>
                 <MenubarButton
@@ -96,7 +66,7 @@ export const Default: Story = {
 export const WithSelectedItem: Story = {
     args: {
         isOpen: true,
-        onClose: action("onClose"),
+        onClose: () => {},
         children: (
             <>
                 <MenubarButton
@@ -122,7 +92,7 @@ export const WithSelectedItem: Story = {
 export const Closed: Story = {
     args: {
         isOpen: false,
-        onClose: action("onClose"),
+        onClose: () => {},
         children: (
             <>
                 <MenubarButton
@@ -143,7 +113,7 @@ export const Closed: Story = {
 export const WithManyItems: Story = {
     args: {
         isOpen: true,
-        onClose: action("onClose"),
+        onClose: () => {},
         children: (
             <>
                 {Array.from({ length: 10 }).map((_, index) => (
@@ -168,7 +138,6 @@ export const Interactive: Story = {
 
         const handleClose = () => {
             setIsOpen(false);
-            action("onClose")();
         };
 
         const handleToggle = () => {

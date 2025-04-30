@@ -4,7 +4,6 @@ import { SettingsResetButton } from "../component";
 import { ThemeProvider, useThemeMode } from "@src/contexts/ThemeContext";
 import { useEffect } from "react";
 
-// Wrapper component to set the theme
 const ThemeWrapper = ({
     theme,
     children,
@@ -43,7 +42,6 @@ const meta: Meta<typeof SettingsResetButton> = {
 export default meta;
 type Story = StoryObj<typeof SettingsResetButton>;
 
-// Light Theme (default)
 export const Light: Story = {
     decorators: [
         (Story) => (
@@ -54,7 +52,6 @@ export const Light: Story = {
     ],
 };
 
-// Dark Theme
 export const Dark: Story = {
     decorators: [
         (Story) => (
@@ -67,7 +64,6 @@ export const Dark: Story = {
     ],
 };
 
-// Yellow Theme
 export const Yellow: Story = {
     decorators: [
         (Story) => (
@@ -80,7 +76,6 @@ export const Yellow: Story = {
     ],
 };
 
-// Hover state can be simulated with CSS or Storybook addons
 export const Hover: Story = {
     decorators: [
         (Story) => (
@@ -101,7 +96,6 @@ export const Hover: Story = {
     },
 };
 
-// Active state
 export const Active: Story = {
     decorators: [
         (Story) => (
