@@ -27,7 +27,7 @@ const selectedStyles = {
 };
 
 const baseClasses =
-    "rounded-[14px] w-[140px] h-[140px] flex items-center justify-center border-4 border-solid font-24-Regular font-koddi";
+    "rounded-[14px] w-[140px] h-[140px] flex items-center justify-center border-4 border-solid font-24-Regular font-koddi group";
 
 export function BaseButton({
     children,

@@ -11,21 +11,30 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const STORAGE_KEY = "theme-mode";
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setThemeState] = useState<ThemeMode>("light");
+export function ThemeProvider({
+    children,
+    value: { theme, setTheme } = { theme: "light", setTheme: () => {} },
+}: {
+    children: React.ReactNode;
+    value?: ThemeContextValue;
+}) {
+    const [themeState, setThemeState] = useState<ThemeMode>(theme);
 
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
         if (saved) setThemeState(saved);
     }, []);
 
-    const setTheme = (newTheme: ThemeMode) => {
+    const setThemeLocal = (newTheme: ThemeMode) => {
         setThemeState(newTheme);
         localStorage.setItem(STORAGE_KEY, newTheme);
+        setTheme(newTheme);
     };
 
     return (
-        <ThemeContext.Provider value={{ theme, setTheme }}>
+        <ThemeContext.Provider
+            value={{ theme: themeState, setTheme: setThemeLocal }}
+        >
             {children}
         </ThemeContext.Provider>
     );
