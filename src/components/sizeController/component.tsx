@@ -11,9 +11,10 @@ export function SizeController({
     onClick,
 }: SizeControllerProps): JSX.Element {
     return (
-        <div
+        <button
             className="px-[54px] py-[18px] inline-block rounded-[14px] bg-purple-default active:bg-purple-dark hover:bg-purple-light"
             onClick={onClick}
+            aria-label={type === "plus" ? "크기 증가" : "크기 감소"}
         >
             <img
                 src={getExtensionUrl(`${type}.png`)}
@@ -21,6 +22,6 @@ export function SizeController({
                 draggable="false"
                 className="w-[36px] h-[36px]"
             />
-        </div>
+        </button>
     );
 }
