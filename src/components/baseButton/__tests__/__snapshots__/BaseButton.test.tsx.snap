@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseButton 스냅샷 테스트 1`] = `
+<DocumentFragment>
+  <button
+    aria-pressed="false"
+    class="rounded-[14px] w-[140px] h-[140px] flex items-center justify-center border-4 border-solid font-24-Regular font-koddi group bg-purple-default text-grayscale-100 border-none hover:bg-purple-light hover:border-none hover:text-grayscale-100"
+  >
+    테스트 버튼
+  </button>
+</DocumentFragment>
+`;

@@ -9,7 +9,7 @@ module.exports = {
         backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
         popup: path.join(__dirname, "src/popup/index.tsx"),
         content: path.join(__dirname, "src/content/index.tsx"),
-        iframe: path.join(__dirname, "src/content/iframe.tsx"),
+        iframe: path.join(__dirname, "src/iframe/index.tsx"),
     },
     output: {
         path: path.join(__dirname, "dist/js"),

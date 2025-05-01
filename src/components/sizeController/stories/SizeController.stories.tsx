@@ -1,4 +1,4 @@
-import { SizeController } from "../components";
+import { SizeController } from "../component";
 
 export default {
     title: "Components/SizeController",

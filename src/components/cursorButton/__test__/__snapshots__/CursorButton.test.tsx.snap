@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`CursorButton 스냅샷 테스트 - 기본 렌더링 1`] = `
+<div>
+  <button
+    aria-pressed="false"
+    class="rounded-[14px] w-[140px] h-[140px] flex items-center justify-center border-4 border-solid font-24-Regular font-koddi group bg-grayscale-100 text-grayscale-900 border-grayscale-300 hover:bg-grayscale-100 hover:border-grayscale-300 hover:text-grayscale-500"
+  >
+    <img
+      alt="커서: medium, white"
+      class="group-hover:opacity-20"
+      src="/mocked-url/cursor-medium-white.png"
+    />
+  </button>
+</div>
+`;

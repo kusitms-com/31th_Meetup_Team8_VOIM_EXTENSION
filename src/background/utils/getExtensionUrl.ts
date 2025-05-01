@@ -4,7 +4,7 @@ export function getExtensionUrl(path: string): string {
         chrome.runtime &&
         chrome.runtime.getURL
     ) {
-        return chrome.runtime.getURL(path);
+        return chrome.runtime.getURL(`/images/${path}`);
     } else {
         return `/images/${path}`;
     }

@@ -2,6 +2,7 @@ import React from "react";
 import styled from "@emotion/styled";
 import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
 import { logger } from "@src/utils/logger";
+import { SettingsResetButton } from "../settingsResetButton";
 
 interface ModalProps {
     isOpen: boolean;
@@ -61,25 +62,36 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
     }
 
     return (
-        <ModalOverlay isOpen={isOpen} onClick={handleOverlayClick}>
-            <ModalContainer className="font-koddi bg-grayscale-100">
+        <ModalOverlay
+            isOpen={isOpen}
+            onClick={handleOverlayClick}
+            data-testid="menubar-overlay"
+        >
+            <ModalContainer
+                className="font-koddi bg-grayscale-100"
+                data-testid="menubar-container"
+            >
                 <div className="flex justify-between mb-6 font-24-Bold">
-                    <div
-                        className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer"
-                        onClick={handleResetSettings}
+                    <SettingsResetButton onClick={handleResetSettings} />
+                    <button
+                        onClick={onClose}
+                        className="py-[18px] cursor-pointer"
+                        data-testid="close-button"
                     >
                         <img
-                            src={getExtensionUrl("arrow-rotate.png")}
-                            alt="설정 초기화"
+                            src={getExtensionUrl("delete.png")}
+                            alt="나가기"
+                            data-testid="close-icon"
                         />
-                        <div>설정 초기화</div>
-                    </div>
-                    <div onClick={onClose} className="py-[18px] cursor-pointer">
-                        <img src={getExtensionUrl("delete.png")} alt="나가기" />
-                    </div>
+                    </button>
                 </div>
 
-                <div className="flex flex-col gap-5">{children}</div>
+                <div
+                    className="flex flex-col gap-5"
+                    data-testid="menubar-content"
+                >
+                    {children}
+                </div>
             </ModalContainer>
         </ModalOverlay>
     );

@@ -1,6 +1,8 @@
+
 import React, { useEffect } from "react";
 import { MenubarButton } from "@src/components/menubarButton";
 import GetDarkmode from "@src/popup/darkmode/getDarkmode";
+import React from "react";
 
 export function Popup() {
     return (
