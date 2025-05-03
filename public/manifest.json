@@ -31,11 +31,5 @@
         "128": "icons/icon-128.png"
     },
     "host_permissions": ["<all_urls>"],
-    "permissions": [
-        "scripting",
-        "activeTab",
-        "storage",
-        "tabs",
-        "desktopCapture"
-    ]
+    "permissions": ["scripting", "activeTab", "storage", "tabs"]
 }
