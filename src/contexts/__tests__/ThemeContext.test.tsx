@@ -1,146 +1,135 @@
 import React from "react";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { AppThemeProvider, useAppTheme } from "../ThemeContext";
 
-const mockLocalStorage = (() => {
-    let store: Record<string, string> = {};
-    return {
-        getItem: jest.fn((key: string) => store[key] || null),
-        setItem: jest.fn((key: string, value: string) => {
-            store[key] = value;
-        }),
-        clear: jest.fn(() => {
-            store = {};
-        }),
-    };
-})();
-
-Object.defineProperty(window, "localStorage", {
-    value: mockLocalStorage,
+beforeAll(() => {
+    global.chrome = {
+        storage: {
+            local: {
+                get: jest.fn(() =>
+                    Promise.resolve({
+                        "theme-mode": "light",
+                        "font-size": "m",
+                        "font-weight": "bold",
+                    }),
+                ),
+                set: jest.fn(() => Promise.resolve()),
+            },
+        },
+    } as any;
 });
 
-const TestComponent = () => {
-    const { theme, setTheme } = useAppTheme();
+afterEach(() => {
+    jest.clearAllMocks();
+});
+
+function TestComponent() {
+    const {
+        theme,
+        setTheme,
+        fontSize,
+        setFontSize,
+        fontWeight,
+        setFontWeight,
+        fontClasses,
+    } = useAppTheme();
+
     return (
         <div>
-            <div data-testid="current-theme">{theme}</div>
-            <button onClick={() => setTheme("light")} data-testid="set-light">
-                Light
-            </button>
-            <button onClick={() => setTheme("dark")} data-testid="set-dark">
-                Dark
+            <div data-testid="theme">{theme}</div>
+            <div data-testid="fontSize">{fontSize}</div>
+            <div data-testid="fontWeight">{fontWeight}</div>
+            <div data-testid="headingClass">{fontClasses.fontHeading}</div>
+            <button onClick={() => setTheme("dark")}>Set Dark Theme</button>
+            <button onClick={() => setFontSize("xl")}>Set Font Size XL</button>
+            <button onClick={() => setFontWeight("xbold")}>
+                Set Font Weight XBold
             </button>
         </div>
     );
-};
+}
 
 describe("AppThemeProvider", () => {
-    beforeEach(() => {
-        jest.clearAllMocks();
-        mockLocalStorage.clear();
-    });
-
-    it("기본 테마가 'light'로 설정된다", () => {
+    it("초기 context 값을 불러온다", async () => {
         render(
             <AppThemeProvider>
                 <TestComponent />
             </AppThemeProvider>,
         );
 
-        expect(screen.getByTestId("current-theme").textContent).toBe("light");
-    });
-
-    it("localStorage에 저장된 테마를 불러온다", () => {
-        mockLocalStorage.getItem.mockReturnValueOnce("dark");
-
-        render(
-            <AppThemeProvider>
-                <TestComponent />
-            </AppThemeProvider>,
-        );
-
-        expect(screen.getByTestId("current-theme").textContent).toBe("dark");
-        expect(mockLocalStorage.getItem).toHaveBeenCalledWith("theme-mode");
-    });
-
-    it("setTheme 함수로 테마를 변경하고 localStorage에 저장한다", () => {
-        render(
-            <AppThemeProvider>
-                <TestComponent />
-            </AppThemeProvider>,
-        );
-
-        expect(screen.getByTestId("current-theme").textContent).toBe("light");
-
-        act(() => {
-            screen.getByTestId("set-dark").click();
+        await waitFor(() => {
+            expect(screen.getByTestId("theme").textContent).toBe("light");
+            expect(screen.getByTestId("fontSize").textContent).toBe("m");
+            expect(screen.getByTestId("fontWeight").textContent).toBe("bold");
         });
+    });
 
-        expect(screen.getByTestId("current-theme").textContent).toBe("dark");
-        expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-            "theme-mode",
-            "dark",
+    it("테마 변경 시 chrome.storage에 저장된다", async () => {
+        render(
+            <AppThemeProvider>
+                <TestComponent />
+            </AppThemeProvider>,
         );
+
+        const btn = screen.getByText("Set Dark Theme");
+        fireEvent.click(btn);
+
+        await waitFor(() => {
+            expect(screen.getByTestId("theme").textContent).toBe("dark");
+            expect(chrome.storage.local.set).toHaveBeenCalledWith({
+                "theme-mode": "dark",
+            });
+        });
     });
 
-    it("AppThemeProvider 없이 useAppTheme를 사용하면 에러가 발생한다", () => {
-        const consoleErrorSpy = jest.spyOn(console, "error");
-        consoleErrorSpy.mockImplementation(() => {});
+    it("폰트 사이즈 및 두께 변경 시 chrome.storage에 저장된다", async () => {
+        render(
+            <AppThemeProvider>
+                <TestComponent />
+            </AppThemeProvider>,
+        );
 
-        expect(() => {
-            render(<TestComponent />);
-        }).toThrow("useAppTheme must be used within a AppThemeProvider");
+        fireEvent.click(screen.getByText("Set Font Size XL"));
+        fireEvent.click(screen.getByText("Set Font Weight XBold"));
 
-        consoleErrorSpy.mockRestore();
+        await waitFor(() => {
+            expect(screen.getByTestId("fontSize").textContent).toBe("xl");
+            expect(screen.getByTestId("fontWeight").textContent).toBe("xbold");
+
+            expect(chrome.storage.local.set).toHaveBeenCalledWith({
+                "font-size": "xl",
+            });
+            expect(chrome.storage.local.set).toHaveBeenCalledWith({
+                "font-weight": "xbold",
+            });
+        });
     });
-});
 
-describe("AppThemeProvider 통합 테스트", () => {
-    it("다중 컴포넌트에서 테마가 동기화된다", () => {
-        const ThemeDisplay = () => {
-            const { theme } = useAppTheme();
-            return <div data-testid="theme-display">{theme}</div>;
-        };
+    it("폰트 클래스가 올바르게 적용된다", async () => {
+        render(
+            <AppThemeProvider>
+                <TestComponent />
+            </AppThemeProvider>,
+        );
 
-        const ThemeChanger = () => {
-            const { setTheme } = useAppTheme();
-            return (
-                <button
-                    onClick={() => setTheme("dark")}
-                    data-testid="change-theme"
-                >
-                    Change to Dark
-                </button>
+        await waitFor(() => {
+            expect(screen.getByTestId("headingClass").textContent).toContain(
+                "text-[28px]",
             );
-        };
-
-        render(
-            <AppThemeProvider>
-                <div>
-                    <ThemeDisplay />
-                    <ThemeChanger />
-                </div>
-            </AppThemeProvider>,
-        );
-
-        expect(screen.getByTestId("theme-display").textContent).toBe("light");
-
-        act(() => {
-            screen.getByTestId("change-theme").click();
+            expect(screen.getByTestId("headingClass").textContent).toContain(
+                "font-bold",
+            );
         });
-
-        expect(screen.getByTestId("theme-display").textContent).toBe("dark");
     });
 
-    it("잘못된 테마 값이 localStorage에 있을 경우에도 해당 값이 사용된다", () => {
-        mockLocalStorage.getItem.mockReturnValueOnce("invalid-theme");
+    it("AppThemeProvider 밖에서 사용하면 에러를 던진다", () => {
+        const TestComponent = () => {
+            useAppTheme();
+            return <div />;
+        };
 
-        render(
-            <AppThemeProvider>
-                <TestComponent />
-            </AppThemeProvider>,
+        expect(() => render(<TestComponent />)).toThrowError(
+            "useAppTheme must be used within an AppThemeProvider",
         );
-
-        expect(screen.getByTestId("current-theme").textContent).toBe("light");
     });
 });
