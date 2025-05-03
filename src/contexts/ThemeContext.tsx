@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-export type ThemeMode = "light" | "yellow" | "dark";
+export type ThemeMode = "light" | "dark";
 
 interface ThemeContextValue {
     theme: ThemeMode;
@@ -22,7 +22,7 @@ export function ThemeProvider({
 
     useEffect(() => {
         const saved = localStorage.getItem(STORAGE_KEY) as ThemeMode | null;
-        if (saved && ["light", "yellow", "dark"].includes(saved)) {
+        if (saved && ["light", "dark"].includes(saved)) {
             setThemeState(saved as ThemeMode);
         }
     }, []);

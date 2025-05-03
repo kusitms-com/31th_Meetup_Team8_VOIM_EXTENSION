@@ -8,9 +8,8 @@ interface SettingsResetButtonProps {
 export function SettingsResetButton({ onClick }: SettingsResetButtonProps) {
     const { theme: themeMode } = useThemeMode();
 
-    // Tailwind 클래스를 조건부로 적용하기 위한 함수
     const getThemeClasses = () => {
-        if (themeMode === "dark" || themeMode === "yellow") {
+        if (themeMode === "dark") {
             return "bg-grayscale-800 text-grayscale-100 hover:text-grayscale-500 active:bg-grayscale-100 active:text-grayscale-900";
         } else {
             return "bg-grayscale-200 text-grayscale-900 hover:text-grayscale-500 active:bg-grayscale-900 active:text-grayscale-100";
