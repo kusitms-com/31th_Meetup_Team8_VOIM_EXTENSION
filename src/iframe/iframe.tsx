@@ -4,7 +4,7 @@ import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
 
-import { ThemeProvider } from "@src/contexts/ThemeContext";
+import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 
 interface PanelContentProps {
@@ -62,7 +62,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
 
 const menuItems = [
     { id: "high-contrast", text: "고대비 화면 사용하기" },
-    { id: "cursor", text: "커서 크기 및 색상 설정하기" },
+    { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
     { id: "service", text: "서비스 설정하기" },
@@ -92,7 +92,7 @@ const App = () => {
     };
 
     return (
-        <ThemeProvider>
+        <AppThemeProvider>
             <div className="pointer-events-auto">
                 {!isModalOpen && <FloatingButton onClick={openModal} />}
                 <Menubar isOpen={isModalOpen} onClose={closeModal}>
@@ -116,7 +116,7 @@ const App = () => {
                     </div>
                 </Menubar>
             </div>
-        </ThemeProvider>
+        </AppThemeProvider>
     );
 };
 

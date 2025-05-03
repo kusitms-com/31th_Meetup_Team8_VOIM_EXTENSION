@@ -1,12 +1,12 @@
 import React from "react";
-import { useThemeMode } from "@src/contexts/ThemeContext";
+import { useAppTheme } from "@src/contexts/ThemeContext";
 
 interface SettingsResetButtonProps {
     onClick: () => void;
 }
 
 export function SettingsResetButton({ onClick }: SettingsResetButtonProps) {
-    const { theme: themeMode } = useThemeMode();
+    const { theme: themeMode } = useAppTheme();
 
     const getThemeClasses = () => {
         if (themeMode === "dark") {

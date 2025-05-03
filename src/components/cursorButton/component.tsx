@@ -1,6 +1,6 @@
 import React from "react";
 import { BaseButton } from "../baseButton/component";
-import { useThemeMode } from "@src/contexts/ThemeContext";
+import { useAppTheme } from "@src/contexts/ThemeContext";
 import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface CursorButtonProps {
@@ -14,7 +14,7 @@ export function CursorButton({
     color = "white",
     size = "medium",
 }: CursorButtonProps) {
-    const { theme } = useThemeMode();
+    const { theme } = useAppTheme();
 
     const adjustedTheme = theme === "light" ? "white" : theme;
 

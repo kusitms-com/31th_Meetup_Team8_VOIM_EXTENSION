@@ -1,17 +1,17 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { SettingsResetButton } from "../component";
-import { ThemeProvider, useThemeMode } from "@src/contexts/ThemeContext";
+import { useAppTheme, AppThemeProvider } from "@src/contexts/ThemeContext";
 import { useEffect } from "react";
 
 const ThemeWrapper = ({
     theme,
     children,
 }: {
-    theme: "light" | "dark" | "yellow";
+    theme: "light" | "dark";
     children: React.ReactNode;
 }) => {
-    const { setTheme } = useThemeMode();
+    const { setTheme } = useAppTheme();
 
     useEffect(() => {
         setTheme(theme);
@@ -45,9 +45,9 @@ type Story = StoryObj<typeof SettingsResetButton>;
 export const Light: Story = {
     decorators: [
         (Story) => (
-            <ThemeProvider>
+            <AppThemeProvider>
                 <Story />
-            </ThemeProvider>
+            </AppThemeProvider>
         ),
     ],
 };
@@ -55,23 +55,11 @@ export const Light: Story = {
 export const Dark: Story = {
     decorators: [
         (Story) => (
-            <ThemeProvider>
+            <AppThemeProvider>
                 <ThemeWrapper theme="dark">
                     <Story />
                 </ThemeWrapper>
-            </ThemeProvider>
-        ),
-    ],
-};
-
-export const Yellow: Story = {
-    decorators: [
-        (Story) => (
-            <ThemeProvider>
-                <ThemeWrapper theme="yellow">
-                    <Story />
-                </ThemeWrapper>
-            </ThemeProvider>
+            </AppThemeProvider>
         ),
     ],
 };
@@ -79,11 +67,11 @@ export const Yellow: Story = {
 export const Hover: Story = {
     decorators: [
         (Story) => (
-            <ThemeProvider>
+            <AppThemeProvider>
                 <div className="sb-pseudo-hover">
                     <Story />
                 </div>
-            </ThemeProvider>
+            </AppThemeProvider>
         ),
     ],
     parameters: {
@@ -99,11 +87,11 @@ export const Hover: Story = {
 export const Active: Story = {
     decorators: [
         (Story) => (
-            <ThemeProvider>
+            <AppThemeProvider>
                 <div className="sb-pseudo-active">
                     <Story />
                 </div>
-            </ThemeProvider>
+            </AppThemeProvider>
         ),
     ],
     parameters: {

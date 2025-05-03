@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { SettingsResetButton } from "../component";
-import { ThemeProvider, useThemeMode } from "@src/contexts/ThemeContext";
+import { AppThemeProvider, useAppTheme } from "@src/contexts/ThemeContext";
 import renderer from "react-test-renderer";
 import "@testing-library/jest-dom";
 
@@ -24,7 +24,7 @@ jest.mock("@src/contexts/ThemeContext", () => {
     const originalModule = jest.requireActual("@src/contexts/ThemeContext");
     return {
         ...originalModule,
-        useThemeMode: jest.fn(),
+        useAppTheme: jest.fn(),
     };
 });
 
@@ -35,7 +35,7 @@ describe("SettingsResetButton", () => {
         mockLocalStorage.clear();
         jest.clearAllMocks();
 
-        (useThemeMode as jest.Mock).mockImplementation(() => ({
+        (useAppTheme as jest.Mock).mockImplementation(() => ({
             theme: "light",
             setTheme: jest.fn(),
         }));
@@ -47,16 +47,16 @@ describe("SettingsResetButton", () => {
         it(`${themeMode} 테마에서 스냅샷이 일치하는지 확인`, () => {
             mockLocalStorage.getItem.mockReturnValueOnce(themeMode);
 
-            (useThemeMode as jest.Mock).mockImplementation(() => ({
+            (useAppTheme as jest.Mock).mockImplementation(() => ({
                 theme: themeMode,
                 setTheme: jest.fn(),
             }));
 
             const tree = renderer
                 .create(
-                    <ThemeProvider>
+                    <AppThemeProvider>
                         <SettingsResetButton onClick={jest.fn()} />
-                    </ThemeProvider>,
+                    </AppThemeProvider>,
                 )
                 .toJSON();
 
@@ -66,15 +66,15 @@ describe("SettingsResetButton", () => {
         it(`${themeMode} 테마에서 올바르게 렌더링된다`, () => {
             mockLocalStorage.getItem.mockReturnValueOnce(themeMode);
 
-            (useThemeMode as jest.Mock).mockImplementation(() => ({
+            (useAppTheme as jest.Mock).mockImplementation(() => ({
                 theme: themeMode,
                 setTheme: jest.fn(),
             }));
 
             render(
-                <ThemeProvider>
+                <AppThemeProvider>
                     <SettingsResetButton onClick={mockOnClick} />
-                </ThemeProvider>,
+                </AppThemeProvider>,
             );
 
             const button = screen.getByTestId("reset-settings-button");
@@ -90,15 +90,15 @@ describe("SettingsResetButton", () => {
         it(`${themeMode} 테마에서 버튼 클릭 시 onClick이 호출된다`, () => {
             mockLocalStorage.getItem.mockReturnValueOnce(themeMode);
 
-            (useThemeMode as jest.Mock).mockImplementation(() => ({
+            (useAppTheme as jest.Mock).mockImplementation(() => ({
                 theme: themeMode,
                 setTheme: jest.fn(),
             }));
 
             render(
-                <ThemeProvider>
+                <AppThemeProvider>
                     <SettingsResetButton onClick={mockOnClick} />
-                </ThemeProvider>,
+                </AppThemeProvider>,
             );
 
             const button = screen.getByTestId("reset-settings-button");
@@ -110,9 +110,9 @@ describe("SettingsResetButton", () => {
 
     it("올바른 접근성 속성을 가지고 있다", () => {
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <SettingsResetButton onClick={mockOnClick} />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         const button = screen.getByTestId("reset-settings-button");
@@ -122,9 +122,9 @@ describe("SettingsResetButton", () => {
 
     it("올바른 스타일링 클래스를 가지고 있다", () => {
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <SettingsResetButton onClick={mockOnClick} />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         const button = screen.getByTestId("reset-settings-button");
@@ -140,15 +140,15 @@ describe("SettingsResetButton", () => {
     });
 
     it("유효하지 않은 테마인 경우 기본값(light)을 사용한다", () => {
-        (useThemeMode as jest.Mock).mockImplementation(() => ({
+        (useAppTheme as jest.Mock).mockImplementation(() => ({
             theme: "invalid-theme" as unknown as "light" | "dark" | "yellow",
             setTheme: jest.fn(),
         }));
 
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <SettingsResetButton onClick={mockOnClick} />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         const button = screen.getByTestId("reset-settings-button");

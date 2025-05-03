@@ -1,6 +1,6 @@
 import React from "react";
 import { render, screen, act } from "@testing-library/react";
-import { ThemeProvider, useThemeMode } from "../ThemeContext";
+import { AppThemeProvider, useAppTheme } from "../ThemeContext";
 
 const mockLocalStorage = (() => {
     let store: Record<string, string> = {};
@@ -20,7 +20,7 @@ Object.defineProperty(window, "localStorage", {
 });
 
 const TestComponent = () => {
-    const { theme, setTheme } = useThemeMode();
+    const { theme, setTheme } = useAppTheme();
     return (
         <div>
             <div data-testid="current-theme">{theme}</div>
@@ -34,7 +34,7 @@ const TestComponent = () => {
     );
 };
 
-describe("ThemeProvider", () => {
+describe("AppThemeProvider", () => {
     beforeEach(() => {
         jest.clearAllMocks();
         mockLocalStorage.clear();
@@ -42,9 +42,9 @@ describe("ThemeProvider", () => {
 
     it("기본 테마가 'light'로 설정된다", () => {
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <TestComponent />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         expect(screen.getByTestId("current-theme").textContent).toBe("light");
@@ -54,9 +54,9 @@ describe("ThemeProvider", () => {
         mockLocalStorage.getItem.mockReturnValueOnce("dark");
 
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <TestComponent />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         expect(screen.getByTestId("current-theme").textContent).toBe("dark");
@@ -65,9 +65,9 @@ describe("ThemeProvider", () => {
 
     it("setTheme 함수로 테마를 변경하고 localStorage에 저장한다", () => {
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <TestComponent />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         expect(screen.getByTestId("current-theme").textContent).toBe("light");
@@ -83,27 +83,27 @@ describe("ThemeProvider", () => {
         );
     });
 
-    it("ThemeProvider 없이 useThemeMode를 사용하면 에러가 발생한다", () => {
+    it("AppThemeProvider 없이 useAppTheme를 사용하면 에러가 발생한다", () => {
         const consoleErrorSpy = jest.spyOn(console, "error");
         consoleErrorSpy.mockImplementation(() => {});
 
         expect(() => {
             render(<TestComponent />);
-        }).toThrow("useThemeMode must be used within a ThemeProvider");
+        }).toThrow("useAppTheme must be used within a AppThemeProvider");
 
         consoleErrorSpy.mockRestore();
     });
 });
 
-describe("ThemeProvider 통합 테스트", () => {
+describe("AppThemeProvider 통합 테스트", () => {
     it("다중 컴포넌트에서 테마가 동기화된다", () => {
         const ThemeDisplay = () => {
-            const { theme } = useThemeMode();
+            const { theme } = useAppTheme();
             return <div data-testid="theme-display">{theme}</div>;
         };
 
         const ThemeChanger = () => {
-            const { setTheme } = useThemeMode();
+            const { setTheme } = useAppTheme();
             return (
                 <button
                     onClick={() => setTheme("dark")}
@@ -115,12 +115,12 @@ describe("ThemeProvider 통합 테스트", () => {
         };
 
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <div>
                     <ThemeDisplay />
                     <ThemeChanger />
                 </div>
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         expect(screen.getByTestId("theme-display").textContent).toBe("light");
@@ -136,9 +136,9 @@ describe("ThemeProvider 통합 테스트", () => {
         mockLocalStorage.getItem.mockReturnValueOnce("invalid-theme");
 
         render(
-            <ThemeProvider>
+            <AppThemeProvider>
                 <TestComponent />
-            </ThemeProvider>,
+            </AppThemeProvider>,
         );
 
         expect(screen.getByTestId("current-theme").textContent).toBe("light");
