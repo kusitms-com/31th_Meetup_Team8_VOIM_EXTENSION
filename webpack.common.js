@@ -7,7 +7,6 @@ module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
         backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
-        popup: path.join(__dirname, "src/popup/index.tsx"),
         content: path.join(__dirname, "src/content/index.tsx"),
         iframe: path.join(__dirname, "src/iframe/index.tsx"),
     },
