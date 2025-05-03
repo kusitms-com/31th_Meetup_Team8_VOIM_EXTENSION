@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import styled from "@emotion/styled";
 
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
@@ -7,37 +6,6 @@ import { MenubarButton } from "@src/components/menubarButton";
 
 import { ThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
-
-const AppWrapper = styled.div`
-    pointer-events: auto;
-`;
-
-interface PanelProps {
-    isOpen: boolean;
-}
-
-const Panel = styled.div<PanelProps>`
-    position: fixed;
-    right: 510px;
-    top: 70px;
-    width: 320px;
-    background-color: white;
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    overflow-y: auto;
-    z-index: 999;
-    transition: transform 0.3s ease;
-    display: ${(props) => (props.isOpen ? "flex" : "none")};
-`;
-
-const menuItems = [
-    { id: "high-contrast", text: "고대비 화면 사용하기" },
-    { id: "cursor", text: "커서 크기 및 색상 설정하기" },
-    { id: "font", text: "글자 설정하기" },
-    { id: "shortcut", text: "단축키 안내 보기" },
-    { id: "service", text: "서비스 설정하기" },
-    { id: "profile", text: "내 정보 설정하기" },
-];
 
 interface PanelContentProps {
     menuId: string | null;
@@ -92,6 +60,15 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     }
 };
 
+const menuItems = [
+    { id: "high-contrast", text: "고대비 화면 사용하기" },
+    { id: "cursor", text: "커서 크기 및 색상 설정하기" },
+    { id: "font", text: "글자 설정하기" },
+    { id: "shortcut", text: "단축키 안내 보기" },
+    { id: "service", text: "서비스 설정하기" },
+    { id: "profile", text: "내 정보 설정하기" },
+];
+
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
@@ -116,7 +93,7 @@ const App = () => {
 
     return (
         <ThemeProvider>
-            <AppWrapper>
+            <div className="pointer-events-auto">
                 {!isModalOpen && <FloatingButton onClick={openModal} />}
                 <Menubar isOpen={isModalOpen} onClose={closeModal}>
                     {menuItems.map((item) => (
@@ -128,11 +105,17 @@ const App = () => {
                             ariaLabel={`${item.text} 선택`}
                         />
                     ))}
-                    <Panel isOpen={isModalOpen && selectedMenu !== null}>
+                    <div
+                        className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                            isModalOpen && selectedMenu !== null
+                                ? "flex"
+                                : "hidden"
+                        }`}
+                    >
                         <PanelContent menuId={selectedMenu} />
-                    </Panel>
+                    </div>
                 </Menubar>
-            </AppWrapper>
+            </div>
         </ThemeProvider>
     );
 };
