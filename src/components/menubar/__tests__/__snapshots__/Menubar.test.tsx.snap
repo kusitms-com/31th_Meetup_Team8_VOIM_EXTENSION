@@ -3,11 +3,11 @@
 exports[`Menubar 스냅샷 테스트 1`] = `
 <DocumentFragment>
   <div
-    class="css-17yo56f"
+    class="fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/10 backdrop-blur-xl"
     data-testid="menubar-overlay"
   >
     <div
-      class="font-koddi bg-grayscale-100 css-6tuf1p"
+      class="fixed top-[70px] right-[20px] rounded-[30px] w-[460px] p-5 overflow-y-auto bg-[#fefefe] shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] font-koddi bg-grayscale-100"
       data-testid="menubar-container"
     >
       <div

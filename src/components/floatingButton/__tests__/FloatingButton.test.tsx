@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import { FloatingButton } from "../component";
 import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
-jest.mock("@src/background/utils/getExtensionUrl", () => ({
+jest.mock("@src/utils/getExtensionUrl", () => ({
     getExtensionUrl: jest
         .fn()
         .mockImplementation((path) => `/mocked-url/${path}`),

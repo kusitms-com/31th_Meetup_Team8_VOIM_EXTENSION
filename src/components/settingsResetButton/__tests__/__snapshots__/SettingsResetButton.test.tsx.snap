@@ -3,11 +3,12 @@
 exports[`SettingsResetButton dark 테마에서 스냅샷이 일치하는지 확인 1`] = `
 <button
   aria-label="설정 초기화"
-  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi css-ixicwg"
+  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi bg-grayscale-800 text-grayscale-100 hover:text-grayscale-500 active:bg-grayscale-100 active:text-grayscale-900"
   data-testid="reset-settings-button"
   onClick={[MockFunction]}
 >
   <svg
+    className="[&>path]:stroke-current"
     fill="none"
     height="36"
     viewBox="0 0 36 36"
@@ -32,11 +33,12 @@ exports[`SettingsResetButton dark 테마에서 스냅샷이 일치하는지 확�
 exports[`SettingsResetButton light 테마에서 스냅샷이 일치하는지 확인 1`] = `
 <button
   aria-label="설정 초기화"
-  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi css-1y28xwh"
+  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi bg-grayscale-200 text-grayscale-900 hover:text-grayscale-500 active:bg-grayscale-900 active:text-grayscale-100"
   data-testid="reset-settings-button"
   onClick={[MockFunction]}
 >
   <svg
+    className="[&>path]:stroke-current"
     fill="none"
     height="36"
     viewBox="0 0 36 36"
@@ -61,11 +63,12 @@ exports[`SettingsResetButton light 테마에서 스냅샷이 일치하는지 확
 exports[`SettingsResetButton yellow 테마에서 스냅샷이 일치하는지 확인 1`] = `
 <button
   aria-label="설정 초기화"
-  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi css-ixicwg"
+  className="px-6 py-[18px] flex gap-[10px] items-center cursor-pointer rounded-[14px] font-24-Bold font-koddi bg-grayscale-200 text-grayscale-900 hover:text-grayscale-500 active:bg-grayscale-900 active:text-grayscale-100"
   data-testid="reset-settings-button"
   onClick={[MockFunction]}
 >
   <svg
+    className="[&>path]:stroke-current"
     fill="none"
     height="36"
     viewBox="0 0 36 36"

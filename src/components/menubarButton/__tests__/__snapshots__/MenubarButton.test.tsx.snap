@@ -6,7 +6,8 @@ exports[`MenubarButton 스냅샷 테스트 다른 ariaLabel 속성이 제공될 
   aria-haspopup="menu"
   aria-label="커스텀 접근성 레이블"
   aria-selected={false}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-100 text-grayscale-900 hover:bg-grayscale-200"
   role="menuitem"
   tabIndex={0}
 >
@@ -20,7 +21,8 @@ exports[`MenubarButton 스냅샷 테스트 선택 상태와 테마 속성이 모
   aria-haspopup="menu"
   aria-label="선택된 테마 버튼"
   aria-selected={true}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-900 text-grayscale-200 hover:bg-grayscale-900"
   role="menuitem"
   tabIndex={0}
 >
@@ -34,7 +36,8 @@ exports[`MenubarButton 스냅샷 테스트 선택되지 않은 버튼이 올바�
   aria-haspopup="menu"
   aria-label="선택되지 않은 버튼"
   aria-selected={false}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-100 text-grayscale-900 hover:bg-grayscale-200"
   role="menuitem"
   tabIndex={0}
 >
@@ -48,7 +51,8 @@ exports[`MenubarButton 스냅샷 테스트 선택된 버튼이 올바르게 렌�
   aria-haspopup="menu"
   aria-label="선택된 버튼"
   aria-selected={true}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-1n8pabm"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-900 text-grayscale-200 hover:bg-grayscale-900"
   role="menuitem"
   tabIndex={0}
 >
@@ -62,7 +66,8 @@ exports[`MenubarButton 스냅샷 테스트 테마 속성이 적용된 버튼이 
   aria-haspopup="menu"
   aria-label="테마 적용 버튼"
   aria-selected={false}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-100 text-grayscale-900 hover:bg-grayscale-200"
   role="menuitem"
   tabIndex={0}
 >
@@ -76,7 +81,8 @@ exports[`MenubarButton 엣지 케이스 테스트 매우 긴 텍스트를 올바
   aria-haspopup="menu"
   aria-label="긴 텍스트 버튼"
   aria-selected={false}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-100 text-grayscale-900 hover:bg-grayscale-200"
   role="menuitem"
   tabIndex={0}
 >
@@ -90,7 +96,8 @@ exports[`MenubarButton 엣지 케이스 테스트 빈 텍스트도 올바르게 
   aria-haspopup="menu"
   aria-label="빈 텍스트 버튼"
   aria-selected={false}
-  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 css-mxh2n6"
+  className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5 
+                bg-grayscale-100 text-grayscale-900 hover:bg-grayscale-200"
   role="menuitem"
   tabIndex={0}
 />

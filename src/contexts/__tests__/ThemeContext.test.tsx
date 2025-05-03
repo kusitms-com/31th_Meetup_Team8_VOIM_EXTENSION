@@ -27,9 +27,6 @@ const TestComponent = () => {
             <button onClick={() => setTheme("light")} data-testid="set-light">
                 Light
             </button>
-            <button onClick={() => setTheme("yellow")} data-testid="set-yellow">
-                Yellow
-            </button>
             <button onClick={() => setTheme("dark")} data-testid="set-dark">
                 Dark
             </button>
@@ -76,16 +73,6 @@ describe("ThemeProvider", () => {
         expect(screen.getByTestId("current-theme").textContent).toBe("light");
 
         act(() => {
-            screen.getByTestId("set-yellow").click();
-        });
-
-        expect(screen.getByTestId("current-theme").textContent).toBe("yellow");
-        expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
-            "theme-mode",
-            "yellow",
-        );
-
-        act(() => {
             screen.getByTestId("set-dark").click();
         });
 
@@ -119,10 +106,10 @@ describe("ThemeProvider 통합 테스트", () => {
             const { setTheme } = useThemeMode();
             return (
                 <button
-                    onClick={() => setTheme("yellow")}
+                    onClick={() => setTheme("dark")}
                     data-testid="change-theme"
                 >
-                    Change to Yellow
+                    Change to Dark
                 </button>
             );
         };
@@ -142,7 +129,7 @@ describe("ThemeProvider 통합 테스트", () => {
             screen.getByTestId("change-theme").click();
         });
 
-        expect(screen.getByTestId("theme-display").textContent).toBe("yellow");
+        expect(screen.getByTestId("theme-display").textContent).toBe("dark");
     });
 
     it("잘못된 테마 값이 localStorage에 있을 경우에도 해당 값이 사용된다", () => {

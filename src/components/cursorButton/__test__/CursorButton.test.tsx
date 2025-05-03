@@ -4,7 +4,7 @@ import { CursorButton } from "../component";
 import { ThemeProvider } from "@src/contexts/ThemeContext";
 import "@testing-library/jest-dom";
 
-jest.mock("@src/background/utils/getExtensionUrl", () => ({
+jest.mock("@src/utils/getExtensionUrl", () => ({
     getExtensionUrl: jest
         .fn()
         .mockImplementation((path) => `/mocked-url/${path}`),

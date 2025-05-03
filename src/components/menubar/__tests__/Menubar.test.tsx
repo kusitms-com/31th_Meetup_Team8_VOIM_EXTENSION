@@ -4,7 +4,7 @@ import Menubar from "../component";
 import "@testing-library/jest-dom";
 import { logger } from "@src/utils/logger";
 
-jest.mock("@src/background/utils/getExtensionUrl", () => ({
+jest.mock("@src/utils/getExtensionUrl", () => ({
     getExtensionUrl: jest
         .fn()
         .mockImplementation((path) => `mocked-url/${path}`),
