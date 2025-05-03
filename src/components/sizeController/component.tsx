@@ -1,5 +1,5 @@
 import React from "react";
-import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface SizeControllerProps {
     type: "minus" | "plus";

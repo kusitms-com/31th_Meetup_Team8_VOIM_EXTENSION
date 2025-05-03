@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "@emotion/styled";
-import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 import { logger } from "@src/utils/logger";
 import { SettingsResetButton } from "../settingsResetButton";
 

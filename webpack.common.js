@@ -53,7 +53,6 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
-                { from: "public/popup.html", to: "../" },
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
                 { from: "src/iframe/iframe.html", to: "../" },

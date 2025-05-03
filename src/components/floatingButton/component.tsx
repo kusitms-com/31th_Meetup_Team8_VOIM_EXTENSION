@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import styled from "@emotion/styled";
-import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface FloatingButtonProps {
     onClick: () => void;

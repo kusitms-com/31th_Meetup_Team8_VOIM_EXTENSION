@@ -1,7 +1,7 @@
 import React from "react";
 import { BaseButton } from "../baseButton/component";
 import { useThemeMode } from "@src/contexts/ThemeContext";
-import { getExtensionUrl } from "@src/background/utils/getExtensionUrl";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
 interface CursorButtonProps {
     onClick: () => void;

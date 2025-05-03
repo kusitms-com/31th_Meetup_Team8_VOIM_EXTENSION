@@ -12,7 +12,7 @@ export default meta;
 type Story = StoryObj<typeof Menubar>;
 
 // mock getExtensionUrl
-import("@src/background/utils/getExtensionUrl")
+import("@src/utils/getExtensionUrl")
     .then((module) => {
         (
             module as { getExtensionUrl: (path: string) => string }
