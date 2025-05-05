@@ -1,34 +1,10 @@
 import React from "react";
-import styled from "@emotion/styled";
-import theme from "@src/css/theme";
-
-interface ButtonProps {
-    isSelected: boolean;
-    theme?: boolean;
-    onClick?: () => void;
-}
-
-const Button = styled.button<ButtonProps>`
-    background-color: ${(props) =>
-        props.isSelected
-            ? theme.colors.grayscale[900]
-            : theme.colors.grayscale[100]};
-    color: ${(props) =>
-        props.isSelected
-            ? theme.colors.grayscale[200]
-            : theme.colors.grayscale[900]};
-    &:hover {
-        background-color: ${(props) =>
-            props.isSelected
-                ? theme.colors.grayscale[900]
-                : theme.colors.grayscale[200]};
-    }
-`;
+import { useAppTheme } from "@src/contexts/ThemeContext";
+import { CheckmarkIcon } from "../checkmarkIcon";
 
 interface MenubarButtonProps {
     isSelected: boolean;
     text: string;
-    theme?: boolean;
     ariaLabel: string;
     onClick?: () => void;
 }
@@ -36,16 +12,25 @@ interface MenubarButtonProps {
 export function MenubarButton({
     isSelected,
     text,
-    theme,
     onClick,
     ariaLabel,
 }: MenubarButtonProps): JSX.Element {
+    const { theme, fontClasses } = useAppTheme();
+    const isDarkMode = theme === "dark";
+
     return (
-        <Button
-            isSelected={isSelected}
+        <button
             onClick={onClick}
-            theme={theme}
-            className="font-32-Bold font-koddi cursor-pointer flex items-center rounded-[14px] w-[420px] h-[80px] p-5"
+            className={`${fontClasses.fontHeading} font-koddi flex items-center justify-between rounded-[14px] w-[420px] h-[88px] p-5 
+                ${
+                    isSelected
+                        ? isDarkMode
+                            ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"
+                            : "bg-grayscale-100 text-grayscale-900 border-4 border-solid border-purple-default"
+                        : isDarkMode
+                          ? "bg-grayscale-900 text-grayscale-100 hover:opacity-30"
+                          : "bg-grayscale-100 text-grayscale-900 hover:opacity-30"
+                }`}
             role="menuitem"
             aria-label={ariaLabel}
             tabIndex={0}
@@ -54,6 +39,7 @@ export function MenubarButton({
             aria-haspopup="menu"
         >
             {text}
-        </Button>
+            {isSelected && <CheckmarkIcon data-testid="checkmark-icon" />}
+        </button>
     );
 }

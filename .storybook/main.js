@@ -3,7 +3,7 @@ const path = require("path");
 
 module.exports = {
     stories: ["../src/**/*.stories.tsx"],
-    staticDirs: ['../public'],
+    staticDirs: ["../public"],
     typescript: {
         reactDocgen: false,
     },
@@ -100,7 +100,6 @@ module.exports = {
                     "@babel/preset-typescript",
                     "@babel/preset-react",
                 ],
-                plugins: ["@emotion/babel-plugin"],
             },
         });
 
