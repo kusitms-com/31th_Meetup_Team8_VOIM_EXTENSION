@@ -1,43 +1,59 @@
-import { Meta, StoryObj } from "@storybook/react";
+import React from "react";
 import { CursorButton } from "../component";
+import { Meta, StoryObj } from "@storybook/react";
 
-const meta: Meta<typeof CursorButton> = {
+export default {
     title: "Components/CursorButton",
     component: CursorButton,
-    tags: ["autodocs"],
     argTypes: {
         color: {
             control: "radio",
-            options: ["white", "yellow", "purple"],
+            options: ["white", "purple", "yellow", "mint", "pink", "black"],
         },
         size: {
             control: "radio",
             options: ["small", "medium", "large"],
         },
-        onClick: { action: "clicked" },
+        isSelected: {
+            control: "boolean",
+        },
     },
+} as Meta;
+
+const Template: StoryObj<typeof CursorButton> = {
+    render: (args) => (
+        <div className="flex justify-around gap-4">
+            <CursorButton {...args} />
+        </div>
+    ),
 };
 
-export default meta;
-type Story = StoryObj<typeof CursorButton>;
-
-export const Default: Story = {
+export const Default: StoryObj<typeof CursorButton> = {
+    ...Template,
     args: {
+        onClick: () => alert("Cursor clicked"),
         color: "white",
         size: "medium",
+        isSelected: false,
     },
 };
 
-export const YellowLarge: Story = {
+export const Selected: StoryObj<typeof CursorButton> = {
+    ...Template,
     args: {
-        color: "yellow",
-        size: "large",
-    },
-};
-
-export const PurpleSmall: Story = {
-    args: {
+        onClick: () => alert("Cursor clicked"),
         color: "purple",
+        size: "large",
+        isSelected: true,
+    },
+};
+
+export const DarkMode: StoryObj<typeof CursorButton> = {
+    ...Template,
+    args: {
+        onClick: () => alert("Cursor clicked"),
+        color: "mint",
         size: "small",
+        isSelected: false,
     },
 };

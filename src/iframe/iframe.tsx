@@ -6,6 +6,8 @@ import { MenubarButton } from "@src/components/menubarButton";
 
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
+import { CursorProvider } from "@src/contexts/CursorContext";
+import { CursorButton } from "@src/components/cursorButton";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -23,8 +25,10 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
         case "cursor":
             return (
                 <div>
-                    <h2>커서 설정</h2>
-                    <p>커서 크기 및 색상 설정 내용이 여기에 표시됩니다.</p>
+                    <CursorButton
+                        onClick={() => console.log()}
+                        isSelected={true}
+                    />
                 </div>
             );
         case "font":
@@ -93,29 +97,31 @@ const App = () => {
 
     return (
         <AppThemeProvider>
-            <div className="pointer-events-auto">
-                {!isModalOpen && <FloatingButton onClick={openModal} />}
-                <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                    {menuItems.map((item) => (
-                        <MenubarButton
-                            key={item.id}
-                            isSelected={selectedMenu === item.id}
-                            text={item.text}
-                            onClick={() => handleMenuClick(item.id)}
-                            ariaLabel={`${item.text} 선택`}
-                        />
-                    ))}
-                    <div
-                        className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
-                            isModalOpen && selectedMenu !== null
-                                ? "flex"
-                                : "hidden"
-                        }`}
-                    >
-                        <PanelContent menuId={selectedMenu} />
-                    </div>
-                </Menubar>
-            </div>
+            <CursorProvider>
+                <div className="pointer-events-auto">
+                    {!isModalOpen && <FloatingButton onClick={openModal} />}
+                    <Menubar isOpen={isModalOpen} onClose={closeModal}>
+                        {menuItems.map((item) => (
+                            <MenubarButton
+                                key={item.id}
+                                isSelected={selectedMenu === item.id}
+                                text={item.text}
+                                onClick={() => handleMenuClick(item.id)}
+                                ariaLabel={`${item.text} 선택`}
+                            />
+                        ))}
+                        <div
+                            className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                                isModalOpen && selectedMenu !== null
+                                    ? "flex"
+                                    : "hidden"
+                            }`}
+                        >
+                            <PanelContent menuId={selectedMenu} />
+                        </div>
+                    </Menubar>
+                </div>
+            </CursorProvider>
         </AppThemeProvider>
     );
 };

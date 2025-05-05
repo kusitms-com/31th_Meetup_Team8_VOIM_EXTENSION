@@ -21,7 +21,7 @@ export function MenubarButton({
     return (
         <button
             onClick={onClick}
-            className={`${fontClasses.fontHeading} font-koddi cursor-pointer flex items-center justify-between rounded-[14px] w-[420px] h-[88px] p-5 
+            className={`${fontClasses.fontHeading} font-koddi flex items-center justify-between rounded-[14px] w-[420px] h-[88px] p-5 
                 ${
                     isSelected
                         ? isDarkMode
@@ -39,7 +39,7 @@ export function MenubarButton({
             aria-haspopup="menu"
         >
             {text}
-            {isSelected ? <CheckmarkIcon /> : ""}
+            {isSelected && <CheckmarkIcon data-testid="checkmark-icon" />}
         </button>
     );
 }

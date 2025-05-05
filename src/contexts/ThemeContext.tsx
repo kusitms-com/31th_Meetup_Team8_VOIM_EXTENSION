@@ -18,7 +18,7 @@ interface AppThemeContextValue {
     };
 }
 
-const AppThemeContext = createContext<AppThemeContextValue | undefined>(
+export const AppThemeContext = createContext<AppThemeContextValue | undefined>(
     undefined,
 );
 
@@ -65,7 +65,7 @@ const fontWeightClassMap: Record<FontWeight, string> = {
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
     // TODO: 배포할때 기본값 변경
-    const [theme, setThemeState] = useState<ThemeMode>("dark");
+    const [theme, setThemeState] = useState<ThemeMode>("light");
     const [fontSize, setFontSizeState] = useState<FontSize>("xl");
     const [fontWeight, setFontWeightState] = useState<FontWeight>("xbold");
 
