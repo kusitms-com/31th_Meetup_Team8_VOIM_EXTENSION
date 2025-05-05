@@ -1,10 +1,25 @@
 import React from "react";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, act, waitFor } from "@testing-library/react";
 import { AppThemeProvider, useAppTheme } from "../ThemeContext";
 import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
-const mockedChrome = chrome as any;
+// 로거 모킹
+jest.mock("@src/utils/logger", () => ({
+    logger: {
+        error: jest.fn(),
+    },
+}));
+
+// chrome API 모킹
+global.chrome = {
+    storage: {
+        local: {
+            get: jest.fn(),
+            set: jest.fn().mockResolvedValue(undefined),
+        },
+    },
+} as any;
 
 const DummyComponent = () => {
     const {
@@ -23,6 +38,8 @@ const DummyComponent = () => {
             <div data-testid="fontSize">{fontSize}</div>
             <div data-testid="fontWeight">{fontWeight}</div>
             <div data-testid="fontHeading">{fontClasses.fontHeading}</div>
+            <div data-testid="fontCommon">{fontClasses.fontCommon}</div>
+            <div data-testid="fontCaption">{fontClasses.fontCaption}</div>
             <button onClick={() => setTheme("light")}>Set Light Theme</button>
             <button onClick={() => setTheme("dark")}>Set Dark Theme</button>
             <button onClick={() => setFontSize("s")}>
@@ -35,176 +52,168 @@ const DummyComponent = () => {
     );
 };
 
+const renderWithProvider = async () => {
+    return render(
+        <AppThemeProvider>
+            <DummyComponent />
+        </AppThemeProvider>,
+    );
+};
+
 describe("AppThemeProvider", () => {
     beforeEach(() => {
-        mockedChrome.storage.local.get.mockReset();
-        mockedChrome.storage.local.set.mockReset();
+        jest.clearAllMocks();
     });
 
-    it("기본값으로 시작", async () => {
-        mockedChrome.storage.local.get.mockResolvedValue({});
+    it("초기값을 기본으로 제공한다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({});
 
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            expect(screen.getByTestId("theme")).toHaveTextContent("light");
-            expect(screen.getByTestId("fontSize")).toHaveTextContent("xl");
-            expect(screen.getByTestId("fontWeight")).toHaveTextContent("xbold");
+            expect(screen.getByTestId("theme").textContent).toBe("light");
         });
+        expect(screen.getByTestId("fontSize").textContent).toBe("xl");
+        expect(screen.getByTestId("fontWeight").textContent).toBe("xbold");
     });
 
-    it("저장된 설정값 불러오기", async () => {
-        mockedChrome.storage.local.get.mockResolvedValue({
+    it("chrome.storage에서 값을 불러온다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({
             "theme-mode": "dark",
             "font-size": "m",
             "font-weight": "bold",
         });
 
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            expect(screen.getByTestId("theme")).toHaveTextContent("dark");
-            expect(screen.getByTestId("fontSize")).toHaveTextContent("m");
-            expect(screen.getByTestId("fontWeight")).toHaveTextContent("bold");
+            expect(screen.getByTestId("theme").textContent).toBe("dark");
+        });
+        expect(screen.getByTestId("fontSize").textContent).toBe("m");
+        expect(screen.getByTestId("fontWeight").textContent).toBe("bold");
+    });
+
+    it("테마를 변경하고 chrome.storage에 저장한다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({});
+
+        renderWithProvider();
+
+        await waitFor(() => {
+            expect(screen.getByTestId("theme")).toBeInTheDocument();
+        });
+
+        await act(async () => {
+            await userEvent.click(screen.getByText("Set Dark Theme"));
+        });
+
+        await waitFor(() => {
+            expect(screen.getByTestId("theme").textContent).toBe("dark");
+        });
+
+        expect(chrome.storage.local.set).toHaveBeenCalledWith({
+            "theme-mode": "dark",
         });
     });
 
-    it("테마 변경 및 저장", async () => {
-        const user = userEvent.setup();
-        mockedChrome.storage.local.get.mockResolvedValue({});
+    it("글자 크기를 변경하고 chrome.storage에 저장한다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({});
 
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            expect(screen.getByTestId("theme")).toHaveTextContent("light");
+            expect(screen.getByTestId("fontSize")).toBeInTheDocument();
         });
 
-        await user.click(screen.getByText("Set Dark Theme"));
+        await act(async () => {
+            await userEvent.click(screen.getByText("Set Font Size Small"));
+        });
 
         await waitFor(() => {
-            expect(screen.getByTestId("theme")).toHaveTextContent("dark");
-            expect(mockedChrome.storage.local.set).toHaveBeenCalledWith({
-                "theme-mode": "dark",
-            });
+            expect(screen.getByTestId("fontSize").textContent).toBe("s");
+        });
+
+        expect(chrome.storage.local.set).toHaveBeenCalledWith({
+            "font-size": "s",
         });
     });
 
-    it("글자 크기 변경 및 저장", async () => {
-        const user = userEvent.setup();
-        mockedChrome.storage.local.get.mockResolvedValue({});
+    it("글자 굵기를 변경하고 chrome.storage에 저장한다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({});
 
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            expect(screen.getByTestId("fontSize")).toHaveTextContent("xl");
+            expect(screen.getByTestId("fontWeight")).toBeInTheDocument();
         });
 
-        await user.click(screen.getByText("Set Font Size Small"));
-
-        await waitFor(() => {
-            expect(screen.getByTestId("fontSize")).toHaveTextContent("s");
-            expect(mockedChrome.storage.local.set).toHaveBeenCalledWith({
-                "font-size": "s",
-            });
-        });
-    });
-
-    it("글자 굵기 변경 및 저장", async () => {
-        const user = userEvent.setup();
-        mockedChrome.storage.local.get.mockResolvedValue({});
-
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
-
-        await waitFor(() => {
-            expect(screen.getByTestId("fontWeight")).toHaveTextContent("xbold");
+        await act(async () => {
+            await userEvent.click(screen.getByText("Set Font Weight Regular"));
         });
 
-        await user.click(screen.getByText("Set Font Weight Regular"));
-
         await waitFor(() => {
-            expect(screen.getByTestId("fontWeight")).toHaveTextContent(
+            expect(screen.getByTestId("fontWeight").textContent).toBe(
                 "regular",
             );
-            expect(mockedChrome.storage.local.set).toHaveBeenCalledWith({
-                "font-weight": "regular",
-            });
+        });
+
+        expect(chrome.storage.local.set).toHaveBeenCalledWith({
+            "font-weight": "regular",
         });
     });
 
-    it("저장된 값에 따라 fontClasses 계산", async () => {
-        mockedChrome.storage.local.get.mockResolvedValue({
+    it("상태에 따라 fontClasses가 올바르게 계산된다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({
             "font-size": "xs",
             "font-weight": "regular",
         });
 
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            const fontHeading = screen.getByTestId("fontHeading");
-            expect(fontHeading).toHaveTextContent(/text-\[24px\]/);
-            expect(fontHeading).toHaveTextContent(/font-normal/);
+            expect(screen.getByTestId("fontHeading")).toBeInTheDocument();
         });
+
+        // text-[24px]와 같은 tailwind 클래스의 정확한 값 대신 정규식 사용
+        const headingContent = screen.getByTestId("fontHeading").textContent;
+        const commonContent = screen.getByTestId("fontCommon").textContent;
+        const captionContent = screen.getByTestId("fontCaption").textContent;
+
+        expect(headingContent).toContain("text-[24px]");
+        expect(headingContent).toContain("font-normal");
+
+        expect(commonContent).toContain("text-[20px]");
+        expect(commonContent).toContain("font-normal");
+
+        expect(captionContent).toContain("text-[16px]");
+        expect(captionContent).toContain("font-normal");
     });
 
-    it("Provider 없이 훅 사용 시 에러 발생", () => {
+    it("Provider 없이 훅을 사용할 경우 에러를 발생시킨다", () => {
         const consoleErrorSpy = jest
             .spyOn(console, "error")
             .mockImplementation(() => {});
 
         const BrokenComponent = () => {
-            useAppTheme();
+            useAppTheme(); // will throw
             return null;
         };
 
-        type ErrorBoundaryProps = {
-            children: React.ReactNode;
-        };
-
-        type ErrorBoundaryState = {
-            hasError: boolean;
-        };
-
         class ErrorBoundary extends React.Component<
-            ErrorBoundaryProps,
-            ErrorBoundaryState
+            { children: React.ReactNode },
+            { hasError: boolean }
         > {
-            constructor(props: ErrorBoundaryProps) {
+            constructor(props: any) {
                 super(props);
                 this.state = { hasError: false };
             }
 
-            static getDerivedStateFromError(): ErrorBoundaryState {
+            static getDerivedStateFromError() {
                 return { hasError: true };
             }
 
-            render(): React.ReactNode {
-                if (this.state.hasError) {
+            render() {
+                if (this.state.hasError)
                     return <div data-testid="error">에러 발생</div>;
-                }
                 return this.props.children;
             }
         }
@@ -216,31 +225,62 @@ describe("AppThemeProvider", () => {
         );
 
         expect(screen.getByTestId("error")).toBeInTheDocument();
+        // ErrorBoundary에 의해 에러가 잡혔으므로 단순히 에러가 발생했는지만 확인
+        expect(consoleErrorSpy).toHaveBeenCalled();
 
         consoleErrorSpy.mockRestore();
     });
 
-    it("잘못된 값 처리", async () => {
-        mockedChrome.storage.local.get.mockResolvedValue({
+    it("chrome.storage가 없을 경우에도 정상적으로 동작한다", async () => {
+        // chrome.storage를 임시로 undefined로 설정
+        const originalChromeStorage = chrome.storage;
+        chrome.storage = undefined as any;
+
+        renderWithProvider();
+
+        await waitFor(() => {
+            expect(screen.getByTestId("theme").textContent).toBe("light");
+        });
+
+        // chrome.storage 복원
+        chrome.storage = originalChromeStorage;
+    });
+
+    it("잘못된 값이 chrome.storage에 있는 경우 기본값을 사용한다", async () => {
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({
+            "theme-mode": "invalid-theme",
             "font-size": "invalid-size",
             "font-weight": "invalid-weight",
         });
 
-        const consoleErrorSpy = jest
-            .spyOn(console, "error")
-            .mockImplementation(() => {});
-
-        render(
-            <AppThemeProvider>
-                <DummyComponent />
-            </AppThemeProvider>,
-        );
+        renderWithProvider();
 
         await waitFor(() => {
-            expect(screen.getByTestId("fontSize")).toHaveTextContent("xl");
-            expect(screen.getByTestId("fontWeight")).toHaveTextContent("xbold");
+            expect(screen.getByTestId("theme").textContent).toBe("light");
+        });
+        expect(screen.getByTestId("fontSize").textContent).toBe("xl");
+        expect(screen.getByTestId("fontWeight").textContent).toBe("xbold");
+    });
+
+    it("chrome.storage 값을 저장할 때 에러가 발생하면 로그를 남긴다", async () => {
+        const { logger } = jest.requireMock("@src/utils/logger");
+        (chrome.storage.local.get as jest.Mock).mockResolvedValue({});
+        (chrome.storage.local.set as jest.Mock).mockRejectedValueOnce(
+            new Error("Storage error"),
+        );
+
+        renderWithProvider();
+
+        await waitFor(() => {
+            expect(screen.getByTestId("theme")).toBeInTheDocument();
         });
 
-        consoleErrorSpy.mockRestore();
+        await act(async () => {
+            await userEvent.click(screen.getByText("Set Dark Theme"));
+        });
+
+        await waitFor(() => {
+            expect(logger.error).toHaveBeenCalledWith(expect.any(Error));
+        });
     });
 });

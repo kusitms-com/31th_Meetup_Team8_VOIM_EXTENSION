@@ -1,14 +1,13 @@
 import "../src/css/app.css";
 import React from "react";
-import { ThemeProvider } from "@src/contexts/ThemeContext";
+import { AppThemeContext } from "../src/contexts/ThemeContext.tsx";
 
 const preview = {
     decorators: [
         (StoryFn) => (
-            <ThemeProvider>
-                <Global />
+            <AppThemeContext.Provider>
                 <StoryFn />
-            </ThemeProvider>
+            </AppThemeContext.Provider>
         ),
     ],
 };

@@ -1,7 +1,5 @@
 import React from "react";
-import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 import { logger } from "@src/utils/logger";
-import { SettingsResetButton } from "../closeButton";
 import { useAppTheme } from "@src/contexts/ThemeContext";
 import { BaseButton } from "../baseButton/component";
 import { CloseButton } from "../closeButton/component";
@@ -13,7 +11,7 @@ interface ModalProps {
 }
 
 export function Menubar({ isOpen, onClose, children }: ModalProps) {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme } = useAppTheme();
     const isDarkMode = theme === "dark";
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target === e.currentTarget) {
