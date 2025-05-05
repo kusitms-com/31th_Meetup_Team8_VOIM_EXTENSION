@@ -41,9 +41,7 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
     document.body.appendChild(iframe);
 }
 
-// content-script.js
 (() => {
-    // 페이지 로드 시 최신 커서 설정 가져오기
     chrome.runtime.sendMessage({ type: "GET_CURSOR_SETTINGS" }, (response) => {
         if (response && response.cursorUrl) {
             applyCursorStyle(response.cursorUrl);
@@ -51,7 +49,6 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
         }
     });
 
-    // 확장 프로그램에서 메시지 수신
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === "UPDATE_CURSOR") {
             applyCursorStyle(message.cursorUrl);
@@ -60,11 +57,9 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
         }
     });
 
-    // 커서 스타일 적용
     function applyCursorStyle(cursorUrl: string) {
         console.log(cursorUrl);
         try {
-            // 기존 스타일 요소가 있으면 제거
             const existingStyle = document.getElementById(
                 "custom-cursor-style",
             );
@@ -72,7 +67,6 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
                 document.head.removeChild(existingStyle);
             }
 
-            // 새 스타일 요소 생성 및 추가
             const styleElement = document.createElement("style");
             styleElement.id = "custom-cursor-style";
             styleElement.textContent = `

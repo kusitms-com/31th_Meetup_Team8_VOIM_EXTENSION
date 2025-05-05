@@ -20,31 +20,31 @@ export function ShortcutTab() {
                 <div className="flex flex-col gap-4">
                     <ContentBox>
                         <div>고대비 화면 사용하기 또는 중지하기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + H</div>
                     </ContentBox>
                     <ContentBox>
                         <div>설정한 커서 사용하기 또는 중지하기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + C</div>
                     </ContentBox>
                     <ContentBox>
                         <div>설정한 글자로 보기 또는 기본 글자로 보기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + T</div>
                     </ContentBox>
                     <ContentBox>
                         <div>이미지 분석하기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + I</div>
                     </ContentBox>
                     <ContentBox>
                         <div>메뉴 열기 또는 닫기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + O</div>
                     </ContentBox>
                     <ContentBox>
                         <div>서비스 아이콘 띄우기 또는 끄기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + V</div>
                     </ContentBox>
                     <ContentBox>
                         <div>서비스 실행하기 또는 종료하기</div>
-                        <div>Ctrl +R</div>
+                        <div>ALT + A</div>
                     </ContentBox>
                 </div>
             </section>

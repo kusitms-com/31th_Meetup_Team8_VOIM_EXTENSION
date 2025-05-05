@@ -31,5 +31,14 @@
         "128": "icons/icon-128.png"
     },
     "host_permissions": ["<all_urls>"],
-    "permissions": ["scripting", "activeTab", "storage", "tabs"]
+    "permissions": ["scripting", "activeTab", "storage", "tabs"],
+    "commands": {
+        "toggle_iframe": {
+            "suggested_key": {
+                "default": "Alt+O",
+                "mac": "MacCtrl+O"
+            },
+            "description": "Toggle floating iframe"
+        }
+    }
 }
