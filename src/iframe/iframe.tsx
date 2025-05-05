@@ -3,12 +3,12 @@ import React, { useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
-import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
 import { BaseButton } from "@src/components/baseButton/component";
 import { CursorTab } from "@src/components/cursorTab";
+import "../css/app.css";
+import { ShortcutTab } from "@src/components/shortcutTab";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -37,26 +37,21 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                 </div>
             );
         case "shortcut":
-            return (
-                <div>
-                    <h2>단축키 안내</h2>
-                    <p>단축키 안내 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
-        case "service":
-            return (
-                <div>
-                    <h2>서비스 설정</h2>
-                    <p>서비스 설정 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
-        case "profile":
-            return (
-                <div>
-                    <h2>내 정보 설정</h2>
-                    <p>내 정보 설정 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
+            return <ShortcutTab />;
+        // case "service":
+        //     return (
+        //         <div>
+        //             <h2>서비스 설정</h2>
+        //             <p>서비스 설정 내용이 여기에 표시됩니다.</p>
+        //         </div>
+        //     );
+        // case "profile":
+        //     return (
+        //         <div>
+        //             <h2>내 정보 설정</h2>
+        //             <p>내 정보 설정 내용이 여기에 표시됩니다.</p>
+        //         </div>
+        //     );
         default:
             return null;
     }
@@ -67,8 +62,8 @@ const menuItems = [
     { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
-    { id: "service", text: "서비스 설정하기" },
-    { id: "profile", text: "내 정보 설정하기" },
+    // { id: "service", text: "서비스 설정하기" },
+    // { id: "profile", text: "내 정보 설정하기" },
 ];
 
 const App = () => {

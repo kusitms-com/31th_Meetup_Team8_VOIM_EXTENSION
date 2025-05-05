@@ -26,7 +26,9 @@ export function CursorTab() {
     return (
         <div
             className={`font-koddi p-[18px] rounded-[20px] shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] ${
-                isDarkMode ? `bg-grayscale-900` : `bg-grayscale-100`
+                isDarkMode
+                    ? `bg-grayscale-900 text-grayscale-100`
+                    : `bg-grayscale-100 text-grayscale-900`
             }`}
         >
             <section className="mb-[26px]">
