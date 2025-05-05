@@ -7,7 +7,7 @@ interface CursorButtonProps {
     onClick: () => void;
     color?: "white" | "purple" | "yellow" | "mint" | "pink" | "black";
     size?: "small" | "medium" | "large";
-    isSelected: boolean;
+    isSelected?: boolean;
 }
 
 export function CursorButton({
@@ -38,7 +38,6 @@ export function CursorButton({
             <img
                 src={getExtensionUrl(fileName)}
                 alt={`커서: ${size}, ${color}`}
-                className="group-hover:opacity-20"
             />
             {isSelected && (
                 <CheckmarkIcon className="absolute -right-[10px] -top-[10px]" />

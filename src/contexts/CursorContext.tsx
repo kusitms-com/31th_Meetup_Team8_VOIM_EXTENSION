@@ -65,26 +65,28 @@ export function CursorProvider({
     const [cursorSize, setCursorSizeState] = useState<CursorSize>(initialSize);
 
     useEffect(() => {
-        chrome.storage.sync.get(["cursorTheme", "cursorSize"], (result) => {
-            if (
-                result.cursorTheme &&
-                Object.keys(cursorImages).includes(result.cursorTheme)
-            ) {
-                setCursorThemeState(result.cursorTheme as CursorTheme);
-            }
+        if (typeof chrome !== "undefined" && chrome.storage?.sync) {
+            chrome.storage.sync.get(["cursorTheme", "cursorSize"], (result) => {
+                if (
+                    result.cursorTheme &&
+                    Object.keys(cursorImages).includes(result.cursorTheme)
+                ) {
+                    setCursorThemeState(result.cursorTheme as CursorTheme);
+                }
 
-            if (
-                result.cursorSize &&
-                ["small", "medium", "large"].includes(result.cursorSize)
-            ) {
-                setCursorSizeState(result.cursorSize as CursorSize);
-            }
-        });
+                if (
+                    result.cursorSize &&
+                    ["small", "medium", "large"].includes(result.cursorSize)
+                ) {
+                    setCursorSizeState(result.cursorSize as CursorSize);
+                }
+            });
+        }
     }, []);
 
     const setCursorTheme = (newTheme: CursorTheme) => {
         setCursorThemeState(newTheme);
-        chrome.storage.sync.set({ cursorTheme: newTheme });
+        chrome.storage?.sync?.set?.({ cursorTheme: newTheme });
     };
 
     const setCursorSize = (newSize: CursorSize) => {

@@ -1,3 +1,4 @@
+import { logger } from "@src/utils/logger";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type ThemeMode = "light" | "dark";
@@ -70,6 +71,7 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
     const [fontWeight, setFontWeightState] = useState<FontWeight>("xbold");
 
     useEffect(() => {
+        if (!chrome?.storage?.local) return;
         const loadSettings = async () => {
             const result = await chrome.storage.local.get([
                 THEME_KEY,
@@ -95,17 +97,29 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
 
     const setTheme = (newTheme: ThemeMode) => {
         setThemeState(newTheme);
-        chrome.storage.local.set({ [THEME_KEY]: newTheme });
+        if (chrome?.storage?.local) {
+            chrome.storage.local
+                .set({ [THEME_KEY]: newTheme })
+                .catch((err) => logger.error(err));
+        }
     };
 
     const setFontSize = (newSize: FontSize) => {
         setFontSizeState(newSize);
-        chrome.storage.local.set({ [FONT_SIZE_KEY]: newSize });
+        if (chrome?.storage?.local) {
+            chrome.storage.local
+                .set({ [FONT_SIZE_KEY]: newSize })
+                .catch((err) => logger.error(err));
+        }
     };
 
     const setFontWeight = (newWeight: FontWeight) => {
         setFontWeightState(newWeight);
-        chrome.storage.local.set({ [FONT_WEIGHT_KEY]: newWeight });
+        if (chrome?.storage?.local) {
+            chrome.storage.local
+                .set({ [FONT_WEIGHT_KEY]: newWeight })
+                .catch((err) => logger.error(err));
+        }
     };
 
     const base = fontSizeClassMap[fontSize];
