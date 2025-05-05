@@ -1,1 +1,1 @@
-export { SettingsResetButton } from "./component";
+export { CloseButton } from "./component";

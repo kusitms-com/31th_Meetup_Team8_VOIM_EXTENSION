@@ -7,8 +7,8 @@ import { MenubarButton } from "@src/components/menubarButton";
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
-import { CursorButton } from "@src/components/cursorButton";
 import { BaseButton } from "@src/components/baseButton/component";
+import { CursorTab } from "@src/components/cursorTab";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -24,14 +24,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                 </div>
             );
         case "cursor":
-            return (
-                <div>
-                    <CursorButton
-                        onClick={() => console.log()}
-                        isSelected={true}
-                    />
-                </div>
-            );
+            return <CursorTab />;
         case "font":
             return (
                 <div>
@@ -116,7 +109,7 @@ const App = () => {
                             />
                         ))}
                         <div
-                            className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                            className={`fixed right-[510px] top-[70px]  p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
                                 isModalOpen && selectedMenu !== null
                                     ? "flex"
                                     : "hidden"
