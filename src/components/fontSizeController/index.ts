@@ -1,1 +1,0 @@
-export { FontSizeController } from "./component";

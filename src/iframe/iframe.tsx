@@ -7,7 +7,7 @@ import { MenubarButton } from "@src/components/menubarButton";
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
-import { CursorButton } from "@src/components/cursorIcon";
+import { CursorButton } from "@src/components/cursorButton";
 import { BaseButton } from "@src/components/baseButton/component";
 
 interface PanelContentProps {
