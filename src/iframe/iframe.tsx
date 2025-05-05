@@ -7,7 +7,8 @@ import { MenubarButton } from "@src/components/menubarButton";
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
-import { CursorButton } from "@src/components/cursorButton";
+import { CursorButton } from "@src/components/cursorIcon";
+import { BaseButton } from "@src/components/baseButton/component";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -34,8 +35,12 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
         case "font":
             return (
                 <div>
-                    <h2>글자 설정</h2>
-                    <p>글자 크기 및 폰트 설정 내용이 여기에 표시됩니다.</p>
+                    <BaseButton
+                        onClick={() => console.log()}
+                        isSelected={false}
+                    >
+                        choigo
+                    </BaseButton>
                 </div>
             );
         case "shortcut":

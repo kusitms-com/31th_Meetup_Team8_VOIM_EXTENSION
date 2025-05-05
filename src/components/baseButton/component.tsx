@@ -1,53 +1,44 @@
+import { useAppTheme } from "@src/contexts/ThemeContext";
 import React from "react";
+import { CheckmarkIcon } from "../checkmarkIcon";
 
 interface BaseButtonProps {
     children: React.ReactNode;
     onClick: () => void;
     ariaLabel?: string;
-    color?: "gray" | "white" | "purple" | "black" | "yellow" | "dark";
     isSelected?: boolean;
 }
-
-const buttonStyles = {
-    gray: "bg-grayscale-200 text-grayscale-900 border-grayscale-300 hover:bg-grayscale-200 hover:border-grayscale-300 hover:text-grayscale-400 ",
-    white: "bg-grayscale-100 text-grayscale-900 border-grayscale-300 hover:bg-grayscale-100 hover:border-grayscale-300 hover:text-grayscale-500",
-    purple: "bg-purple-default text-grayscale-100 border-none hover:bg-purple-light hover:border-none hover:text-grayscale-100",
-    yellow: "bg-yellow-default text-grayscale-900 border-none hover:bg-yellow-light hover:border-none hover:text-grayscale-600",
-    black: "bg-grayscale-900 text-grayscale-100 border-grayscale-800 hover:bg-grayscale-800 hover:border-grayscale-800 hover:text-grayscale-500",
-    dark: "bg-grayscale-800 text-grayscale-100 border-grayscale-800 hover:bg-grayscale-700 hover:border-grayscale-800 hover:text-grayscale-500",
-};
-
-const selectedStyles = {
-    gray: "bg-grayscale-200 border-purple-default text-grayscale-900",
-    white: "bg-grayscale-100 border-purple-default text-grayscale-900",
-    purple: "bg-purple-default border-purple-default text-grayscale-100",
-    yellow: "bg-yellow-default border-purple-default text-grayscale-900",
-    black: "bg-grayscale-900 border-purple-default text-grayscale-100",
-    dark: "bg-grayscale-800 border-purple-default text-grayscale-100",
-};
-
-const baseClasses =
-    "rounded-[14px] w-[140px] h-[140px] flex items-center justify-center border-4 border-solid font-24-Regular font-koddi group";
 
 export function BaseButton({
     children,
     onClick,
     ariaLabel,
-    color = "gray",
     isSelected = false,
 }: BaseButtonProps) {
-    const colorClasses = isSelected
-        ? selectedStyles[color]
-        : buttonStyles[color];
-
+    const { theme, fontClasses } = useAppTheme();
+    const isDarkMode = theme === "dark";
     return (
         <button
-            className={`${baseClasses} ${colorClasses}`}
+            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${
+                isSelected
+                    ? isDarkMode
+                        ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"
+                        : "bg-grayscale-100 text-grayscale-900 border-4 border-solid border-purple-default"
+                    : isDarkMode
+                      ? "bg-grayscale-900 text-grayscale-100 hover:opacity-30 border-4 border-solid border-grayscale-700 active:border-purple-light active:hover:opacity-100"
+                      : "bg-grayscale-100 text-grayscale-900 hover:opacity-30 border-4 border-solid border-grayscale-300 active:border-purple-default active:hover:opacity-100"
+            }`}
             onClick={onClick}
             aria-label={ariaLabel}
             aria-pressed={isSelected}
         >
             {children}
+            {isSelected && (
+                <CheckmarkIcon
+                    className="absolute -right-[10px] -top-[10px]"
+                    data-testid="checkmark-icon"
+                />
+            )}
         </button>
     );
 }
