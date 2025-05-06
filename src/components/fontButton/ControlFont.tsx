@@ -25,7 +25,7 @@ const ControlFont = () => {
     };
 
     return (
-        <div className="w-[773px] h-[334px] inline-flex flex-col items-start p-[18px] rounded-[20px] bg-grayscale-100 shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]">
+        <div className="w-[800px] h-[334px] inline-flex flex-col items-start p-[18px] rounded-[20px] bg-grayscale-100 shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]">
             <div className="flex flex-col gap-[26px]">
                 <h2 className="font-24-Bold">글자 두께 바꾸기</h2>
                 <div className="flex gap-4">
