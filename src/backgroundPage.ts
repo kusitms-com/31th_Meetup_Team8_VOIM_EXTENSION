@@ -8,6 +8,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         "SET_FONT_WEIGHT_REGULAR",
         "SET_FONT_WEIGHT_BOLD",
         "SET_FONT_WEIGHT_XBOLD",
+        "SET_MODE_LIGHT",
+        "SET_MODE_DARK",
     ];
 
     if (allowedFontMessages.includes(message.type)) {

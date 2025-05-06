@@ -8,6 +8,7 @@ import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
 import { CursorButton } from "@src/components/cursorButton";
 import ControlFont from "@src/components/fontButton/ControlFont";
+import ControlMode from "@src/components/modeButton/ControlMode";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -16,12 +17,7 @@ interface PanelContentProps {
 const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     switch (menuId) {
         case "high-contrast":
-            return (
-                <div>
-                    <h2>고대비 화면 설정</h2>
-                    <p>고대비 화면 설정 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
+            return <ControlMode />;
         case "cursor":
             return (
                 <div>
