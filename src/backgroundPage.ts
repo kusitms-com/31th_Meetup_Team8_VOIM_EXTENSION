@@ -1,11 +1,28 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.type === "SOME_EVENT") {
-        sendResponse({ success: true });
-    }
-    return true;
-});
+    const allowedFontMessages = [
+        "SET_FONT_SIZE_XS",
+        "SET_FONT_SIZE_S",
+        "SET_FONT_SIZE_M",
+        "SET_FONT_SIZE_L",
+        "SET_FONT_SIZE_XL",
+        "SET_FONT_WEIGHT_REGULAR",
+        "SET_FONT_WEIGHT_BOLD",
+        "SET_FONT_WEIGHT_XBOLD",
+    ];
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (allowedFontMessages.includes(message.type)) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]?.id) {
+                chrome.tabs.sendMessage(tabs[0].id, message, (res) => {
+                    sendResponse(res);
+                });
+            } else {
+                sendResponse({ success: false, error: "탭 없음" });
+            }
+        });
+        return true;
+    }
+
     if (message.type === "RESET_SETTINGS") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]?.id) {
@@ -17,8 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 });
             }
         });
-
         sendResponse({ success: true });
+        return true;
     }
-    return true;
 });

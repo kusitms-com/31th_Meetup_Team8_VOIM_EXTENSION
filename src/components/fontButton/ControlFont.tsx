@@ -2,26 +2,43 @@ import React, { useState } from "react";
 import { FontButton } from "./component";
 
 const ControlFont = () => {
-    const [selectedWeight, setSelectedWeight] = useState("두껍게");
-    const [selectedSize, setSelectedSize] = useState("기본");
+    const [selectedWeight, setSelectedWeight] = useState("XBOLD");
+    const [selectedSize, setSelectedSize] = useState("M");
 
     const sendMessage = (type: string) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (!tabs[0]?.id) return;
-            chrome.tabs.sendMessage(tabs[0].id, { type }, (response) => {
-                console.log("메시지 전송됨:", response);
-            });
+        chrome.runtime.sendMessage({ type }, (response) => {
+            if (chrome.runtime.lastError) {
+                console.error("에러:", chrome.runtime.lastError.message);
+            } else {
+                console.log("응답:", response);
+            }
         });
     };
 
-    const handleWeightClick = (weight: string) => {
-        setSelectedWeight(weight);
-        sendMessage(`SET_FONT_WEIGHT_${weight.toUpperCase()}`);
+    const weightMap: Record<string, string> = {
+        얇게: "REGULAR",
+        기본: "BOLD",
+        두껍게: "XBOLD",
     };
 
-    const handleSizeClick = (size: string) => {
-        setSelectedSize(size);
-        sendMessage(`SET_FONT_SIZE_${size.toUpperCase().replace(" ", "_")}`);
+    const sizeMap: Record<string, string> = {
+        "아주 작게": "XS",
+        작게: "S",
+        기본: "M",
+        크게: "L",
+        "아주 크게": "XL",
+    };
+
+    const handleWeightClick = (label: string) => {
+        const value = weightMap[label];
+        setSelectedWeight(value);
+        sendMessage(`SET_FONT_WEIGHT_${value}`);
+    };
+
+    const handleSizeClick = (label: string) => {
+        const value = sizeMap[label];
+        setSelectedSize(value);
+        sendMessage(`SET_FONT_SIZE_${value}`);
     };
 
     return (
@@ -29,13 +46,13 @@ const ControlFont = () => {
             <div className="flex flex-col gap-[26px]">
                 <h2 className="font-24-Bold">글자 두께 바꾸기</h2>
                 <div className="flex gap-4">
-                    {["얇게", "기본", "두껍게"].map((weight) => (
+                    {["얇게", "기본", "두껍게"].map((label) => (
                         <FontButton
-                            key={weight}
-                            onClick={() => handleWeightClick(weight)}
-                            isSelected={selectedWeight === weight}
+                            key={label}
+                            onClick={() => handleWeightClick(label)}
+                            isSelected={weightMap[label] === selectedWeight}
                         >
-                            {weight}
+                            {label}
                         </FontButton>
                     ))}
                 </div>
@@ -45,13 +62,13 @@ const ControlFont = () => {
                 <h2 className="font-24-Bold">글자 크기 바꾸기</h2>
                 <div className="flex gap-4 flex-wrap">
                     {["아주 작게", "작게", "기본", "크게", "아주 크게"].map(
-                        (size) => (
+                        (label) => (
                             <FontButton
-                                key={size}
-                                onClick={() => handleSizeClick(size)}
-                                isSelected={selectedSize === size}
+                                key={label}
+                                onClick={() => handleSizeClick(label)}
+                                isSelected={sizeMap[label] === selectedSize}
                             >
-                                {size}
+                                {label}
                             </FontButton>
                         ),
                     )}

@@ -1,10 +1,8 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import browser from "webextension-polyfill";
 import { Popup } from "./component";
 import "../css/app.css";
-
-// // // //
 
 browser.tabs
     .query({ active: true, currentWindow: true })
@@ -18,5 +16,11 @@ browser.tabs
         });
     })
     .then(() => {
-        ReactDOM.render(<Popup />, document.getElementById("popup"));
+        const container = document.getElementById("popup");
+        if (container) {
+            const root = createRoot(container);
+            root.render(<Popup />);
+        } else {
+            console.error("팝업을 렌더링할 DOM 요소를 찾지 못했습니다.");
+        }
     });
