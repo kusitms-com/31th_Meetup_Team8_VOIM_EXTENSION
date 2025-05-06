@@ -3,12 +3,11 @@ import React, { useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
 import { CursorButton } from "@src/components/cursorButton";
-import { BaseButton } from "@src/components/baseButton/component";
+import ControlFont from "@src/components/fontButton/ControlFont";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -35,12 +34,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
         case "font":
             return (
                 <div>
-                    <BaseButton
-                        onClick={() => console.log()}
-                        isSelected={false}
-                    >
-                        choigo
-                    </BaseButton>
+                    <ControlFont />
                 </div>
             );
         case "shortcut":
