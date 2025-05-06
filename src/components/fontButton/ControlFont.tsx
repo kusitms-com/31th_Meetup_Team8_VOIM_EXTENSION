@@ -1,19 +1,9 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FontButton } from "./component";
 
 const ControlFont = () => {
     const [selectedWeight, setSelectedWeight] = useState("XBOLD");
     const [selectedSize, setSelectedSize] = useState("M");
-
-    const sendMessage = (type: string) => {
-        chrome.runtime.sendMessage({ type }, (response) => {
-            if (chrome.runtime.lastError) {
-                console.error("에러:", chrome.runtime.lastError.message);
-            } else {
-                console.log("응답:", response);
-            }
-        });
-    };
 
     const weightMap: Record<string, string> = {
         얇게: "REGULAR",
@@ -28,16 +18,35 @@ const ControlFont = () => {
         크게: "L",
         "아주 크게": "XL",
     };
+    useEffect(() => {
+        const storedWeight = localStorage.getItem("selectedWeight");
+        const storedSize = localStorage.getItem("selectedSize");
+
+        if (storedWeight) setSelectedWeight(storedWeight);
+        if (storedSize) setSelectedSize(storedSize);
+    }, []);
+
+    const sendMessage = (type: string) => {
+        chrome.runtime.sendMessage({ type }, (response) => {
+            if (chrome.runtime.lastError) {
+                console.error("에러:", chrome.runtime.lastError.message);
+            } else {
+                console.log("응답:", response);
+            }
+        });
+    };
 
     const handleWeightClick = (label: string) => {
         const value = weightMap[label];
         setSelectedWeight(value);
+        localStorage.setItem("selectedWeight", value); // 저장
         sendMessage(`SET_FONT_WEIGHT_${value}`);
     };
 
     const handleSizeClick = (label: string) => {
         const value = sizeMap[label];
         setSelectedSize(value);
+        localStorage.setItem("selectedSize", value); // 저장
         sendMessage(`SET_FONT_SIZE_${value}`);
     };
 
