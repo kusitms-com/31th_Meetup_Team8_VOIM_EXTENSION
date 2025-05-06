@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import type { FontWeight, FontSize } from "@src/contexts/ThemeContext";
 import { FontButton } from "./component";
-
+import { useAppTheme } from "@src/contexts/ThemeContext";
 const ControlFont = () => {
-    const [selectedWeight, setSelectedWeight] = useState("XBOLD");
-    const [selectedSize, setSelectedSize] = useState("M");
-
+    const [selectedWeight, setSelectedWeight] = useState("BOLD");
+    const [selectedSize, setSelectedSize] = useState("S");
+    const { fontSize, setFontSize, fontWeight, setFontWeight } = useAppTheme();
+    // const [selectedWeight, setSelectedWeight] = useState(fontWeight.toUpperCase());
+    // const [selectedSize, setSelectedSize] = useState(fontSize.toUpperCase());
+    const { fontClasses } = useAppTheme();
     const weightMap: Record<string, string> = {
         얇게: "REGULAR",
         기본: "BOLD",
@@ -39,21 +43,26 @@ const ControlFont = () => {
     const handleWeightClick = (label: string) => {
         const value = weightMap[label];
         setSelectedWeight(value);
-        localStorage.setItem("selectedWeight", value); // 저장
+        localStorage.setItem("selectedWeight", value);
         sendMessage(`SET_FONT_WEIGHT_${value}`);
+        // setFontWeight(value as FontWeight);
     };
 
     const handleSizeClick = (label: string) => {
         const value = sizeMap[label];
         setSelectedSize(value);
-        localStorage.setItem("selectedSize", value); // 저장
+        localStorage.setItem("selectedSize", value);
         sendMessage(`SET_FONT_SIZE_${value}`);
+        // setFontSize(value as FontSize);
     };
 
     return (
-        <div className="w-[800px] h-[334px] inline-flex flex-col items-start p-[18px] rounded-[20px] bg-grayscale-100 shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]">
+        <div
+            className="w-[800px] h-[380px] inline-flex flex-col items-start p-[18px] rounded-[20px] bg-grayscale-100 shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]"
+            onClick={(e) => e.stopPropagation()}
+        >
             <div className="flex flex-col gap-[26px]">
-                <h2 className="font-24-Bold">글자 두께 바꾸기</h2>
+                <h2 className={fontClasses.fontCommon}>글자 두께 바꾸기</h2>
                 <div className="flex gap-4">
                     {["얇게", "기본", "두껍게"].map((label) => (
                         <FontButton
@@ -68,7 +77,7 @@ const ControlFont = () => {
             </div>
 
             <div className="flex flex-col gap-[26px]">
-                <h2 className="font-24-Bold">글자 크기 바꾸기</h2>
+                <h2 className={fontClasses.fontCommon}>글자 크기 바꾸기</h2>
                 <div className="flex gap-4 flex-wrap">
                     {["아주 작게", "작게", "기본", "크게", "아주 크게"].map(
                         (label) => (

@@ -14,7 +14,10 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
     const { theme } = useAppTheme();
     const isDarkMode = theme === "dark";
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === e.currentTarget) {
+        const container = document.querySelector(
+            '[data-testid="menubar-container"]',
+        );
+        if (container && !container.contains(e.target as Node)) {
             onClose();
         }
     };
@@ -45,7 +48,9 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
             data-testid="menubar-overlay"
         >
             <div
-                className={` ${isDarkMode ? `bg-grayscale-900` : `bg-grayscale-100`} fixed top-[70px] right-[20px] rounded-[30px] w-[460px] p-5 overflow-y-auto shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] font-koddi bg-grayscale-100`}
+                className={` ${
+                    isDarkMode ? `bg-grayscale-900` : `bg-grayscale-100`
+                } fixed top-[70px] right-[20px] rounded-[30px] w-[460px] p-5 overflow-y-auto shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] font-koddi bg-grayscale-100`}
                 data-testid="menubar-container"
             >
                 <div className="flex justify-between mb-6 font-24-Bold">
