@@ -110,7 +110,7 @@ const App = () => {
                             />
                         ))}
                         <div
-                            className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                            className={`fixed right-[510px] top-[70px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
                                 isModalOpen && selectedMenu !== null
                                     ? "flex"
                                     : "hidden"
