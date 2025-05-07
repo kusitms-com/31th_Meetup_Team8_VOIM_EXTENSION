@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { ModeButton } from "./component";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useAppTheme, ThemeMode } from "@src/contexts/ThemeContext";
 
 const ControlMode = () => {
     const [selectedMode, setSelectedMode] = useState("LIGHT");
-    const { fontClasses } = useAppTheme();
+    const { fontClasses, setTheme, theme } = useAppTheme();
+    const isDarkMode = theme === "dark";
 
     const modeMap: Record<string, "LIGHT" | "DARK"> = {
         "흰 배경\n검은 글씨": "LIGHT",
@@ -15,6 +16,10 @@ const ControlMode = () => {
         const storedMode = localStorage.getItem("selectedMode");
         if (storedMode) setSelectedMode(storedMode);
     }, []);
+
+    const toThemeMode = (value: string): ThemeMode => {
+        return value.toLowerCase() as ThemeMode;
+    };
 
     const sendMessage = (type: string) => {
         chrome.runtime.sendMessage({ type }, (response) => {
@@ -29,13 +34,21 @@ const ControlMode = () => {
     const handleModeClick = (label: string) => {
         const value = modeMap[label];
         setSelectedMode(value);
+
+        const themeMode = toThemeMode(value);
+        setTheme(themeMode);
+
         localStorage.setItem("selectedMode", value);
         sendMessage(`SET_MODE_${value}`);
     };
 
     return (
         <div
-            className="w-[430px] h-[250px] inline-flex flex-col items-start p-[18px] rounded-[20px] bg-grayscale-100 shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]"
+            className={`w-[430px] h-[250px] inline-flex flex-col items-start p-[18px] rounded-[20px] ${
+                isDarkMode
+                    ? `bg-grayscale-900 text-grayscale-100`
+                    : `bg-grayscale-100 text-grayscale-900`
+            } shadow-[0_0_4px_0_rgba(0,0,0,0.25)] space-y-[18px]`}
             onClick={(e) => e.stopPropagation()}
         >
             <div className="flex flex-col gap-[26px]">
