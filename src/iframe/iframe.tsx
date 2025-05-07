@@ -1,14 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-
 import { AppThemeProvider } from "@src/contexts/ThemeContext";
 import "../css/app.css";
 import { CursorProvider } from "@src/contexts/CursorContext";
 import { CursorButton } from "@src/components/cursorButton";
-import { BaseButton } from "@src/components/baseButton/component";
+import ControlFont from "@src/components/fontButton/ControlFont";
+import ControlMode from "@src/components/modeButton/ControlMode";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -17,12 +17,7 @@ interface PanelContentProps {
 const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     switch (menuId) {
         case "high-contrast":
-            return (
-                <div>
-                    <h2>고대비 화면 설정</h2>
-                    <p>고대비 화면 설정 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
+            return <ControlMode />;
         case "cursor":
             return (
                 <div>
@@ -35,12 +30,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
         case "font":
             return (
                 <div>
-                    <BaseButton
-                        onClick={() => console.log()}
-                        isSelected={false}
-                    >
-                        choigo
-                    </BaseButton>
+                    <ControlFont />
                 </div>
             );
         case "shortcut":
@@ -116,7 +106,7 @@ const App = () => {
                             />
                         ))}
                         <div
-                            className={`fixed right-[510px] top-[70px] w-[320px] bg-white shadow-md p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                            className={`fixed right-[510px] top-[70px] bg-none p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
                                 isModalOpen && selectedMenu !== null
                                     ? "flex"
                                     : "hidden"

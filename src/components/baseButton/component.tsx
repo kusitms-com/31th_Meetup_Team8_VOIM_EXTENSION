@@ -17,6 +17,7 @@ export function BaseButton({
 }: BaseButtonProps) {
     const { theme, fontClasses } = useAppTheme();
     const isDarkMode = theme === "dark";
+
     return (
         <button
             className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${
