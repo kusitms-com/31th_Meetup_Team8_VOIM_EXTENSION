@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { FontWeight, FontSize } from "@src/contexts/ThemeContext";
-import { FontButton } from "./component";
+import { FontButton } from "./component"; // FontButton 컴포넌트 임포트
 import { useAppTheme } from "@src/contexts/ThemeContext";
 
 type UppercaseFontWeight = "REGULAR" | "BOLD" | "XBOLD";
@@ -12,6 +12,7 @@ const ControlFont = () => {
     const [selectedSize, setSelectedSize] = useState<UppercaseFontSize>("S");
     const { setFontSize, setFontWeight, fontClasses, theme } = useAppTheme();
     const isDarkMode = theme === "dark";
+
     // 대문자를 소문자로 변환하는 함수들
     const toFontWeight = (value: string): FontWeight => {
         return value.toLowerCase() as FontWeight;
@@ -91,7 +92,7 @@ const ControlFont = () => {
 
     return (
         <div
-            className={`w-[800px] h-[380px] inline-flex flex-col items-start p-[18px] rounded-[20px]  ${
+            className={`inline-flex flex-col items-start p-[18px] rounded-[20px]  ${
                 isDarkMode
                     ? `bg-grayscale-900 text-grayscale-100`
                     : `bg-grayscale-100 text-grayscale-900`
@@ -106,6 +107,7 @@ const ControlFont = () => {
                             key={label}
                             onClick={() => handleWeightClick(label)}
                             isSelected={weightMap[label] === selectedWeight}
+                            fontType="weight"
                         >
                             {label}
                         </FontButton>
@@ -122,6 +124,7 @@ const ControlFont = () => {
                                 key={label}
                                 onClick={() => handleSizeClick(label)}
                                 isSelected={sizeMap[label] === selectedSize}
+                                fontType="size"
                             >
                                 {label}
                             </FontButton>

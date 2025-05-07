@@ -44,7 +44,7 @@ const ControlMode = () => {
 
     return (
         <div
-            className={`w-[430px] h-[250px] inline-flex flex-col items-start p-[18px] rounded-[20px] ${
+            className={` inline-flex flex-col items-start p-[18px] rounded-[20px] ${
                 isDarkMode
                     ? `bg-grayscale-900 text-grayscale-100`
                     : `bg-grayscale-100 text-grayscale-900`

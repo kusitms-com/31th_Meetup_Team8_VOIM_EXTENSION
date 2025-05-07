@@ -1,7 +1,5 @@
-// 중복 선언된 상수를 하나로 통합
 const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 
-// 인터페이스 정의
 interface ModeStyle {
     backgroundColor: string;
     color: string;
@@ -12,7 +10,12 @@ interface FontStyle {
     fontWeight?: string;
 }
 
-// 타입 정의로 타입 안전성 확보
+interface UserSettings {
+    fontSize?: string;
+    fontWeight?: string;
+    mode?: ModeType;
+}
+
 type FontSizeType =
     | "SET_FONT_SIZE_XS"
     | "SET_FONT_SIZE_S"
@@ -26,7 +29,6 @@ type FontWeightType =
 type ModeType = "SET_MODE_LIGHT" | "SET_MODE_DARK";
 type MessageType = FontSizeType | FontWeightType | ModeType;
 
-// 타입 안전한 맵 정의
 const fontSizeMap: Record<FontSizeType, string> = {
     SET_FONT_SIZE_XS: "20px",
     SET_FONT_SIZE_S: "22px",
@@ -69,7 +71,6 @@ const targetSelectors = [
     "div",
 ];
 
-// iframe 생성 함수
 function createIframe(): void {
     if (!document.getElementById(EXTENSION_IFRAME_ID)) {
         const iframe = document.createElement("iframe");
@@ -115,11 +116,9 @@ function createIframe(): void {
     }
 }
 
-// 스타일 적용 함수들
 function applyFontStyle(style: FontStyle): void {
     const elements = document.querySelectorAll(targetSelectors.join(","));
     elements.forEach((el) => {
-        // Element 타입에 style 속성이 없으므로 HTMLElement로 타입 단언
         const htmlEl = el as HTMLElement;
         if (style.fontSize) htmlEl.style.fontSize = style.fontSize;
         if (style.fontWeight) htmlEl.style.fontWeight = style.fontWeight;
@@ -140,7 +139,7 @@ function applyModeStyle(modeType: ModeType): void {
     style.textContent = `
         * {
             color: ${color} !important;
-            background-color: transparent !important;
+            background-color: ${backgroundColor} !important;
         }
 
         html, body {
@@ -150,7 +149,7 @@ function applyModeStyle(modeType: ModeType): void {
 
         a, span, div, p, h1, h2, h3, h4, h5, h6, li, ul, em, strong, td, th, button {
             color: ${color} !important;
-            background-color: transparent !important;
+            background-color: ${backgroundColor} !important;
             border-color: ${color} !important;
         }
 
@@ -163,27 +162,81 @@ function applyModeStyle(modeType: ModeType): void {
         img, video {
             filter: brightness(0.8) contrast(1.2);
         }
+         
+        p, h1, h2, h3, h4, h5, h6, span, div, li {
+            overflow-wrap: break-word !important;
+            word-wrap: break-word !important;
+            hyphens: auto !important;
+            text-align: left !important; /* 왼쪽 정렬로 일관성 유지 */
+            max-width: 100% !important; /* 최대 너비 제한 */
+            text-overflow: ellipsis !important; /* 텍스트가 넘칠 경우 ... 표시 */
+        }
+        
+        /* 줄 간격 추가 스타일 - 모든 텍스트 요소에 적용 */
+        body, p, div, span, li, h1, h2, h3, h4, h5, h6 {
+            line-height: calc(1.5em + 0.2vw) !important;
+            margin-bottom: 0.5em !important; /* 단락 사이 간격 */
+        }
+        
+        /* 단락 간격 추가 */
+        p, li, div.paragraph {
+            margin-bottom: 1em !important;
+            padding-bottom: 0.5em !important;
+        }
     `;
     document.head.appendChild(style);
 }
 
-// 메시지 리스너
+function saveSettings(settings: Partial<UserSettings>): void {
+    chrome.storage.sync.get(["userSettings"], (result) => {
+        const currentSettings: UserSettings = result.userSettings || {};
+        const updatedSettings = { ...currentSettings, ...settings };
+
+        chrome.storage.sync.set({ userSettings: updatedSettings }, () => {
+            console.log("Settings saved:", updatedSettings);
+        });
+    });
+}
+
+function loadAndApplySettings(): void {
+    chrome.storage.sync.get(["userSettings"], (result) => {
+        const settings: UserSettings = result.userSettings || {};
+        console.log("Loaded settings:", settings);
+
+        if (settings.fontSize) {
+            applyFontStyle({ fontSize: settings.fontSize });
+        }
+
+        if (settings.fontWeight) {
+            applyFontStyle({ fontWeight: settings.fontWeight });
+        }
+
+        if (settings.mode) {
+            applyModeStyle(settings.mode);
+        }
+    });
+}
+
 chrome.runtime.onMessage.addListener(
     (message: { type: MessageType }, sender, sendResponse) => {
         const { type } = message;
 
         if (Object.keys(fontSizeMap).includes(type as string)) {
-            // 타입 안전성을 위한 타입 가드
             const fontSizeType = type as FontSizeType;
-            applyFontStyle({ fontSize: fontSizeMap[fontSizeType] });
+            const fontSize = fontSizeMap[fontSizeType];
+            applyFontStyle({ fontSize });
+            saveSettings({ fontSize });
             sendResponse({ success: true });
         } else if (Object.keys(fontWeightMap).includes(type as string)) {
             const fontWeightType = type as FontWeightType;
-            applyFontStyle({ fontWeight: fontWeightMap[fontWeightType] });
+            const fontWeight = fontWeightMap[fontWeightType];
+            applyFontStyle({ fontWeight });
+            saveSettings({ fontWeight });
             sendResponse({ success: true });
         } else if (Object.keys(modeStyleMap).includes(type as string)) {
             const modeType = type as ModeType;
             applyModeStyle(modeType);
+            saveSettings({ mode: modeType });
             sendResponse({ success: true });
         } else {
             sendResponse({ success: false, error: "알 수 없는 메시지" });
@@ -193,5 +246,55 @@ chrome.runtime.onMessage.addListener(
     },
 );
 
-// 초기화 - iframe 생성 실행
 createIframe();
+loadAndApplySettings();
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadAndApplySettings();
+});
+
+const observer = new MutationObserver((mutations) => {
+    chrome.storage.sync.get(["userSettings"], (result) => {
+        const settings: UserSettings = result.userSettings || {};
+
+        if (settings.fontSize || settings.fontWeight) {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length > 0) {
+                    const fontStyle: FontStyle = {};
+                    if (settings.fontSize)
+                        fontStyle.fontSize = settings.fontSize;
+                    if (settings.fontWeight)
+                        fontStyle.fontWeight = settings.fontWeight;
+
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            const element = node as HTMLElement;
+                            if (settings.fontSize)
+                                element.style.fontSize = settings.fontSize;
+                            if (settings.fontWeight)
+                                element.style.fontWeight = settings.fontWeight;
+
+                            const childElements = element.querySelectorAll(
+                                targetSelectors.join(","),
+                            );
+                            childElements.forEach((childEl) => {
+                                const htmlChildEl = childEl as HTMLElement;
+                                if (settings.fontSize)
+                                    htmlChildEl.style.fontSize =
+                                        settings.fontSize;
+                                if (settings.fontWeight)
+                                    htmlChildEl.style.fontWeight =
+                                        settings.fontWeight;
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    });
+});
+
+observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+});

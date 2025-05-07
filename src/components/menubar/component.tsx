@@ -38,7 +38,7 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
 
     return (
         <div
-            className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/10 backdrop-blur-xl transition-opacity duration-200 ${
+            className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/10 backdrop-blur-[15px] transition-opacity duration-200 ${
                 isOpen
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
