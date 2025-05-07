@@ -26,10 +26,6 @@ const meta: Meta<typeof FontButton> = {
             action: "clicked",
             description: "Function to call when button is clicked",
         },
-        ariaLabel: {
-            control: "text",
-            description: "Accessibility label for the button",
-        },
         isSelected: {
             control: "boolean",
             description: "Whether the button is selected",
@@ -43,7 +39,6 @@ type Story = StoryObj<typeof FontButton>;
 export const Default: Story = {
     args: {
         children: "버튼",
-        ariaLabel: "Default button",
         isSelected: false,
     },
 };
@@ -51,7 +46,6 @@ export const Default: Story = {
 export const Selected: Story = {
     args: {
         children: "선택된 버튼",
-        ariaLabel: "Selected button",
         isSelected: true,
     },
 };
@@ -59,7 +53,6 @@ export const Selected: Story = {
 export const LongText: Story = {
     args: {
         children: "긴 텍스트가 있는 버튼입니다",
-        ariaLabel: "Button with long text",
         isSelected: false,
     },
 };
@@ -86,7 +79,6 @@ export const WithIcon: Story = {
                 아이콘 버튼
             </div>
         ),
-        ariaLabel: "Button with icon",
         isSelected: false,
     },
 };

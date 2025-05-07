@@ -49,11 +49,7 @@ describe("BaseButton", () => {
     it("올바른 aria 속성을 가지고 있습니다", () => {
         render(
             <AppThemeProvider>
-                <FontButton
-                    onClick={mockOnClick}
-                    ariaLabel="테스트 라벨"
-                    isSelected={true}
-                >
+                <FontButton onClick={mockOnClick} isSelected={true}>
                     테스트 버튼
                 </FontButton>
             </AppThemeProvider>,
