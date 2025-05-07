@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
@@ -74,7 +74,35 @@ const App = () => {
         setIsModalOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
     };
+    const toggleModal = () => {
+        const newState = !isModalOpen;
+        setIsModalOpen(newState);
 
+        if (!newState) {
+            setSelectedMenu(null);
+        }
+
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: newState },
+            "*",
+        );
+    };
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            // 메시지 출처 확인 (보안을 위해)
+            if (event.data.type === "TOGGLE_MODAL") {
+                toggleModal();
+            }
+        };
+
+        // 메시지 이벤트 리스너 등록
+        window.addEventListener("message", handleMessage);
+
+        // 컴포넌트 언마운트 시 이벤트 리스너 제거
+        return () => {
+            window.removeEventListener("message", handleMessage);
+        };
+    }, [isModalOpen]);
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedMenu(null);

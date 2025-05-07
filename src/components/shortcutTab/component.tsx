@@ -31,10 +31,6 @@ export function ShortcutTab() {
                         <div>ALT + T</div>
                     </ContentBox>
                     <ContentBox>
-                        <div>이미지 분석하기</div>
-                        <div>ALT + I</div>
-                    </ContentBox>
-                    <ContentBox>
                         <div>메뉴 열기 또는 닫기</div>
                         <div>ALT + O</div>
                     </ContentBox>

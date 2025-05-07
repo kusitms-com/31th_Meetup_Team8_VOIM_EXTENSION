@@ -35,10 +35,17 @@
     "commands": {
         "toggle_iframe": {
             "suggested_key": {
-                "default": "Alt+O",
-                "mac": "MacCtrl+O"
+                "default": "Alt+V",
+                "mac": "Alt+V"
             },
             "description": "Toggle floating iframe"
+        },
+        "toggle-modal": {
+            "suggested_key": {
+                "default": "Alt+O",
+                "mac": "Alt+O"
+            },
+            "description": "모달 열기/닫기"
         }
     }
 }

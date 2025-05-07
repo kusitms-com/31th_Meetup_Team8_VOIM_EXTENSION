@@ -105,12 +105,23 @@ chrome.commands.onCommand.addListener((command) => {
             }
         });
     }
+    if (command === "toggle-modal") {
+        // 현재 활성화된 탭에 메시지 전송
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+                const tabId = tabs[0]?.id;
+                if (tabId !== undefined) {
+                    chrome.tabs.sendMessage(tabId, { action: "TOGGLE_MODAL" });
+                }
+            }
+        });
+    }
 });
 
 function toggleFloatingIframe() {
     const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
     const existingIframe = document.getElementById(EXTENSION_IFRAME_ID);
-
+    console.log("toggleFloatingIframe called");
     if (existingIframe) {
         existingIframe.remove();
         return;

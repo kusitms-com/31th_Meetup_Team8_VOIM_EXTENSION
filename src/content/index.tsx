@@ -80,3 +80,14 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
         }
     }
 })();
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "TOGGLE_MODAL") {
+        const iframe = document.getElementById(
+            "floating-button-extension-iframe",
+        );
+        if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ type: "TOGGLE_MODAL" }, "*");
+        }
+    }
+});
