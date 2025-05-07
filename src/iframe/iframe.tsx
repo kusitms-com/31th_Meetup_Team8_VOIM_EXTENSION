@@ -3,8 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-import { AppThemeProvider } from "@src/contexts/ThemeContext";
-import { CursorProvider } from "@src/contexts/CursorContext";
+import { useCursorTheme } from "@src/contexts/CursorContext";
 import { BaseButton } from "@src/components/baseButton/component";
 import { CursorTab } from "@src/components/cursorTab";
 import "../css/app.css";
@@ -26,32 +25,10 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
         case "cursor":
             return <CursorTab />;
         case "font":
-            return (
-                <div>
-                    <BaseButton
-                        onClick={() => console.log()}
-                        isSelected={false}
-                    >
-                        choigo
-                    </BaseButton>
-                </div>
-            );
+            return <div></div>;
         case "shortcut":
             return <ShortcutTab />;
-        // case "service":
-        //     return (
-        //         <div>
-        //             <h2>서비스 설정</h2>
-        //             <p>서비스 설정 내용이 여기에 표시됩니다.</p>
-        //         </div>
-        //     );
-        // case "profile":
-        //     return (
-        //         <div>
-        //             <h2>내 정보 설정</h2>
-        //             <p>내 정보 설정 내용이 여기에 표시됩니다.</p>
-        //         </div>
-        //     );
+
         default:
             return null;
     }
@@ -62,13 +39,12 @@ const menuItems = [
     { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
-    // { id: "service", text: "서비스 설정하기" },
-    // { id: "profile", text: "내 정보 설정하기" },
 ];
 
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
+    const { toggleCursor } = useCursorTheme();
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -89,9 +65,25 @@ const App = () => {
     };
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            // 메시지 출처 확인 (보안을 위해)
             if (event.data.type === "TOGGLE_MODAL") {
                 toggleModal();
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+
+        return () => {
+            window.removeEventListener("message", handleMessage);
+        };
+    }, [isModalOpen]);
+
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            // 메시지 타입에 따라 처리
+            if (event.data.type === "TOGGLE_MODAL") {
+                toggleModal();
+            } else if (event.data.type === "TOGGLE_CURSOR") {
+                toggleCursor(); // 커서 토글
             }
         };
 
@@ -117,33 +109,27 @@ const App = () => {
     };
 
     return (
-        <AppThemeProvider>
-            <CursorProvider>
-                <div className="pointer-events-auto">
-                    {!isModalOpen && <FloatingButton onClick={openModal} />}
-                    <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                        {menuItems.map((item) => (
-                            <MenubarButton
-                                key={item.id}
-                                isSelected={selectedMenu === item.id}
-                                text={item.text}
-                                onClick={() => handleMenuClick(item.id)}
-                                ariaLabel={`${item.text} 선택`}
-                            />
-                        ))}
-                        <div
-                            className={`fixed right-[510px] top-[70px]  p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
-                                isModalOpen && selectedMenu !== null
-                                    ? "flex"
-                                    : "hidden"
-                            }`}
-                        >
-                            <PanelContent menuId={selectedMenu} />
-                        </div>
-                    </Menubar>
+        <div className="pointer-events-auto">
+            {!isModalOpen && <FloatingButton onClick={openModal} />}
+            <Menubar isOpen={isModalOpen} onClose={closeModal}>
+                {menuItems.map((item) => (
+                    <MenubarButton
+                        key={item.id}
+                        isSelected={selectedMenu === item.id}
+                        text={item.text}
+                        onClick={() => handleMenuClick(item.id)}
+                        ariaLabel={`${item.text} 선택`}
+                    />
+                ))}
+                <div
+                    className={`fixed right-[510px] top-[70px]  p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                        isModalOpen && selectedMenu !== null ? "flex" : "hidden"
+                    }`}
+                >
+                    <PanelContent menuId={selectedMenu} />
                 </div>
-            </CursorProvider>
-        </AppThemeProvider>
+            </Menubar>
+        </div>
     );
 };
 

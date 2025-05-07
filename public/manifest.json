@@ -46,6 +46,13 @@
                 "mac": "Alt+O"
             },
             "description": "모달 열기/닫기"
+        },
+        "toggle-cursor": {
+            "suggested_key": {
+                "default": "Alt+C",
+                "mac": "Alt+C"
+            },
+            "description": "커서 테마 켜기/끄기"
         }
     }
 }

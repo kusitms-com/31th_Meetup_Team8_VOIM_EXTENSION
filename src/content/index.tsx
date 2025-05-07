@@ -42,23 +42,37 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
 }
 
 (() => {
+    let contentCursorEnabled = true;
+
     chrome.runtime.sendMessage({ type: "GET_CURSOR_SETTINGS" }, (response) => {
-        if (response && response.cursorUrl) {
-            applyCursorStyle(response.cursorUrl);
-            console.log(response.cursorUrl);
+        if (response) {
+            contentCursorEnabled = response.isCursorEnabled;
+
+            if (contentCursorEnabled && response.cursorUrl) {
+                applyCursorStyle(response.cursorUrl);
+            } else {
+                removeCursorStyle();
+            }
         }
     });
 
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.type === "UPDATE_CURSOR") {
-            applyCursorStyle(message.cursorUrl);
-            console.log(message.cursorUrl);
+            if (message.isCursorEnabled && message.cursorUrl) {
+                applyCursorStyle(message.cursorUrl);
+                contentCursorEnabled = true;
+            } else {
+                removeCursorStyle();
+                contentCursorEnabled = false;
+            }
+
             sendResponse({ success: true });
+            return true;
         }
+        return false;
     });
 
     function applyCursorStyle(cursorUrl: string) {
-        console.log(cursorUrl);
         try {
             const existingStyle = document.getElementById(
                 "custom-cursor-style",
@@ -70,14 +84,70 @@ if (!document.getElementById(EXTENSION_IFRAME_ID)) {
             const styleElement = document.createElement("style");
             styleElement.id = "custom-cursor-style";
             styleElement.textContent = `
-          * {
-            cursor: url('${cursorUrl}'), auto !important;
-          }
-        `;
+                body, button, a, input, select, textarea {
+                    cursor: url('${cursorUrl}'), auto !important;
+                }
+            `;
             document.head.appendChild(styleElement);
+
+            applyStyleToIframes(styleElement.textContent);
         } catch (error) {
             console.error("커서 스타일 적용 중 오류:", error);
         }
+    }
+
+    function removeCursorStyle() {
+        const existingStyle = document.getElementById("custom-cursor-style");
+        if (existingStyle) {
+            document.head.removeChild(existingStyle);
+        }
+
+        removeStyleFromIframes();
+    }
+
+    function applyStyleToIframes(styleContent: string) {
+        const iframes = document.querySelectorAll("iframe");
+        iframes.forEach((iframe) => {
+            try {
+                const iframeDoc =
+                    iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                    const existingIframeStyle = iframeDoc.getElementById(
+                        "custom-cursor-style",
+                    );
+                    if (existingIframeStyle) {
+                        iframeDoc.head.removeChild(existingIframeStyle);
+                    }
+                    const iframeStyle = iframeDoc.createElement("style");
+                    iframeStyle.id = "custom-cursor-style";
+                    iframeStyle.textContent = styleContent;
+                    iframeDoc.head.appendChild(iframeStyle);
+                }
+            } catch (e) {
+                e;
+            }
+        });
+    }
+
+    function removeStyleFromIframes() {
+        const iframes = document.querySelectorAll("iframe");
+
+        iframes.forEach((iframe) => {
+            try {
+                const iframeDoc = iframe.contentDocument;
+
+                if (iframeDoc) {
+                    const existingIframeStyle = iframeDoc.getElementById(
+                        "custom-cursor-style",
+                    );
+                    if (existingIframeStyle) {
+                        iframeDoc.head.removeChild(existingIframeStyle);
+                    }
+                }
+            } catch (e) {
+                console.warn(e);
+            }
+        });
     }
 })();
 
@@ -89,5 +159,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
             iframe.contentWindow.postMessage({ type: "TOGGLE_MODAL" }, "*");
         }
+        sendResponse({ success: true });
+        return true;
+    } else if (message.action === "TOGGLE_CURSOR") {
+        const iframe = document.getElementById(
+            "floating-button-extension-iframe",
+        );
+        if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+            iframe.contentWindow.postMessage({ type: "TOGGLE_CURSOR" }, "*");
+        }
+        sendResponse({ success: true });
+        return true;
     }
+
+    return false;
 });

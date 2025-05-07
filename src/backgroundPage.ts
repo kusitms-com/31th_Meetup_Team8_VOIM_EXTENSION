@@ -1,3 +1,5 @@
+import { logger } from "./utils/logger";
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "SOME_EVENT") {
         sendResponse({ success: true });
@@ -25,24 +27,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 let currentCursorTheme = "white";
 let currentCursorSize = "medium";
+let isCursorEnabled = true;
 
-chrome.storage.sync.get(["cursorTheme", "cursorSize"], (result) => {
-    if (result.cursorTheme) {
-        currentCursorTheme = result.cursorTheme;
-    }
-    if (result.cursorSize) {
-        currentCursorSize = result.cursorSize;
-    }
-});
+chrome.storage.sync.get(
+    ["cursorTheme", "cursorSize", "isCursorEnabled"],
+    (result) => {
+        if (result.cursorTheme) {
+            currentCursorTheme = result.cursorTheme;
+        }
+        if (result.cursorSize) {
+            currentCursorSize = result.cursorSize;
+        }
+        if (typeof result.isCursorEnabled === "boolean") {
+            isCursorEnabled = result.isCursorEnabled;
+        }
+
+        updateAllTabs();
+    },
+);
 
 chrome.storage.onChanged.addListener((changes, namespace) => {
     if (namespace === "sync") {
+        let needsUpdate = false;
+
         if (changes.cursorTheme) {
             currentCursorTheme = changes.cursorTheme.newValue;
-            updateAllTabs();
+            needsUpdate = true;
         }
         if (changes.cursorSize) {
             currentCursorSize = changes.cursorSize.newValue;
+            needsUpdate = true;
+        }
+        if (changes.isCursorEnabled !== undefined) {
+            isCursorEnabled = changes.isCursorEnabled.newValue;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
             updateAllTabs();
         }
     }
@@ -70,24 +91,30 @@ function updateAllTabs() {
 
 function updateTab(tabId: number) {
     const cursorPath = `images/cursors/${currentCursorTheme}_${currentCursorSize}.png`;
-    const cursorUrl = chrome.runtime.getURL(cursorPath);
+    const cursorUrl = isCursorEnabled
+        ? chrome.runtime.getURL(cursorPath)
+        : null;
 
     chrome.tabs
         .sendMessage(tabId, {
             type: "UPDATE_CURSOR",
+            isCursorEnabled: isCursorEnabled,
             cursorUrl: cursorUrl,
         })
         .catch((error) => {
-            console.log(`탭 ${tabId} 통신 오류:`, error);
+            logger.warn(error);
         });
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "GET_CURSOR_SETTINGS") {
         const cursorPath = `images/cursors/${currentCursorTheme}_${currentCursorSize}.png`;
-        const cursorUrl = chrome.runtime.getURL(cursorPath);
+        const cursorUrl = isCursorEnabled
+            ? chrome.runtime.getURL(cursorPath)
+            : null;
 
         sendResponse({
+            isCursorEnabled: isCursorEnabled,
             cursorUrl: cursorUrl,
         });
         return true;
@@ -104,9 +131,7 @@ chrome.commands.onCommand.addListener((command) => {
                 });
             }
         });
-    }
-    if (command === "toggle-modal") {
-        // 현재 활성화된 탭에 메시지 전송
+    } else if (command === "toggle-modal") {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]) {
                 const tabId = tabs[0]?.id;
@@ -115,13 +140,46 @@ chrome.commands.onCommand.addListener((command) => {
                 }
             }
         });
+    } else if (command === "toggle-cursor") {
+        isCursorEnabled = !isCursorEnabled;
+
+        chrome.storage.sync.set({ isCursorEnabled: isCursorEnabled }, () => {
+            chrome.tabs.query({}, (tabs) => {
+                for (let tab of tabs) {
+                    if (tab.id && tab.url && tab.url.startsWith("http")) {
+                        chrome.tabs
+                            .sendMessage(tab.id, {
+                                action: "TOGGLE_CURSOR",
+                            })
+                            .catch((error) => {
+                                error;
+                            });
+
+                        chrome.tabs
+                            .sendMessage(tab.id, {
+                                type: "UPDATE_CURSOR",
+                                isCursorEnabled: isCursorEnabled,
+                                cursorUrl: isCursorEnabled
+                                    ? getCurrentCursorUrl()
+                                    : null,
+                            })
+                            .catch((error) => {
+                                error;
+                            });
+                    }
+                }
+            });
+        });
     }
 });
-
+function getCurrentCursorUrl() {
+    const cursorPath = `images/cursors/${currentCursorTheme}_${currentCursorSize}.png`;
+    return chrome.runtime.getURL(cursorPath);
+}
 function toggleFloatingIframe() {
     const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
     const existingIframe = document.getElementById(EXTENSION_IFRAME_ID);
-    console.log("toggleFloatingIframe called");
+
     if (existingIframe) {
         existingIframe.remove();
         return;

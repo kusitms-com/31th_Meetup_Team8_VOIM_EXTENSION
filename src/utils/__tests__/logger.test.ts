@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { logger } from "../logger";
 
 const originalConsoleError = console.error;

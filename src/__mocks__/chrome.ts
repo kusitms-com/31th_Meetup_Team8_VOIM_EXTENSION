@@ -11,4 +11,4 @@ global.chrome = {
             set: jest.fn(() => Promise.resolve()),
         },
     },
-} as any;
+} as never;

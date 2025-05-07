@@ -51,7 +51,7 @@ global.chrome = {
     runtime: {
         sendMessage: jest.fn(),
     },
-} as any;
+} as never;
 
 describe("Menubar 컴포넌트", () => {
     const mockOnClose = jest.fn();
