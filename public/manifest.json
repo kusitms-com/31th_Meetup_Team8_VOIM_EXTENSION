@@ -30,16 +30,6 @@
         "48": "icons/icon-48.png",
         "128": "icons/icon-128.png"
     },
-    "action": {
-        "default_title": "Click to open popup",
-        "default_popup": "popup.html",
-        "default_icon": {
-            "16": "icons/icon-16.png",
-            "32": "icons/icon-32.png",
-            "48": "icons/icon-48.png",
-            "128": "icons/icon-128.png"
-        }
-    },
     "host_permissions": ["<all_urls>"],
     "permissions": ["scripting", "activeTab", "storage", "tabs"],
     "commands": {
@@ -57,12 +47,12 @@
             },
             "description": "모달 열기/닫기"
         },
-        "toggle-cursor": {
+        "toggle-all-features": {
             "suggested_key": {
-                "default": "Alt+C",
-                "mac": "Alt+C"
+                "default": "Alt+A",
+                "mac": "Alt+A"
             },
-            "description": "커서 테마 켜기/끄기"
+            "description": "테마와 커서 동시 토글"
         }
     }
 }

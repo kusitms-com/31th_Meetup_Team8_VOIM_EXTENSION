@@ -47,12 +47,12 @@
             },
             "description": "모달 열기/닫기"
         },
-        "toggle-cursor": {
+        "toggle-all-features": {
             "suggested_key": {
-                "default": "Alt+C",
-                "mac": "Alt+C"
+                "default": "Alt+A",
+                "mac": "Alt+A"
             },
-            "description": "커서 테마 켜기/끄기"
+            "description": "테마와 커서 동시 토글"
         }
     }
 }

@@ -19,18 +19,6 @@ export function ShortcutTab() {
                 </h2>
                 <div className="flex flex-col gap-4">
                     <ContentBox>
-                        <div>고대비 화면 사용하기 또는 중지하기</div>
-                        <div>ALT + H</div>
-                    </ContentBox>
-                    <ContentBox>
-                        <div>설정한 커서 사용하기 또는 중지하기</div>
-                        <div>ALT + C</div>
-                    </ContentBox>
-                    <ContentBox>
-                        <div>설정한 글자로 보기 또는 기본 글자로 보기</div>
-                        <div>ALT + T</div>
-                    </ContentBox>
-                    <ContentBox>
                         <div>메뉴 열기 또는 닫기</div>
                         <div>ALT + O</div>
                     </ContentBox>
