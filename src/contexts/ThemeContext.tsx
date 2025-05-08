@@ -17,6 +17,7 @@ interface AppThemeContextValue {
         fontCommon: string;
         fontCaption: string;
     };
+    resetSettings: () => void;
 }
 
 export const AppThemeContext = createContext<AppThemeContextValue | undefined>(
@@ -26,6 +27,10 @@ export const AppThemeContext = createContext<AppThemeContextValue | undefined>(
 const THEME_KEY = "theme-mode";
 const FONT_SIZE_KEY = "font-size";
 const FONT_WEIGHT_KEY = "font-weight";
+
+const DEFAULT_THEME: ThemeMode = "light";
+const DEFAULT_FONT_SIZE: FontSize = "m";
+const DEFAULT_FONT_WEIGHT: FontWeight = "bold";
 
 const fontSizeClassMap: Record<
     FontSize,
@@ -65,15 +70,14 @@ const fontWeightClassMap: Record<FontWeight, string> = {
 };
 
 export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-    // TODO: 배포할때 기본값 변경
-    const [theme, setThemeState] = useState<ThemeMode>("light");
-    const [fontSize, setFontSizeState] = useState<FontSize>("xl");
+    const [theme, setThemeState] = useState<ThemeMode>("dark");
+    const [fontSize, setFontSizeState] = useState<FontSize>("xs");
     const [fontWeight, setFontWeightState] = useState<FontWeight>("xbold");
 
     useEffect(() => {
-        if (!chrome?.storage?.local) return;
+        if (!chrome?.storage?.sync) return;
         const loadSettings = async () => {
-            const result = await chrome.storage.local.get([
+            const result = await chrome.storage.sync.get([
                 THEME_KEY,
                 FONT_SIZE_KEY,
                 FONT_WEIGHT_KEY,
@@ -97,8 +101,8 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
 
     const setTheme = (newTheme: ThemeMode) => {
         setThemeState(newTheme);
-        if (chrome?.storage?.local) {
-            chrome.storage.local
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
                 .set({ [THEME_KEY]: newTheme })
                 .catch((err) => logger.error(err));
         }
@@ -106,8 +110,8 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
 
     const setFontSize = (newSize: FontSize) => {
         setFontSizeState(newSize);
-        if (chrome?.storage?.local) {
-            chrome.storage.local
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
                 .set({ [FONT_SIZE_KEY]: newSize })
                 .catch((err) => logger.error(err));
         }
@@ -115,10 +119,29 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
 
     const setFontWeight = (newWeight: FontWeight) => {
         setFontWeightState(newWeight);
-        if (chrome?.storage?.local) {
-            chrome.storage.local
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
                 .set({ [FONT_WEIGHT_KEY]: newWeight })
                 .catch((err) => logger.error(err));
+        }
+    };
+
+    const resetSettings = () => {
+        setTheme(DEFAULT_THEME);
+        setFontSize(DEFAULT_FONT_SIZE);
+        setFontWeight(DEFAULT_FONT_WEIGHT);
+
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
+                .set({
+                    [THEME_KEY]: DEFAULT_THEME,
+                    [FONT_SIZE_KEY]: DEFAULT_FONT_SIZE,
+                    [FONT_WEIGHT_KEY]: DEFAULT_FONT_WEIGHT,
+                })
+                .then(() => {
+                    logger.debug("설정이 초기화되었습니다.");
+                })
+                .catch((err) => logger.error("설정 초기화 중 오류:", err));
         }
     };
 
@@ -141,6 +164,7 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
                 fontWeight,
                 setFontWeight,
                 fontClasses,
+                resetSettings,
             }}
         >
             {children}
