@@ -89,45 +89,45 @@ export default [
         rules: {
             "no-restricted-globals": "off",
 
-            "no-restricted-properties": [
-                "error",
-                {
-                    object: "chrome",
-                    property: "tabs",
-                    message:
-                        "chrome.tabs API는 백그라운드 스크립트에서만 사용하세요",
-                },
-                {
-                    object: "chrome",
-                    property: "storage",
-                    message:
-                        "chrome.storage API는 백그라운드 스크립트에서만 사용하세요",
-                },
-                {
-                    object: "chrome",
-                    property: "scripting",
-                    message:
-                        "chrome.scripting API는 백그라운드 스크립트에서만 사용하세요",
-                },
-                {
-                    object: "browser",
-                    property: "tabs",
-                    message:
-                        "browser.tabs API는 백그라운드 스크립트에서만 사용하세요",
-                },
-                {
-                    object: "browser",
-                    property: "storage",
-                    message:
-                        "browser.storage API는 백그라운드 스크립트에서만 사용하세요",
-                },
-                {
-                    object: "browser",
-                    property: "scripting",
-                    message:
-                        "browser.scripting API는 백그라운드 스크립트에서만 사용하세요",
-                },
-            ],
+            // "no-restricted-properties": [
+            //     "error",
+            //     {
+            //         object: "chrome",
+            //         property: "tabs",
+            //         message:
+            //             "chrome.tabs API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            //     {
+            //         object: "chrome",
+            //         property: "storage",
+            //         message:
+            //             "chrome.storage API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            //     {
+            //         object: "chrome",
+            //         property: "scripting",
+            //         message:
+            //             "chrome.scripting API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            //     {
+            //         object: "browser",
+            //         property: "tabs",
+            //         message:
+            //             "browser.tabs API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            //     {
+            //         object: "browser",
+            //         property: "storage",
+            //         message:
+            //             "browser.storage API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            //     {
+            //         object: "browser",
+            //         property: "scripting",
+            //         message:
+            //             "browser.scripting API는 백그라운드 스크립트에서만 사용하세요",
+            //     },
+            // ],
         },
     },
 

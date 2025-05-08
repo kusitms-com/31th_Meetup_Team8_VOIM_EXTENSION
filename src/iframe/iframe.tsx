@@ -4,10 +4,12 @@ import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
 import { useCursorTheme } from "@src/contexts/CursorContext";
-import { BaseButton } from "@src/components/baseButton/component";
 import { CursorTab } from "@src/components/cursorTab";
-import "../css/app.css";
 import { ShortcutTab } from "@src/components/shortcutTab";
+import ControlMode from "@src/components/modeButton/ControlMode";
+import ControlFont from "@src/components/fontButton/ControlFont";
+
+import "../css/app.css";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -16,19 +18,13 @@ interface PanelContentProps {
 const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     switch (menuId) {
         case "high-contrast":
-            return (
-                <div>
-                    <h2>고대비 화면 설정</h2>
-                    <p>고대비 화면 설정 내용이 여기에 표시됩니다.</p>
-                </div>
-            );
+            return <ControlMode />;
         case "cursor":
             return <CursorTab />;
         case "font":
-            return <div></div>;
+            return <ControlFont />;
         case "shortcut":
             return <ShortcutTab />;
-
         default:
             return null;
     }
@@ -50,6 +46,7 @@ const App = () => {
         setIsModalOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
     };
+
     const toggleModal = () => {
         const newState = !isModalOpen;
         setIsModalOpen(newState);
@@ -63,6 +60,7 @@ const App = () => {
             "*",
         );
     };
+
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
             if (event.data.type === "TOGGLE_MODAL") {
@@ -79,22 +77,20 @@ const App = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            // 메시지 타입에 따라 처리
             if (event.data.type === "TOGGLE_MODAL") {
                 toggleModal();
             } else if (event.data.type === "TOGGLE_CURSOR") {
-                toggleCursor(); // 커서 토글
+                toggleCursor();
             }
         };
 
-        // 메시지 이벤트 리스너 등록
         window.addEventListener("message", handleMessage);
 
-        // 컴포넌트 언마운트 시 이벤트 리스너 제거
         return () => {
             window.removeEventListener("message", handleMessage);
         };
     }, [isModalOpen]);
+
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedMenu(null);
@@ -122,7 +118,7 @@ const App = () => {
                     />
                 ))}
                 <div
-                    className={`fixed right-[510px] top-[70px]  p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
+                    className={`fixed right-[510px] top-[70px] bg-none p-5 overflow-y-auto z-[999] transition-transform duration-300 ${
                         isModalOpen && selectedMenu !== null ? "flex" : "hidden"
                     }`}
                 >
