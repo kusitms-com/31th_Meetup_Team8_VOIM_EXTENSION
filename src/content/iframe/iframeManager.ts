@@ -1,8 +1,34 @@
 import { EXTENSION_IFRAME_ID } from "../constants";
 
-// iframe 관련 상태 변수
 let iframeVisible = false;
 let savedIframeElement: HTMLIFrameElement | null = null;
+
+/**
+ * iframe의 resize 메시지를 처리하는 함수를 생성합니다.
+ * @param iframe 메시지를 처리할 iframe 요소
+ * @returns 메시지 이벤트 핸들러 함수
+ */
+function handleResizeMessageFactory(iframe: HTMLIFrameElement) {
+    return function handleResizeMessage(event: MessageEvent) {
+        if (event.source !== iframe.contentWindow) {
+            return;
+        }
+
+        if (event.data.type === "RESIZE_IFRAME") {
+            if (event.data.isOpen) {
+                iframe.style.width = "100%";
+                iframe.style.height = "100%";
+                iframe.style.top = "0";
+                iframe.style.right = "0";
+            } else {
+                iframe.style.width = "65px";
+                iframe.style.height = "65px";
+                iframe.style.top = "70px";
+                iframe.style.right = "20px";
+            }
+        }
+    };
+}
 
 /**
  * 플로팅 버튼 iframe을 생성합니다.
@@ -28,25 +54,10 @@ export function createIframe(): void {
             z-index: 2147483647;
         `;
 
-        window.addEventListener("message", (event: MessageEvent) => {
-            if (event.source !== iframe.contentWindow) {
-                return;
-            }
-
-            if (event.data.type === "RESIZE_IFRAME") {
-                if (event.data.isOpen) {
-                    iframe.style.width = "100%";
-                    iframe.style.height = "100%";
-                    iframe.style.top = "0";
-                    iframe.style.right = "0";
-                } else {
-                    iframe.style.width = "65px";
-                    iframe.style.height = "65px";
-                    iframe.style.top = "70px";
-                    iframe.style.right = "20px";
-                }
-            }
-        });
+        const listener = handleResizeMessageFactory(iframe);
+        window.addEventListener("message", listener);
+        iframe.dataset.listenerId = String(Date.now());
+        (iframe as any)._listener = listener;
 
         document.body.appendChild(iframe);
         iframeVisible = true;
@@ -58,10 +69,13 @@ export function createIframe(): void {
  * iframe을 제거합니다.
  */
 export function removeIframe(): void {
-    const iframe = document.getElementById(EXTENSION_IFRAME_ID);
+    const iframe = document.getElementById(
+        EXTENSION_IFRAME_ID,
+    ) as HTMLIFrameElement;
     if (iframe) {
-        savedIframeElement = iframe as HTMLIFrameElement;
+        window.removeEventListener("message", (iframe as any)._listener);
 
+        savedIframeElement = iframe;
         iframe.remove();
         iframeVisible = false;
     }
@@ -72,6 +86,11 @@ export function removeIframe(): void {
  */
 export function restoreIframe(): void {
     if (!iframeVisible && savedIframeElement) {
+        const listener = handleResizeMessageFactory(savedIframeElement);
+        window.addEventListener("message", listener);
+        savedIframeElement.dataset.listenerId = String(Date.now());
+        (savedIframeElement as any)._listener = listener;
+
         document.body.appendChild(savedIframeElement);
         iframeVisible = true;
     } else if (!iframeVisible) {

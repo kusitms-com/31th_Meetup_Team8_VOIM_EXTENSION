@@ -17,10 +17,14 @@ export function applyModeStyle(modeType: ModeType): void {
     const style = document.createElement("style");
     style.id = "webeye-mode-style";
     style.textContent = `
-        * {
+        body * {
             color: ${color} !important;
-            background-color: ${backgroundColor} !important;
         }
+
+        /* 특정 상호작용 요소는 제외 */
+        body *:not(button, select, input[type="checkbox"], input[type="radio"]) {
+            background-color: ${backgroundColor} !important;
+        }       
 
         html, body {
             background-color: ${backgroundColor} !important;

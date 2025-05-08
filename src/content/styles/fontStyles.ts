@@ -6,7 +6,6 @@ import { targetSelectors } from "../constants";
  * @param style 적용할 폰트 스타일 객체
  */
 export function applyFontStyle(style: FontStyle): void {
-    // 1. 선택자 기반 스타일 적용
     const elements = document.querySelectorAll(targetSelectors.join(","));
     elements.forEach((el) => {
         const htmlEl = el as HTMLElement;
@@ -14,7 +13,6 @@ export function applyFontStyle(style: FontStyle): void {
         if (style.fontWeight) htmlEl.style.fontWeight = style.fontWeight;
     });
 
-    // 2. 글로벌 스타일 적용을 위한 스타일 시트
     const existingGlobalStyle = document.getElementById(
         "webeye-global-font-style",
     );
@@ -22,7 +20,6 @@ export function applyFontStyle(style: FontStyle): void {
         document.head.removeChild(existingGlobalStyle);
     }
 
-    // 글로벌 스타일 시트 추가
     if (style.fontSize || style.fontWeight) {
         const globalStyle = document.createElement("style");
         globalStyle.id = "webeye-global-font-style";

@@ -1,4 +1,4 @@
-import { UserSettings } from "../types";
+import { FontStyle, UserSettings } from "../types";
 import { applyFontStyle } from "../styles/fontStyles";
 import { applyModeStyle } from "../styles/modeStyles";
 import { applyCursorStyle, removeCursorStyle } from "../styles/cursorStyles";
@@ -10,7 +10,6 @@ import {
 import { removeStyleFromIframes } from "../styles/cursorStyles";
 import { targetSelectors } from "../constants";
 
-// 설정 관련 기본값
 let originalSettings: UserSettings | null = null;
 let contentCursorEnabled = true;
 
@@ -60,35 +59,30 @@ function iframeVisible(): boolean {
  * 모든 스타일이 제거되었는지 확인하고 제거합니다.
  */
 function ensureStylesRemoved(): void {
-    // 1. 인라인 스타일 제거
     const elements = document.querySelectorAll("*");
     elements.forEach((el) => {
         const htmlEl = el as HTMLElement;
         if (htmlEl.style) {
-            htmlEl.style.removeProperty("fontSize");
-            htmlEl.style.removeProperty("fontWeight");
+            htmlEl.style.fontSize = "";
+            htmlEl.style.fontWeight = "";
         }
     });
 
-    // 2. 모드 스타일 제거
     const modeStyle = document.getElementById("webeye-mode-style");
     if (modeStyle) {
         modeStyle.remove();
     }
 
-    // 3. 전역 폰트 스타일 제거
     const fontStyle = document.getElementById("webeye-global-font-style");
     if (fontStyle) {
         fontStyle.remove();
     }
 
-    // 4. 커서 스타일 제거
     const cursorStyle = document.getElementById("custom-cursor-style");
     if (cursorStyle) {
         document.head.removeChild(cursorStyle);
     }
 
-    // 5. iframe 내 스타일 제거
     removeStyleFromIframes();
 }
 
@@ -97,14 +91,11 @@ function ensureStylesRemoved(): void {
  */
 export function removeAllStyles(): void {
     chrome.storage.sync.get(["userSettings"], (result) => {
-        // 원본 설정 저장
         originalSettings = result.userSettings || {};
 
-        // 1. 먼저 스타일을 비활성화 상태로 저장 (다른 함수에서 확인 가능하도록)
         chrome.storage.sync.set({ stylesEnabled: false }, () => {
             console.log("스타일 비활성화 상태 저장됨");
 
-            // 2. 인라인 스타일 제거
             const elements = document.querySelectorAll("*");
             elements.forEach((el) => {
                 const htmlEl = el as HTMLElement;
@@ -114,13 +105,11 @@ export function removeAllStyles(): void {
                 }
             });
 
-            // 3. 모드 스타일 제거
             const modeStyle = document.getElementById("webeye-mode-style");
             if (modeStyle) {
                 modeStyle.remove();
             }
 
-            // 4. 글로벌 폰트 스타일 제거
             const globalFontStyle = document.getElementById(
                 "webeye-global-font-style",
             );
@@ -128,7 +117,6 @@ export function removeAllStyles(): void {
                 globalFontStyle.remove();
             }
 
-            // 5. 폰트 스타일 전역 리셋 (중요: 기본값으로 강제 초기화)
             const resetStyle = document.createElement("style");
             resetStyle.id = "webeye-reset-style";
             resetStyle.textContent = `
@@ -144,29 +132,21 @@ export function removeAllStyles(): void {
             `;
             document.head.appendChild(resetStyle);
 
-            // 6. 커서 스타일 제거
             const cursorStyle = document.getElementById("custom-cursor-style");
             if (cursorStyle) {
                 document.head.removeChild(cursorStyle);
             }
 
-            // 7. iframe 내 스타일 제거
             removeStyleFromIframes();
 
-            // 8. 플로팅 iframe 제거
             removeIframe();
 
             console.log("모든 스타일과 iframe이 제거되었습니다.");
 
-            // 9. 모든 요소에 !important 스타일 적용 후, 약간의 지연 후에 제거
-            // 이렇게 하면 모든 DOM 변경이 처리된 후 리셋 스타일이 제거됨
             setTimeout(() => {
                 const resetStyleElem =
                     document.getElementById("webeye-reset-style");
                 if (resetStyleElem) {
-                    // 리셋 스타일 유지 (제거하지 않음)
-                    // 페이지 로드마다 스타일이 다시 적용되지 않도록 함
-                    // resetStyleElem.remove();
                 }
             }, 500);
         });
@@ -180,44 +160,32 @@ export function removeAllStyles(): void {
  * 모든 스타일을 복원합니다.
  */
 export function restoreAllStyles(): void {
-    // 1. 먼저, 스타일을 활성화 상태로 저장 (다른 함수에서 확인 가능하도록)
     chrome.storage.sync.set({ stylesEnabled: true }, () => {
         console.log("스타일 활성화 상태 저장됨");
 
-        // 2. 리셋 스타일이 있다면 제거
         const resetStyle = document.getElementById("webeye-reset-style");
         if (resetStyle) {
             resetStyle.remove();
         }
 
-        // 3. 이전 설정을 가져와서 적용
         chrome.storage.sync.get(["userSettings"], (result) => {
             const settings = result.userSettings || originalSettings || {};
 
-            // 작은 지연을 통해 리셋 스타일이 완전히 제거된 후 적용
             setTimeout(() => {
-                // 폰트 스타일 적용
-                if (settings.fontSize) {
-                    applyFontStyle({ fontSize: settings.fontSize });
+                const fontStyle: Partial<FontStyle> = {};
+                if (settings.fontSize) fontStyle.fontSize = settings.fontSize;
+                if (settings.fontWeight)
+                    fontStyle.fontWeight = settings.fontWeight;
+                if (Object.keys(fontStyle).length) {
+                    applyFontStyle(fontStyle);
                 }
 
-                if (settings.fontWeight) {
-                    applyFontStyle({ fontWeight: settings.fontWeight });
-                }
-
-                // 모드 스타일 적용
-                if (settings.mode) {
-                    applyModeStyle(settings.mode);
-                }
-
-                // iframe 복원
                 restoreIframe();
 
                 console.log("모든 스타일과 iframe이 복원되었습니다.");
             }, 100);
         });
 
-        // 4. 커서 스타일 복원
         chrome.runtime.sendMessage(
             { type: "GET_CURSOR_SETTINGS" },
             (response) => {
@@ -265,24 +233,17 @@ export function loadAndApplySettings(): void {
             stylesEnabled,
         );
 
-        // 스타일이 비활성화 상태면 적용하지 않음
         if (!stylesEnabled) {
             console.log(
                 "스타일이 비활성화 상태입니다. 설정을 적용하지 않습니다.",
             );
             return;
         }
-
-        if (settings.fontSize) {
-            applyFontStyle({ fontSize: settings.fontSize });
-        }
-
-        if (settings.fontWeight) {
-            applyFontStyle({ fontWeight: settings.fontWeight });
-        }
-
-        if (settings.mode) {
-            applyModeStyle(settings.mode);
+        const fontStyle: Partial<FontStyle> = {};
+        if (settings.fontSize) fontStyle.fontSize = settings.fontSize;
+        if (settings.fontWeight) fontStyle.fontWeight = settings.fontWeight;
+        if (Object.keys(fontStyle).length) {
+            applyFontStyle(fontStyle);
         }
     });
 }
@@ -297,7 +258,6 @@ export function initCursorSettings(): void {
         const stylesEnabled =
             result.stylesEnabled !== undefined ? result.stylesEnabled : true;
 
-        // 스타일이 비활성화 상태면 커서 설정을 적용하지 않음
         if (!stylesEnabled) {
             console.log(
                 "스타일이 비활성화 상태입니다. 커서 설정을 적용하지 않습니다.",
