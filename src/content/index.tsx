@@ -1,300 +1,205 @@
-const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
+import { MessageType, FontSizeType, FontWeightType, ModeType } from "./types";
+import { fontSizeMap, fontWeightMap } from "./constants";
+import {
+    applyFontStyle,
+    applyModeStyle,
+    applyCursorStyle,
+    removeCursorStyle,
+} from "./styles";
+import {
+    checkExtensionState,
+    removeAllStyles,
+    restoreAllStyles,
+    saveSettings,
+    loadAndApplySettings,
+    initCursorSettings,
+    getStylesEnabledState,
+} from "./storage/settingsManager";
+import { initDomObserver } from "./observers/domObserver";
 
-interface ModeStyle {
-    backgroundColor: string;
-    color: string;
-}
+// 커서 관련 상태 변수
+let contentCursorEnabled = true;
 
-interface FontStyle {
-    fontSize?: string;
-    fontWeight?: string;
-}
+// 확장 프로그램 상태 확인 및 초기화
+checkExtensionState();
 
-interface UserSettings {
-    fontSize?: string;
-    fontWeight?: string;
-    mode?: ModeType;
-}
+// DOMContentLoaded 이벤트 핸들러
+document.addEventListener("DOMContentLoaded", () => {
+    checkExtensionState();
+});
 
-type FontSizeType =
-    | "SET_FONT_SIZE_XS"
-    | "SET_FONT_SIZE_S"
-    | "SET_FONT_SIZE_M"
-    | "SET_FONT_SIZE_L"
-    | "SET_FONT_SIZE_XL";
-type FontWeightType =
-    | "SET_FONT_WEIGHT_REGULAR"
-    | "SET_FONT_WEIGHT_BOLD"
-    | "SET_FONT_WEIGHT_XBOLD";
-type ModeType = "SET_MODE_LIGHT" | "SET_MODE_DARK";
-type MessageType = FontSizeType | FontWeightType | ModeType;
+// 페이지 가시성 변경 이벤트 (탭 전환 시 설정 재확인을 위함)
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        checkExtensionState();
+    }
+});
 
-const fontSizeMap: Record<FontSizeType, string> = {
-    SET_FONT_SIZE_XS: "20px",
-    SET_FONT_SIZE_S: "22px",
-    SET_FONT_SIZE_M: "24px",
-    SET_FONT_SIZE_L: "26px",
-    SET_FONT_SIZE_XL: "28px",
-};
+// 커서 설정 초기화
+initCursorSettings();
 
-const fontWeightMap: Record<FontWeightType, string> = {
-    SET_FONT_WEIGHT_REGULAR: "400",
-    SET_FONT_WEIGHT_BOLD: "700",
-    SET_FONT_WEIGHT_XBOLD: "800",
-};
+// DOM 변경 감지 observer 초기화
+const observer = initDomObserver(() => {
+    // 스토리지에서 실시간으로 활성화 상태 체크
+    let isStylesEnabled = true;
+    chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        isStylesEnabled =
+            result.stylesEnabled !== undefined ? result.stylesEnabled : true;
+    });
+    return isStylesEnabled;
+});
 
-const modeStyleMap: Record<ModeType, ModeStyle> = {
-    SET_MODE_LIGHT: {
-        backgroundColor: "#fefefe",
-        color: "#121212",
-    },
-    SET_MODE_DARK: {
-        backgroundColor: "#121212",
-        color: "#fefefe",
-    },
-};
+// 크롬 메시지 리스너 - 메시지 타입에 따른 스타일 변경
+chrome.runtime.onMessage.addListener(
+    (message: { type: MessageType; settings?: any }, sender, sendResponse) => {
+        const { type } = message;
 
-const targetSelectors = [
-    "h1",
-    "h2",
-    "p",
-    "li",
-    "h5",
-    "ul",
-    ".name",
-    "em",
-    "span",
-    ".prod-buy-header__title",
-    ".prod-description",
-    ".prod-spec",
-    ".delivery-info",
-    "div",
-];
+        console.log("메시지 수신:", type);
 
-function createIframe(): void {
-    if (!document.getElementById(EXTENSION_IFRAME_ID)) {
-        const iframe = document.createElement("iframe");
-        iframe.id = EXTENSION_IFRAME_ID;
-        iframe.src = chrome.runtime.getURL("iframe.html");
+        // 스타일 활성화 상태 확인 후 메시지 처리
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
 
-        iframe.onerror = function (error: Event | string) {
-            console.error("Failed to load iframe:", error);
-        };
-
-        iframe.style.cssText = `
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            width: 65px;
-            height: 65px;
-            border: none;
-            background: transparent;
-            z-index: 2147483647;
-        `;
-
-        window.addEventListener("message", (event: MessageEvent) => {
-            if (event.source !== iframe.contentWindow) {
+            // DISABLE_ALL_STYLES와 RESTORE_ALL_STYLES는 항상 처리, 다른 메시지는 스타일이 활성화된 경우에만 처리
+            if (
+                !stylesEnabled &&
+                type !== "RESTORE_ALL_STYLES" &&
+                type !== "DISABLE_ALL_STYLES"
+            ) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 메시지를 처리하지 않습니다:",
+                    type,
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
                 return;
             }
 
-            if (event.data.type === "RESIZE_IFRAME") {
-                if (event.data.isOpen) {
-                    iframe.style.width = "100%";
-                    iframe.style.height = "100%";
-                    iframe.style.top = "0";
-                    iframe.style.right = "0";
-                } else {
-                    iframe.style.width = "65px";
-                    iframe.style.height = "65px";
-                    iframe.style.top = "70px";
-                    iframe.style.right = "20px";
-                }
+            if (Object.keys(fontSizeMap).includes(type as string)) {
+                const fontSizeType = type as FontSizeType;
+                const fontSize = fontSizeMap[fontSizeType];
+                applyFontStyle({ fontSize });
+                saveSettings({ fontSize });
+                sendResponse({ success: true });
+            } else if (Object.keys(fontWeightMap).includes(type as string)) {
+                const fontWeightType = type as FontWeightType;
+                const fontWeight = fontWeightMap[fontWeightType];
+                applyFontStyle({ fontWeight });
+                saveSettings({ fontWeight });
+                sendResponse({ success: true });
+            } else if (type === "SET_MODE_LIGHT" || type === "SET_MODE_DARK") {
+                const modeType = type as ModeType;
+                applyModeStyle(modeType);
+                saveSettings({ mode: modeType });
+                sendResponse({ success: true });
+            } else if (type === "DISABLE_ALL_STYLES") {
+                removeAllStyles();
+                sendResponse({ success: true });
+            } else if (type === "RESTORE_ALL_STYLES") {
+                restoreAllStyles();
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: "알 수 없는 메시지" });
             }
         });
-
-        document.body.appendChild(iframe);
-    }
-}
-
-function applyFontStyle(style: FontStyle): void {
-    const elements = document.querySelectorAll(targetSelectors.join(","));
-    elements.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        if (style.fontSize) htmlEl.style.fontSize = style.fontSize;
-        if (style.fontWeight) htmlEl.style.fontWeight = style.fontWeight;
-    });
-}
-
-function applyModeStyle(modeType: ModeType): void {
-    const mode = modeStyleMap[modeType];
-    if (!mode) return;
-
-    const { backgroundColor, color } = mode;
-
-    const oldStyle = document.getElementById("webeye-mode-style");
-    if (oldStyle) oldStyle.remove();
-
-    const style = document.createElement("style");
-    style.id = "webeye-mode-style";
-    style.textContent = `
-        * {
-            color: ${color} !important;
-            background-color: ${backgroundColor} !important;
-        }
-
-        html, body {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-        }
-
-        a, span, div, p, h1, h2, h3, h4, h5, h6, li, ul, em, strong, td, th, button {
-            color: ${color} !important;
-            background-color: ${backgroundColor} !important;
-            border-color: ${color} !important;
-        }
-
-        input, textarea, select {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-            border: 1px solid ${color} !important;
-        }
-
-        img, video {
-            filter: brightness(0.8) contrast(1.2);
-        }
-         
-        p, h1, h2, h3, h4, h5, h6, span, div, li {
-            overflow-wrap: break-word !important;
-            word-wrap: break-word !important;
-            hyphens: auto !important;
-            text-align: left !important; /* 왼쪽 정렬로 일관성 유지 */
-            max-width: 100% !important; /* 최대 너비 제한 */
-            text-overflow: ellipsis !important; /* 텍스트가 넘칠 경우 ... 표시 */
-        }
-        
-        /* 줄 간격 추가 스타일 - 모든 텍스트 요소에 적용 */
-        body, p, div, span, li, h1, h2, h3, h4, h5, h6 {
-            line-height: calc(1.5em + 0.2vw) !important;
-            margin-bottom: 0.5em !important; /* 단락 사이 간격 */
-        }
-        
-        /* 단락 간격 추가 */
-        p, li, div.paragraph {
-            margin-bottom: 1em !important;
-            padding-bottom: 0.5em !important;
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-function saveSettings(settings: Partial<UserSettings>): void {
-    chrome.storage.sync.get(["userSettings"], (result) => {
-        const currentSettings: UserSettings = result.userSettings || {};
-        const updatedSettings = { ...currentSettings, ...settings };
-
-        chrome.storage.sync.set({ userSettings: updatedSettings }, () => {
-            console.log("Settings saved:", updatedSettings);
-        });
-    });
-}
-
-function loadAndApplySettings(): void {
-    chrome.storage.sync.get(["userSettings"], (result) => {
-        const settings: UserSettings = result.userSettings || {};
-        console.log("Loaded settings:", settings);
-
-        if (settings.fontSize) {
-            applyFontStyle({ fontSize: settings.fontSize });
-        }
-
-        if (settings.fontWeight) {
-            applyFontStyle({ fontWeight: settings.fontWeight });
-        }
-
-        if (settings.mode) {
-            applyModeStyle(settings.mode);
-        }
-    });
-}
-
-chrome.runtime.onMessage.addListener(
-    (message: { type: MessageType }, sender, sendResponse) => {
-        const { type } = message;
-
-        if (Object.keys(fontSizeMap).includes(type as string)) {
-            const fontSizeType = type as FontSizeType;
-            const fontSize = fontSizeMap[fontSizeType];
-            applyFontStyle({ fontSize });
-            saveSettings({ fontSize });
-            sendResponse({ success: true });
-        } else if (Object.keys(fontWeightMap).includes(type as string)) {
-            const fontWeightType = type as FontWeightType;
-            const fontWeight = fontWeightMap[fontWeightType];
-            applyFontStyle({ fontWeight });
-            saveSettings({ fontWeight });
-            sendResponse({ success: true });
-        } else if (Object.keys(modeStyleMap).includes(type as string)) {
-            const modeType = type as ModeType;
-            applyModeStyle(modeType);
-            saveSettings({ mode: modeType });
-            sendResponse({ success: true });
-        } else {
-            sendResponse({ success: false, error: "알 수 없는 메시지" });
-        }
 
         return true;
     },
 );
 
-createIframe();
-loadAndApplySettings();
+// 커서 업데이트 메시지 리스너
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "UPDATE_CURSOR") {
+        // 스타일 활성화 상태 확인
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadAndApplySettings();
+            if (!stylesEnabled) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 커서 설정을 적용하지 않습니다.",
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
+                return;
+            }
+
+            if (message.isCursorEnabled && message.cursorUrl) {
+                applyCursorStyle(message.cursorUrl);
+                contentCursorEnabled = true;
+            } else {
+                removeCursorStyle();
+                contentCursorEnabled = false;
+            }
+
+            sendResponse({ success: true });
+        });
+        return true;
+    }
+    return false;
 });
 
-const observer = new MutationObserver((mutations) => {
-    chrome.storage.sync.get(["userSettings"], (result) => {
-        const settings: UserSettings = result.userSettings || {};
+// 모달 및 커서 토글 메시지 리스너
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "TOGGLE_MODAL") {
+        // 스타일 활성화 상태 확인
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
 
-        if (settings.fontSize || settings.fontWeight) {
-            mutations.forEach((mutation) => {
-                if (mutation.addedNodes.length > 0) {
-                    const fontStyle: FontStyle = {};
-                    if (settings.fontSize)
-                        fontStyle.fontSize = settings.fontSize;
-                    if (settings.fontWeight)
-                        fontStyle.fontWeight = settings.fontWeight;
+            // 스타일이 비활성화 상태여도 모달 토글은 허용 (사용자가 다시 활성화할 수 있도록)
+            const iframe = document.getElementById(
+                "floating-button-extension-iframe",
+            );
+            if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: "TOGGLE_MODAL" }, "*");
+            }
+            sendResponse({ success: true });
+        });
+        return true;
+    } else if (message.action === "TOGGLE_CURSOR") {
+        // 스타일 활성화 상태 확인
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
 
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === Node.ELEMENT_NODE) {
-                            const element = node as HTMLElement;
-                            if (settings.fontSize)
-                                element.style.fontSize = settings.fontSize;
-                            if (settings.fontWeight)
-                                element.style.fontWeight = settings.fontWeight;
+            if (!stylesEnabled) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 커서 토글을 적용하지 않습니다.",
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
+                return;
+            }
 
-                            const childElements = element.querySelectorAll(
-                                targetSelectors.join(","),
-                            );
-                            childElements.forEach((childEl) => {
-                                const htmlChildEl = childEl as HTMLElement;
-                                if (settings.fontSize)
-                                    htmlChildEl.style.fontSize =
-                                        settings.fontSize;
-                                if (settings.fontWeight)
-                                    htmlChildEl.style.fontWeight =
-                                        settings.fontWeight;
-                            });
-                        }
-                    });
-                }
-            });
-        }
-    });
-});
+            const iframe = document.getElementById(
+                "floating-button-extension-iframe",
+            );
+            if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(
+                    { type: "TOGGLE_CURSOR" },
+                    "*",
+                );
+            }
+            sendResponse({ success: true });
+        });
+        return true;
+    }
 
-observer.observe(document.body, {
-    childList: true,
-    subtree: true,
+    return false;
 });

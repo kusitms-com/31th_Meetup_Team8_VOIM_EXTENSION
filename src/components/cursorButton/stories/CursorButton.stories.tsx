@@ -282,10 +282,18 @@ export const ColorGrid: Story = {
                 (color) => (
                     <MockedCursorButton
                         key={color}
-                        color={color as any}
+                        color={
+                            color as
+                                | "white"
+                                | "purple"
+                                | "yellow"
+                                | "mint"
+                                | "pink"
+                                | "black"
+                        }
                         size="medium"
                         isSelected={color === "purple"}
-                        onClick={() => console.log(`${color} 커서 클릭`)}
+                        onClick={() => void 0}
                     />
                 ),
             )}

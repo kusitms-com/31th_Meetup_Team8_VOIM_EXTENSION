@@ -1,3 +1,4 @@
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type CursorTheme =
@@ -12,8 +13,10 @@ export type CursorSize = "small" | "medium" | "large";
 interface CursorContextValue {
     cursorTheme: CursorTheme;
     cursorSize: CursorSize;
+    isCursorEnabled: boolean;
     setCursorTheme: (theme: CursorTheme) => void;
     setCursorSize: (size: CursorSize) => void;
+    toggleCursor: () => void;
 }
 
 const CursorContext = createContext<CursorContextValue | undefined>(undefined);
@@ -51,47 +54,179 @@ const cursorImages: Record<CursorTheme, Record<CursorSize, string>> = {
     },
 };
 
+const applyCursorStyle = (
+    theme: CursorTheme,
+    size: CursorSize,
+    enabled: boolean,
+) => {
+    try {
+        if (!enabled) {
+            const existingStyle = document.getElementById(
+                "custom-cursor-style",
+            );
+            if (existingStyle) {
+                document.head.removeChild(existingStyle);
+            }
+
+            const iframes = document.querySelectorAll("iframe");
+            iframes.forEach((iframe) => {
+                try {
+                    const iframeDoc =
+                        iframe.contentDocument ||
+                        iframe.contentWindow?.document;
+                    if (iframeDoc) {
+                        const existingIframeStyle = iframeDoc.getElementById(
+                            "custom-cursor-style",
+                        );
+                        if (existingIframeStyle) {
+                            iframeDoc.head.removeChild(existingIframeStyle);
+                        }
+                    }
+                } catch (e) {
+                    console.warn(
+                        "iframe 커서 스타일 제거 실패 (cross-origin?):",
+                        e,
+                    );
+                }
+            });
+
+            return;
+        }
+
+        const cursorUrl = getExtensionUrl(cursorImages[theme][size]);
+
+        const styleContent = `
+            body, button, a, input, select, textarea {
+                cursor: url('${cursorUrl}'), auto !important;
+            }
+        `;
+
+        const existingStyle = document.getElementById("custom-cursor-style");
+        if (existingStyle) {
+            document.head.removeChild(existingStyle);
+        }
+        const styleElement = document.createElement("style");
+        styleElement.id = "custom-cursor-style";
+        styleElement.textContent = styleContent;
+        document.head.appendChild(styleElement);
+
+        const iframes = document.querySelectorAll("iframe");
+        iframes.forEach((iframe) => {
+            try {
+                const iframeDoc =
+                    iframe.contentDocument || iframe.contentWindow?.document;
+                if (iframeDoc) {
+                    const existingIframeStyle = iframeDoc.getElementById(
+                        "custom-cursor-style",
+                    );
+                    if (existingIframeStyle) {
+                        iframeDoc.head.removeChild(existingIframeStyle);
+                    }
+                    const iframeStyle = iframeDoc.createElement("style");
+                    iframeStyle.id = "custom-cursor-style";
+                    iframeStyle.textContent = styleContent;
+                    iframeDoc.head.appendChild(iframeStyle);
+                }
+            } catch (e) {
+                console.warn(
+                    "iframe 커서 스타일 적용 실패 (cross-origin?):",
+                    e,
+                );
+            }
+        });
+    } catch (error) {
+        console.error("커서 스타일 적용 중 오류:", error);
+    }
+};
+
 export function CursorProvider({
     children,
     initialTheme = "white",
     initialSize = "medium",
+    initialEnabled = true,
 }: {
     children: React.ReactNode;
     initialTheme?: CursorTheme;
     initialSize?: CursorSize;
+    initialEnabled?: boolean;
 }) {
     const [cursorTheme, setCursorThemeState] =
         useState<CursorTheme>(initialTheme);
     const [cursorSize, setCursorSizeState] = useState<CursorSize>(initialSize);
+    const [isCursorEnabled, setIsCursorEnabled] =
+        useState<boolean>(initialEnabled);
 
     useEffect(() => {
         if (typeof chrome !== "undefined" && chrome.storage?.sync) {
-            chrome.storage.sync.get(["cursorTheme", "cursorSize"], (result) => {
-                if (
-                    result.cursorTheme &&
-                    Object.keys(cursorImages).includes(result.cursorTheme)
-                ) {
-                    setCursorThemeState(result.cursorTheme as CursorTheme);
-                }
+            chrome.storage.sync.get(
+                ["cursorTheme", "cursorSize", "isCursorEnabled"],
+                (result) => {
+                    if (
+                        result.cursorTheme &&
+                        Object.keys(cursorImages).includes(result.cursorTheme)
+                    ) {
+                        setCursorThemeState(result.cursorTheme as CursorTheme);
+                    }
 
-                if (
-                    result.cursorSize &&
-                    ["small", "medium", "large"].includes(result.cursorSize)
-                ) {
-                    setCursorSizeState(result.cursorSize as CursorSize);
-                }
-            });
+                    if (
+                        result.cursorSize &&
+                        ["small", "medium", "large"].includes(result.cursorSize)
+                    ) {
+                        setCursorSizeState(result.cursorSize as CursorSize);
+                    }
+
+                    if (typeof result.isCursorEnabled === "boolean") {
+                        setIsCursorEnabled(result.isCursorEnabled);
+                    }
+                },
+            );
         }
     }, []);
 
+    useEffect(() => {
+        if (typeof document !== "undefined") {
+            applyCursorStyle(cursorTheme, cursorSize, isCursorEnabled);
+        }
+    }, [cursorTheme, cursorSize, isCursorEnabled]);
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const handleMessage = (event: MessageEvent) => {
+                if (event.data.type === "TOGGLE_CURSOR") {
+                    toggleCursor();
+                }
+            };
+
+            window.addEventListener("message", handleMessage);
+
+            return () => {
+                window.removeEventListener("message", handleMessage);
+            };
+        }
+    }, [isCursorEnabled]);
+
     const setCursorTheme = (newTheme: CursorTheme) => {
         setCursorThemeState(newTheme);
-        chrome.storage?.sync?.set?.({ cursorTheme: newTheme });
+        if (typeof chrome !== "undefined" && chrome.storage?.sync?.set) {
+            chrome.storage.sync.set({ cursorTheme: newTheme });
+        }
     };
 
     const setCursorSize = (newSize: CursorSize) => {
         setCursorSizeState(newSize);
-        chrome.storage.sync.set({ cursorSize: newSize });
+        if (typeof chrome !== "undefined" && chrome.storage?.sync?.set) {
+            chrome.storage.sync.set({ cursorSize: newSize });
+        }
+    };
+
+    const toggleCursor = () => {
+        const newState = !isCursorEnabled;
+
+        setIsCursorEnabled(newState);
+
+        if (typeof chrome !== "undefined" && chrome.storage?.sync?.set) {
+            chrome.storage.sync.set({ isCursorEnabled: newState }, () => {});
+        }
     };
 
     return (
@@ -99,8 +234,10 @@ export function CursorProvider({
             value={{
                 cursorTheme,
                 cursorSize,
+                isCursorEnabled,
                 setCursorTheme,
                 setCursorSize,
+                toggleCursor,
             }}
         >
             {children}
