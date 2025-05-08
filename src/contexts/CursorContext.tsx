@@ -10,6 +10,10 @@ export type CursorTheme =
     | "black";
 export type CursorSize = "small" | "medium" | "large";
 
+export const DEFAULT_CURSOR_THEME: CursorTheme = "white";
+export const DEFAULT_CURSOR_SIZE: CursorSize = "medium";
+export const DEFAULT_CURSOR_ENABLED: boolean = true;
+
 interface CursorContextValue {
     cursorTheme: CursorTheme;
     cursorSize: CursorSize;
@@ -17,6 +21,7 @@ interface CursorContextValue {
     setCursorTheme: (theme: CursorTheme) => void;
     setCursorSize: (size: CursorSize) => void;
     toggleCursor: () => void;
+    resetCursorSettings: () => void;
 }
 
 const CursorContext = createContext<CursorContextValue | undefined>(undefined);
@@ -141,9 +146,9 @@ const applyCursorStyle = (
 
 export function CursorProvider({
     children,
-    initialTheme = "white",
-    initialSize = "medium",
-    initialEnabled = true,
+    initialTheme = DEFAULT_CURSOR_THEME,
+    initialSize = DEFAULT_CURSOR_SIZE,
+    initialEnabled = DEFAULT_CURSOR_ENABLED,
 }: {
     children: React.ReactNode;
     initialTheme?: CursorTheme;
@@ -194,6 +199,8 @@ export function CursorProvider({
             const handleMessage = (event: MessageEvent) => {
                 if (event.data.type === "TOGGLE_CURSOR") {
                     toggleCursor();
+                } else if (event.data.type === "RESET_SETTINGS") {
+                    resetCursorSettings();
                 }
             };
 
@@ -229,6 +236,25 @@ export function CursorProvider({
         }
     };
 
+    const resetCursorSettings = () => {
+        setCursorThemeState(DEFAULT_CURSOR_THEME);
+        setCursorSizeState(DEFAULT_CURSOR_SIZE);
+        setIsCursorEnabled(DEFAULT_CURSOR_ENABLED);
+
+        if (typeof chrome !== "undefined" && chrome.storage?.sync?.set) {
+            chrome.storage.sync.set(
+                {
+                    cursorTheme: DEFAULT_CURSOR_THEME,
+                    cursorSize: DEFAULT_CURSOR_SIZE,
+                    isCursorEnabled: DEFAULT_CURSOR_ENABLED,
+                },
+                () => {
+                    console.log("커서 설정이 초기화되었습니다.");
+                },
+            );
+        }
+    };
+
     return (
         <CursorContext.Provider
             value={{
@@ -238,6 +264,7 @@ export function CursorProvider({
                 setCursorTheme,
                 setCursorSize,
                 toggleCursor,
+                resetCursorSettings,
             }}
         >
             {children}
