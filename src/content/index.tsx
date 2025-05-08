@@ -30,11 +30,11 @@ type ModeType = "SET_MODE_LIGHT" | "SET_MODE_DARK";
 type MessageType = FontSizeType | FontWeightType | ModeType;
 
 const fontSizeMap: Record<FontSizeType, string> = {
-    SET_FONT_SIZE_XS: "20px",
-    SET_FONT_SIZE_S: "22px",
-    SET_FONT_SIZE_M: "24px",
-    SET_FONT_SIZE_L: "26px",
-    SET_FONT_SIZE_XL: "28px",
+    SET_FONT_SIZE_XS: "0.875rem",
+    SET_FONT_SIZE_S: "1rem",
+    SET_FONT_SIZE_M: "1.125rem",
+    SET_FONT_SIZE_L: "1.25rem",
+    SET_FONT_SIZE_XL: "1.5rem",
 };
 
 const fontWeightMap: Record<FontWeightType, string> = {
@@ -120,8 +120,13 @@ function applyFontStyle(style: FontStyle): void {
     const elements = document.querySelectorAll(targetSelectors.join(","));
     elements.forEach((el) => {
         const htmlEl = el as HTMLElement;
-        if (style.fontSize) htmlEl.style.fontSize = style.fontSize;
-        if (style.fontWeight) htmlEl.style.fontWeight = style.fontWeight;
+        if (style.fontSize) {
+            htmlEl.style.fontSize = style.fontSize;
+            htmlEl.style.lineHeight = "1.0";
+        }
+        if (style.fontWeight) {
+            htmlEl.style.fontWeight = style.fontWeight;
+        }
     });
 }
 
