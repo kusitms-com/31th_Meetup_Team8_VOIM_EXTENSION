@@ -3,7 +3,7 @@ import { ModeButton } from "./component";
 import { useAppTheme, ThemeMode } from "@src/contexts/ThemeContext";
 
 const ControlMode = () => {
-    const [selectedMode, setSelectedMode] = useState("LIGHT");
+    const [selectedMode, setSelectedMode] = useState<"LIGHT" | "DARK">("LIGHT");
     const { fontClasses, setTheme, theme } = useAppTheme();
     const isDarkMode = theme === "dark";
 
@@ -13,9 +13,12 @@ const ControlMode = () => {
     };
 
     useEffect(() => {
-        const storedMode = localStorage.getItem("selectedMode");
-        if (storedMode) setSelectedMode(storedMode);
-    }, []);
+        if (theme === "light") {
+            setSelectedMode("LIGHT");
+        } else if (theme === "dark") {
+            setSelectedMode("DARK");
+        }
+    }, [theme]);
 
     const toThemeMode = (value: string): ThemeMode => {
         return value.toLowerCase() as ThemeMode;
@@ -38,7 +41,12 @@ const ControlMode = () => {
         const themeMode = toThemeMode(value);
         setTheme(themeMode);
 
-        localStorage.setItem("selectedMode", value);
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
+                .set({ "theme-mode": themeMode })
+                .catch((err) => console.error("테마 모드 저장 오류:", err));
+        }
+
         sendMessage(`SET_MODE_${value}`);
     };
 
@@ -53,7 +61,7 @@ const ControlMode = () => {
         >
             <div className="flex flex-col gap-[26px]">
                 <h2 className={fontClasses.fontCommon}>고대비 화면 설정하기</h2>
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex flex-wrap gap-4">
                     {Object.entries(modeMap).map(([label, value]) => (
                         <ModeButton
                             key={label}

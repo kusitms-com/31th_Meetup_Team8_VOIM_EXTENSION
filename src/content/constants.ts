@@ -1,4 +1,4 @@
-import { FontSizeType, FontWeightType, ModeStyle, ModeType } from "../types";
+import { FontSizeType, FontWeightType, ModeStyle, ModeType } from "./types";
 
 export const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 

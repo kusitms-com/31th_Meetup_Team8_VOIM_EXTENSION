@@ -1,6 +1,8 @@
 /* eslint-disable no-console */
 
-type LogArgs = Array<string | number | boolean | object | null | undefined>;
+type LogArgs = Array<
+    string | number | boolean | object | null | undefined | unknown
+>;
 
 export const logger = {
     error: (message: string, ...args: LogArgs) => {

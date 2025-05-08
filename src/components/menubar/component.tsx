@@ -1,6 +1,7 @@
 import React from "react";
 import { logger } from "@src/utils/logger";
 import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useCursorTheme } from "@src/contexts/CursorContext";
 import { BaseButton } from "../baseButton/component";
 import { CloseButton } from "../closeButton/component";
 
@@ -11,7 +12,8 @@ interface ModalProps {
 }
 
 export function Menubar({ isOpen, onClose, children }: ModalProps) {
-    const { theme } = useAppTheme();
+    const { theme, resetSettings } = useAppTheme();
+    const { resetCursorSettings } = useCursorTheme();
     const isDarkMode = theme === "dark";
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -24,11 +26,14 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
     };
 
     const handleResetSettings = () => {
+        resetSettings();
+        resetCursorSettings();
+
         chrome.runtime
             .sendMessage({ type: "RESET_SETTINGS" })
             .then((response) => {
                 if (response && response.success) {
-                    logger.debug("설정이 초기화되었습니다.");
+                    logger.debug("모든 설정이 초기화되었습니다.");
                 }
             })
             .catch((error) => {
@@ -38,7 +43,7 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
 
     return (
         <div
-            className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/10 backdrop-blur-[15px] transition-opacity duration-200 ${
+            className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/30 backdrop-blur-[5px] transition-opacity duration-200 ${
                 isOpen
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"

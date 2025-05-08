@@ -4,7 +4,7 @@
     "version": "1.0.0",
     "description": "Chrome Extension with React",
     "background": {
-        "service_worker": "js/backgroundPage.js"
+        "service_worker": "js/background.js"
     },
     "content_scripts": [
         {
