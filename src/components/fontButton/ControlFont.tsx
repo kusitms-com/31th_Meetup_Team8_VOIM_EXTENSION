@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { FontWeight, FontSize } from "@src/contexts/ThemeContext";
-import { FontButton } from "./component"; // FontButton 컴포넌트 임포트
+import { FontButton } from "./component";
 import { useAppTheme } from "@src/contexts/ThemeContext";
 
 type UppercaseFontWeight = "REGULAR" | "BOLD" | "XBOLD";
@@ -10,16 +10,30 @@ const ControlFont = () => {
     const [selectedWeight, setSelectedWeight] =
         useState<UppercaseFontWeight>("BOLD");
     const [selectedSize, setSelectedSize] = useState<UppercaseFontSize>("S");
-    const { setFontSize, setFontWeight, fontClasses, theme } = useAppTheme();
+    const {
+        setFontSize,
+        setFontWeight,
+        fontClasses,
+        theme,
+        fontSize,
+        fontWeight,
+    } = useAppTheme();
     const isDarkMode = theme === "dark";
 
-    // 대문자를 소문자로 변환하는 함수들
     const toFontWeight = (value: string): FontWeight => {
         return value.toLowerCase() as FontWeight;
     };
 
     const toFontSize = (value: string): FontSize => {
         return value.toLowerCase() as FontSize;
+    };
+
+    const toUpperFontWeight = (value: FontWeight): UppercaseFontWeight => {
+        return value.toUpperCase() as UppercaseFontWeight;
+    };
+
+    const toUpperFontSize = (value: FontSize): UppercaseFontSize => {
+        return value.toUpperCase() as UppercaseFontSize;
     };
 
     const weightMap: Record<string, UppercaseFontWeight> = {
@@ -37,19 +51,17 @@ const ControlFont = () => {
     };
 
     useEffect(() => {
-        const storedWeight = localStorage.getItem("selectedWeight");
-        const storedSize = localStorage.getItem("selectedSize");
-
-        if (storedWeight && isValidFontWeight(storedWeight)) {
-            setSelectedWeight(storedWeight as UppercaseFontWeight);
+        if (fontWeight) {
+            const upperWeight = toUpperFontWeight(fontWeight);
+            setSelectedWeight(upperWeight);
         }
 
-        if (storedSize && isValidFontSize(storedSize)) {
-            setSelectedSize(storedSize as UppercaseFontSize);
+        if (fontSize) {
+            const upperSize = toUpperFontSize(fontSize);
+            setSelectedSize(upperSize);
         }
-    }, []);
+    }, [fontWeight, fontSize]);
 
-    // 타입 가드 함수들
     function isValidFontWeight(value: string): value is UppercaseFontWeight {
         return ["REGULAR", "BOLD", "XBOLD"].includes(value);
     }
@@ -71,10 +83,15 @@ const ControlFont = () => {
     const handleWeightClick = (label: string) => {
         const value = weightMap[label];
         setSelectedWeight(value);
-        localStorage.setItem("selectedWeight", value);
+
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
+                .set({ "font-weight": toFontWeight(value) })
+                .catch((err) => console.error("폰트 굵기 저장 오류:", err));
+        }
+
         sendMessage(`SET_FONT_WEIGHT_${value}`);
 
-        // 대문자를 소문자로 변환하여 setFontWeight 호출
         const fontWeight = toFontWeight(value);
         setFontWeight(fontWeight);
     };
@@ -82,10 +99,15 @@ const ControlFont = () => {
     const handleSizeClick = (label: string) => {
         const value = sizeMap[label];
         setSelectedSize(value);
-        localStorage.setItem("selectedSize", value);
+
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync
+                .set({ "font-size": toFontSize(value) })
+                .catch((err) => console.error("폰트 크기 저장 오류:", err));
+        }
+
         sendMessage(`SET_FONT_SIZE_${value}`);
 
-        // 대문자를 소문자로 변환하여 setFontSize 호출
         const fontSize = toFontSize(value);
         setFontSize(fontSize);
     };
@@ -117,7 +139,7 @@ const ControlFont = () => {
 
             <div className="flex flex-col gap-[26px]">
                 <h2 className={fontClasses.fontCommon}>글자 크기 바꾸기</h2>
-                <div className="flex gap-4 flex-wrap">
+                <div className="flex flex-wrap gap-4">
                     {["아주 작게", "작게", "기본", "크게", "아주 크게"].map(
                         (label) => (
                             <FontButton

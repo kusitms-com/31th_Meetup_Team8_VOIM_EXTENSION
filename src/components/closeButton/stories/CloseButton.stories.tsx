@@ -60,7 +60,7 @@ type Story = StoryObj<typeof MockedCloseButton>;
 
 export const LightMode: Story = {
     args: {
-        onClick: () => console.log("Close button clicked"),
+        onClick: () => void 0,
         ariaLabel: "닫기",
         mockTheme: "light",
     },
@@ -68,7 +68,7 @@ export const LightMode: Story = {
 
 export const DarkMode: Story = {
     args: {
-        onClick: () => console.log("Close button clicked"),
+        onClick: () => void 0,
         ariaLabel: "닫기",
         mockTheme: "dark",
     },
@@ -92,7 +92,7 @@ export const DarkMode: Story = {
 
 export const CustomAriaLabel: Story = {
     args: {
-        onClick: () => console.log("Close button clicked"),
+        onClick: () => void 0,
         ariaLabel: "창 닫기",
         mockTheme: "light",
     },

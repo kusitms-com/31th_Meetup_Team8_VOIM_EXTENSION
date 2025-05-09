@@ -29,8 +29,8 @@ export function CursorButton({
                         ? "bg-grayscale-800 border-4 border-solid border-purple-light"
                         : "bg-grayscale-100 border-4 border-solid border-purple-default"
                     : isDarkMode
-                      ? "bg-grayscale-800 hover:opacity-30"
-                      : "bg-grayscale-100 hover:opacity-30"
+                      ? "bg-grayscale-800 hover:opacity-30 border-4 border-solid border-grayscale-700"
+                      : "bg-grayscale-100 hover:opacity-30 border-4 border-solid border-grayscale-300"
             }`}
             onClick={onClick}
             aria-label={`커서 변경 버튼: ${size}, ${color}`}
