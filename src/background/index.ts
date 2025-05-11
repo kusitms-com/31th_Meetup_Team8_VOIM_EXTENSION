@@ -1,11 +1,11 @@
 import { initMessageListeners } from "./listeners/messageListeners";
 import { initStorageListeners } from "./listeners/storageListeners";
 import { initTabListeners } from "./listeners/tabListeners";
-import { initCommandListeners } from "./listeners/commandListeners";
 import { storageService } from "./services/storageService";
-import { cursorService } from "./services/cursorService";
 import { logger } from "@src/utils/logger";
 import { STORAGE_KEYS } from "./constants";
+import { initCommandListeners } from "./listeners/commandListeners";
+import { cursorService } from "./services/cursorService";
 
 /**
  * 백그라운드 스크립트 초기화

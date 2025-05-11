@@ -96,15 +96,22 @@ export function removeAllStyles(): void {
         chrome.storage.sync.set({ stylesEnabled: false }, () => {
             console.log("스타일 비활성화 상태 저장됨");
 
+            // 모든 스타일 속성 제거
+            document.documentElement.style.filter = "none";
+            document.documentElement.style.backgroundColor = "";
+
             const elements = document.querySelectorAll("*");
             elements.forEach((el) => {
                 const htmlEl = el as HTMLElement;
                 if (htmlEl.style) {
                     htmlEl.style.removeProperty("fontSize");
                     htmlEl.style.removeProperty("fontWeight");
+                    htmlEl.style.removeProperty("filter");
+                    htmlEl.style.removeProperty("backgroundColor");
                 }
             });
 
+            // 모든 커스텀 스타일 제거
             const modeStyle = document.getElementById("webeye-mode-style");
             if (modeStyle) {
                 modeStyle.remove();
@@ -123,11 +130,21 @@ export function removeAllStyles(): void {
                 * {
                     font-size: initial !important;
                     font-weight: initial !important;
+                    filter: none !important;
+                    background-color: initial !important;
+                    color: initial !important;
                 }
                 
                 body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, li, ul, ol {
                     font-size: initial !important;
                     font-weight: initial !important;
+                    filter: none !important;
+                    background-color: initial !important;
+                    color: initial !important;
+                }
+
+                img, video, canvas {
+                    filter: none !important;
                 }
             `;
             document.head.appendChild(resetStyle);
@@ -138,24 +155,13 @@ export function removeAllStyles(): void {
             }
 
             removeStyleFromIframes();
-
             removeIframe();
 
             console.log("모든 스타일과 iframe이 제거되었습니다.");
-
-            setTimeout(() => {
-                const resetStyleElem =
-                    document.getElementById("webeye-reset-style");
-                if (resetStyleElem) {
-                }
-            }, 500);
         });
     });
 }
 
-/**
- * 모든 스타일을 복원합니다.
- */
 /**
  * 모든 스타일을 복원합니다.
  */
@@ -172,6 +178,11 @@ export function restoreAllStyles(): void {
             const settings = result.userSettings || originalSettings || {};
 
             setTimeout(() => {
+                // 테마 모드 복원
+                if (settings.mode) {
+                    applyModeStyle(settings.mode);
+                }
+
                 const fontStyle: Partial<FontStyle> = {};
                 if (settings.fontSize) fontStyle.fontSize = settings.fontSize;
                 if (settings.fontWeight)
@@ -239,6 +250,12 @@ export function loadAndApplySettings(): void {
             );
             return;
         }
+
+        // 테마 모드 적용
+        if (settings.mode) {
+            applyModeStyle(settings.mode);
+        }
+
         const fontStyle: Partial<FontStyle> = {};
         if (settings.fontSize) fontStyle.fontSize = settings.fontSize;
         if (settings.fontWeight) fontStyle.fontWeight = settings.fontWeight;

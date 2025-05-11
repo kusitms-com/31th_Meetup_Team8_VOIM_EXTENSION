@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "voim",
     "version": "1.0.0",
-    "description": "Chrome Extension with React",
+    "description": "시각 정보 해독이 어려운 사용자를 위한 크롬 확장 프로그램",
     "background": {
         "service_worker": "js/background.js"
     },
