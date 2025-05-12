@@ -6,67 +6,30 @@ import { ModeType } from "../types";
  * @param modeType 적용할 모드 타입
  */
 export function applyModeStyle(modeType: ModeType): void {
-    const mode = modeStyleMap[modeType];
-    if (!mode) return;
+    document.getElementById("webeye-mode-style")?.remove();
 
-    const { backgroundColor, color } = mode;
+    if (modeType === "SET_MODE_DARK") {
+        document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
+        document.documentElement.style.backgroundColor = "#121212";
 
-    const oldStyle = document.getElementById("webeye-mode-style");
-    if (oldStyle) oldStyle.remove();
+        const style = document.createElement("style");
+        style.id = "webeye-mode-style";
+        style.textContent = `
+            img, video, canvas {
+                filter: invert(1) hue-rotate(180deg) !important;
+            }
 
-    const style = document.createElement("style");
-    style.id = "webeye-mode-style";
-    style.textContent = `
-        body * {
-            color: ${color} !important;
-        }
-
-        /* 특정 상호작용 요소는 제외 */
-        body *:not(button, select, input[type="checkbox"], input[type="radio"]) {
-            background-color: ${backgroundColor} !important;
-        }       
-
-        html, body {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-        }
-
-        a, span, div, p, h1, h2, h3, h4, h5, h6, li, ul, em, strong, td, th, button {
-            color: ${color} !important;
-            background-color: ${backgroundColor} !important;
-            border-color: ${color} !important;
-        }
-
-        input, textarea, select {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-            border: 1px solid ${color} !important;
-        }
-
-        img, video {
-            filter: brightness(0.8) contrast(1.2);
-        }
-         
-        p, h1, h2, h3, h4, h5, h6, span, div, li {
-            overflow-wrap: break-word !important;
-            word-wrap: break-word !important;
-            hyphens: auto !important;
-            text-align: left !important;
-            max-width: 100% !important;
-            text-overflow: ellipsis !important;
-        }
-        
-       
-        body, p, div, span, li, h1, h2, h3, h4, h5, h6 {
-            line-height: calc(1.5em + 0.2vw) !important;
-            margin-bottom: 0.5em !important;
-        }
-        
-       
-        p, li, div.paragraph {
-            margin-bottom: 1em !important;
-            padding-bottom: 0.5em !important;
-        }
-    `;
-    document.head.appendChild(style);
+            [data-webeye-root], [data-webeye-root] * {
+                all: unset !important;
+                filter: none !important;
+                background-color: initial !important;
+                color: initial !important;
+                border-color: initial !important;
+            }
+        `;
+        document.head.appendChild(style);
+    } else {
+        document.documentElement.style.filter = "none";
+        document.documentElement.style.backgroundColor = "#fefefe";
+    }
 }

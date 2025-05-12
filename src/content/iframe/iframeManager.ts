@@ -2,6 +2,7 @@ import { EXTENSION_IFRAME_ID } from "../constants";
 
 let iframeVisible = false;
 let savedIframeElement: HTMLIFrameElement | null = null;
+let currentListener: ((event: MessageEvent) => void) | null = null;
 
 /**
  * iframe의 resize 메시지를 처리하는 함수를 생성합니다.
@@ -31,6 +32,16 @@ function handleResizeMessageFactory(iframe: HTMLIFrameElement) {
 }
 
 /**
+ * iframe을 초기 상태로 설정합니다.
+ */
+function resetIframeState(iframe: HTMLIFrameElement): void {
+    iframe.style.width = "65px";
+    iframe.style.height = "65px";
+    iframe.style.top = "70px";
+    iframe.style.right = "20px";
+}
+
+/**
  * 플로팅 버튼 iframe을 생성합니다.
  */
 export function createIframe(): void {
@@ -54,10 +65,14 @@ export function createIframe(): void {
             z-index: 2147483647;
         `;
 
-        const listener = handleResizeMessageFactory(iframe);
-        window.addEventListener("message", listener);
-        iframe.dataset.listenerId = String(Date.now());
-        (iframe as any)._listener = listener;
+        // 기존 리스너 제거
+        if (currentListener) {
+            window.removeEventListener("message", currentListener);
+        }
+
+        // 새 리스너 설정
+        currentListener = handleResizeMessageFactory(iframe);
+        window.addEventListener("message", currentListener);
 
         document.body.appendChild(iframe);
         iframeVisible = true;
@@ -73,7 +88,11 @@ export function removeIframe(): void {
         EXTENSION_IFRAME_ID,
     ) as HTMLIFrameElement;
     if (iframe) {
-        window.removeEventListener("message", (iframe as any)._listener);
+        // 리스너 제거
+        if (currentListener) {
+            window.removeEventListener("message", currentListener);
+            currentListener = null;
+        }
 
         savedIframeElement = iframe;
         iframe.remove();
@@ -86,10 +105,17 @@ export function removeIframe(): void {
  */
 export function restoreIframe(): void {
     if (!iframeVisible && savedIframeElement) {
-        const listener = handleResizeMessageFactory(savedIframeElement);
-        window.addEventListener("message", listener);
-        savedIframeElement.dataset.listenerId = String(Date.now());
-        (savedIframeElement as any)._listener = listener;
+        // iframe을 완전히 초기 상태로 리셋
+        resetIframeState(savedIframeElement);
+
+        // 기존 리스너 제거
+        if (currentListener) {
+            window.removeEventListener("message", currentListener);
+        }
+
+        // 새 리스너 설정
+        currentListener = handleResizeMessageFactory(savedIframeElement);
+        window.addEventListener("message", currentListener);
 
         document.body.appendChild(savedIframeElement);
         iframeVisible = true;
