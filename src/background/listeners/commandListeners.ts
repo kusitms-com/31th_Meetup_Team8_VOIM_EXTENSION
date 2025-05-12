@@ -49,6 +49,37 @@ export function initCommandListeners(): void {
                                     iframe.style.background = "transparent";
                                     iframe.style.zIndex = "2147483647";
 
+                                    const handleMessage = function (
+                                        event: MessageEvent,
+                                    ) {
+                                        if (
+                                            event.source !==
+                                            iframe.contentWindow
+                                        ) {
+                                            return;
+                                        }
+
+                                        if (
+                                            event.data.type === "RESIZE_IFRAME"
+                                        ) {
+                                            if (event.data.isOpen) {
+                                                iframe.style.width = "100%";
+                                                iframe.style.height = "100%";
+                                                iframe.style.top = "0";
+                                                iframe.style.right = "0";
+                                            } else {
+                                                iframe.style.width = "65px";
+                                                iframe.style.height = "65px";
+                                                iframe.style.top = "70px";
+                                                iframe.style.right = "20px";
+                                            }
+                                        }
+                                    };
+
+                                    window.addEventListener(
+                                        "message",
+                                        handleMessage,
+                                    );
                                     document.body.appendChild(iframe);
 
                                     console.log("iframe 생성 완료");

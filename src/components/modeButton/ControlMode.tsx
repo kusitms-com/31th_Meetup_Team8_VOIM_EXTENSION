@@ -13,46 +13,38 @@ const ControlMode = () => {
     };
 
     useEffect(() => {
-        if (theme === "light") {
-            setSelectedMode("LIGHT");
-        } else if (theme === "dark") {
-            setSelectedMode("DARK");
-        }
-    }, [theme]);
-
-    const toThemeMode = (value: string): ThemeMode => {
-        return value.toLowerCase() as ThemeMode;
-    };
-
-    const sendMessage = (type: string) => {
-        chrome.runtime.sendMessage({ type }, (response) => {
-            if (chrome.runtime.lastError) {
-                console.error("에러:", chrome.runtime.lastError.message);
-            } else {
-                console.log("응답:", response);
-            }
-        });
-    };
+        // 테마가 변경될 때마다 선택된 모드 업데이트
+        setSelectedMode(isDarkMode ? "DARK" : "LIGHT");
+    }, [isDarkMode]);
 
     const handleModeClick = (label: string) => {
         const value = modeMap[label];
         setSelectedMode(value);
 
-        const themeMode = toThemeMode(value);
+        const themeMode = value === "DARK" ? "dark" : "light";
         setTheme(themeMode);
 
         if (chrome?.storage?.sync) {
             chrome.storage.sync
-                .set({ "theme-mode": themeMode })
+                .set({ "theme-mode": `SET_MODE_${value}` })
                 .catch((err) => console.error("테마 모드 저장 오류:", err));
         }
 
-        sendMessage(`SET_MODE_${value}`);
+        chrome.runtime.sendMessage(
+            { type: `SET_MODE_${value}` },
+            (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("에러:", chrome.runtime.lastError.message);
+                } else {
+                    console.log("응답:", response);
+                }
+            },
+        );
     };
 
     return (
         <div
-            className={` inline-flex flex-col items-start p-[18px] rounded-[20px] ${
+            className={`inline-flex flex-col items-start p-[18px] rounded-[20px] ${
                 isDarkMode
                     ? `bg-grayscale-900 text-grayscale-100`
                     : `bg-grayscale-100 text-grayscale-900`
