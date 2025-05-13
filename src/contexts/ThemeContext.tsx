@@ -1,37 +1,26 @@
-import { logger } from "@src/utils/logger";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { ModeType } from "@src/content/types";
+import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 
-export type ThemeMode = "light" | "dark";
-export type FontSize = "xl" | "l" | "m" | "s" | "xs";
-export type FontWeight = "xbold" | "bold" | "regular";
+export type Theme = "light" | "dark" | "system";
+export type FontSize = "xs" | "s" | "m" | "l" | "xl";
+export type FontWeight = "regular" | "bold" | "xbold";
+export type CursorTheme =
+    | "white"
+    | "purple"
+    | "yellow"
+    | "mint"
+    | "pink"
+    | "black";
+export type CursorSize = "small" | "medium" | "large";
 
-interface AppThemeContextValue {
-    theme: ThemeMode;
-    setTheme: (theme: ThemeMode) => void;
-    fontSize: FontSize;
-    setFontSize: (size: FontSize) => void;
-    fontWeight: FontWeight;
-    setFontWeight: (weight: FontWeight) => void;
-    fontClasses: {
-        fontHeading: string;
-        fontCommon: string;
-        fontCaption: string;
-    };
-    resetSettings: () => void;
-}
-
-export const AppThemeContext = createContext<AppThemeContextValue | undefined>(
-    undefined,
-);
-
-const THEME_KEY = "theme-mode";
-const FONT_SIZE_KEY = "font-size";
-const FONT_WEIGHT_KEY = "font-weight";
-
-const DEFAULT_THEME: ThemeMode = "light";
-const DEFAULT_FONT_SIZE: FontSize = "m";
-const DEFAULT_FONT_WEIGHT: FontWeight = "bold";
+const DEFAULT_SETTINGS = {
+    theme: "system" as Theme,
+    fontSize: "m" as FontSize,
+    fontWeight: "bold" as FontWeight,
+    cursorTheme: "white" as CursorTheme,
+    cursorSize: "medium" as CursorSize,
+    isCursorEnabled: true,
+};
 
 const fontSizeClassMap: Record<
     FontSize,
@@ -70,148 +59,193 @@ const fontWeightClassMap: Record<FontWeight, string> = {
     regular: "font-normal",
 };
 
-// 테마 모드 변환 함수
-const convertToThemeMode = (mode: string): ThemeMode => {
-    if (mode === "SET_MODE_DARK") return "dark";
-    if (mode === "SET_MODE_LIGHT") return "light";
-    return DEFAULT_THEME;
+interface ThemeContextValue {
+    theme: Theme;
+    fontSize: FontSize;
+    fontWeight: FontWeight;
+    cursorTheme: CursorTheme;
+    cursorSize: CursorSize;
+    isCursorEnabled: boolean;
+    fontClasses: {
+        fontHeading: string;
+        fontCommon: string;
+        fontCaption: string;
+    };
+    setTheme: (theme: Theme) => void;
+    setFontSize: (size: FontSize) => void;
+    setFontWeight: (weight: FontWeight) => void;
+    setCursorTheme: (theme: CursorTheme) => void;
+    setCursorSize: (size: CursorSize) => void;
+    toggleCursor: () => void;
+    resetSettings: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+
+const cursorImages: Record<CursorTheme, Record<CursorSize, string>> = {
+    white: {
+        small: "cursors/white_small.png",
+        medium: "cursors/white_medium.png",
+        large: "cursors/white_large.png",
+    },
+    purple: {
+        small: "cursors/purple_small.png",
+        medium: "cursors/purple_medium.png",
+        large: "cursors/purple_large.png",
+    },
+    yellow: {
+        small: "cursors/yellow_small.png",
+        medium: "cursors/yellow_medium.png",
+        large: "cursors/yellow_large.png",
+    },
+    mint: {
+        small: "cursors/mint_small.png",
+        medium: "cursors/mint_medium.png",
+        large: "cursors/mint_large.png",
+    },
+    pink: {
+        small: "cursors/pink_small.png",
+        medium: "cursors/pink_medium.png",
+        large: "cursors/pink_large.png",
+    },
+    black: {
+        small: "cursors/black_small.png",
+        medium: "cursors/black_medium.png",
+        large: "cursors/black_large.png",
+    },
 };
 
-const convertToModeType = (theme: ThemeMode): ModeType => {
-    return theme === "dark" ? "SET_MODE_DARK" : "SET_MODE_LIGHT";
-};
+const applyCursorStyle = (
+    theme: CursorTheme,
+    size: CursorSize,
+    enabled: boolean,
+) => {
+    const styleId = "custom-cursor-style";
+    const cursorUrl = getExtensionUrl(cursorImages[theme][size]);
 
-export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setThemeState] = useState<ThemeMode>(DEFAULT_THEME);
-    const [fontSize, setFontSizeState] = useState<FontSize>(DEFAULT_FONT_SIZE);
-    const [fontWeight, setFontWeightState] =
-        useState<FontWeight>(DEFAULT_FONT_WEIGHT);
-    const [isLoading, setIsLoading] = useState(true);
+    const styleContent = enabled
+        ? `body, button, a, input, select, textarea { cursor: url('${cursorUrl}'), auto !important; }`
+        : "";
 
-    useEffect(() => {
-        if (!chrome?.storage?.sync) {
-            setIsLoading(false);
-            return;
+    const updateStyleInDocument = (doc: Document) => {
+        const existing = doc.getElementById(styleId);
+        if (existing) existing.remove();
+        if (enabled) {
+            const style = doc.createElement("style");
+            style.id = styleId;
+            style.textContent = styleContent;
+            doc.head.appendChild(style);
         }
+    };
 
-        const loadSettings = async () => {
-            try {
-                const result = await chrome.storage.sync.get([
-                    THEME_KEY,
-                    FONT_SIZE_KEY,
-                    FONT_WEIGHT_KEY,
-                ]);
+    updateStyleInDocument(document);
+    document.querySelectorAll("iframe").forEach((iframe) => {
+        try {
+            const iframeDoc =
+                iframe.contentDocument || iframe.contentWindow?.document;
+            if (iframeDoc) updateStyleInDocument(iframeDoc);
+        } catch (e) {
+            console.warn("iframe 커서 적용 실패:", e);
+        }
+    });
+};
 
-                if (result[THEME_KEY]) {
-                    setThemeState(convertToThemeMode(result[THEME_KEY]));
-                }
-                if (
-                    ["xl", "l", "m", "s", "xs"].includes(result[FONT_SIZE_KEY])
-                ) {
-                    setFontSizeState(result[FONT_SIZE_KEY]);
-                }
-                if (
-                    ["xbold", "bold", "regular"].includes(
-                        result[FONT_WEIGHT_KEY],
-                    )
-                ) {
-                    setFontWeightState(result[FONT_WEIGHT_KEY]);
-                }
-            } catch (error) {
-                logger.error("설정 로드 중 오류:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
+export function ThemeContextProvider({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const [theme, setThemeState] = useState<Theme>(DEFAULT_SETTINGS.theme);
+    const [fontSize, setFontSizeState] = useState<FontSize>(
+        DEFAULT_SETTINGS.fontSize,
+    );
+    const [fontWeight, setFontWeightState] = useState<FontWeight>(
+        DEFAULT_SETTINGS.fontWeight,
+    );
+    const [cursorTheme, setCursorThemeState] = useState<CursorTheme>(
+        DEFAULT_SETTINGS.cursorTheme,
+    );
+    const [cursorSize, setCursorSizeState] = useState<CursorSize>(
+        DEFAULT_SETTINGS.cursorSize,
+    );
+    const [isCursorEnabled, setIsCursorEnabled] = useState<boolean>(
+        DEFAULT_SETTINGS.isCursorEnabled,
+    );
 
-        loadSettings();
-
-        const handleStorageChange = (changes: {
-            [key: string]: chrome.storage.StorageChange;
-        }) => {
-            if (changes[THEME_KEY]) {
-                const newTheme = changes[THEME_KEY].newValue;
-                setThemeState(convertToThemeMode(newTheme));
-            }
-            if (changes[FONT_SIZE_KEY]) {
-                const newSize = changes[FONT_SIZE_KEY].newValue;
-                if (["xl", "l", "m", "s", "xs"].includes(newSize)) {
-                    setFontSizeState(newSize);
-                }
-            }
-            if (changes[FONT_WEIGHT_KEY]) {
-                const newWeight = changes[FONT_WEIGHT_KEY].newValue;
-                if (["xbold", "bold", "regular"].includes(newWeight)) {
-                    setFontWeightState(newWeight);
-                }
-            }
-        };
-
-        chrome.storage.sync.onChanged.addListener(handleStorageChange);
-
-        return () => {
-            chrome.storage.sync.onChanged.removeListener(handleStorageChange);
-        };
+    // Load from chrome.storage
+    useEffect(() => {
+        if (chrome?.storage?.sync) {
+            chrome.storage.sync.get(
+                [
+                    "theme",
+                    "fontSize",
+                    "fontWeight",
+                    "cursorTheme",
+                    "cursorSize",
+                    "isCursorEnabled",
+                ],
+                (result) => {
+                    if (result.theme) setThemeState(result.theme);
+                    if (result.fontSize) setFontSizeState(result.fontSize);
+                    if (result.fontWeight)
+                        setFontWeightState(result.fontWeight);
+                    if (result.cursorTheme)
+                        setCursorThemeState(result.cursorTheme);
+                    if (result.cursorSize)
+                        setCursorSizeState(result.cursorSize);
+                    if (typeof result.isCursorEnabled === "boolean")
+                        setIsCursorEnabled(result.isCursorEnabled);
+                },
+            );
+        }
     }, []);
 
-    if (isLoading) {
-        return null; // 또는 로딩 스피너를 표시할 수 있습니다
-    }
+    // Apply cursor when settings change
+    useEffect(() => {
+        applyCursorStyle(cursorTheme, cursorSize, isCursorEnabled);
+    }, [cursorTheme, cursorSize, isCursorEnabled]);
 
-    const setTheme = (newTheme: ThemeMode) => {
-        setThemeState(newTheme);
-        if (chrome?.storage?.sync) {
-            const modeType = convertToModeType(newTheme);
-            chrome.storage.sync
-                .set({ [THEME_KEY]: modeType })
-                .catch((err) => logger.error(err));
-
-            // 메시지 전송
-            chrome.runtime.sendMessage({ type: modeType }, (response) => {
-                if (chrome.runtime.lastError) {
-                    logger.error(
-                        "메시지 전송 오류:",
-                        chrome.runtime.lastError.message,
-                    );
-                }
-            });
-        }
+    // Save handlers
+    const saveToStorage = (key: string, value: any) => {
+        if (chrome?.storage?.sync?.set)
+            chrome.storage.sync.set({ [key]: value });
     };
 
-    const setFontSize = (newSize: FontSize) => {
-        setFontSizeState(newSize);
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
-                .set({ [FONT_SIZE_KEY]: newSize })
-                .catch((err) => logger.error(err));
-        }
+    const setTheme = (v: Theme) => {
+        setThemeState(v);
+        saveToStorage("theme", v);
     };
-
-    const setFontWeight = (newWeight: FontWeight) => {
-        setFontWeightState(newWeight);
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
-                .set({ [FONT_WEIGHT_KEY]: newWeight })
-                .catch((err) => logger.error(err));
-        }
+    const setFontSize = (v: FontSize) => {
+        setFontSizeState(v);
+        saveToStorage("fontSize", v);
     };
-
+    const setFontWeight = (v: FontWeight) => {
+        setFontWeightState(v);
+        saveToStorage("fontWeight", v);
+    };
+    const setCursorTheme = (v: CursorTheme) => {
+        setCursorThemeState(v);
+        saveToStorage("cursorTheme", v);
+    };
+    const setCursorSize = (v: CursorSize) => {
+        setCursorSizeState(v);
+        saveToStorage("cursorSize", v);
+    };
+    const toggleCursor = () => {
+        const newState = !isCursorEnabled;
+        setIsCursorEnabled(newState);
+        saveToStorage("isCursorEnabled", newState);
+    };
     const resetSettings = () => {
-        setTheme(DEFAULT_THEME);
-        setFontSize(DEFAULT_FONT_SIZE);
-        setFontWeight(DEFAULT_FONT_WEIGHT);
+        setThemeState(DEFAULT_SETTINGS.theme);
+        setFontSizeState(DEFAULT_SETTINGS.fontSize);
+        setFontWeightState(DEFAULT_SETTINGS.fontWeight);
+        setCursorThemeState(DEFAULT_SETTINGS.cursorTheme);
+        setCursorSizeState(DEFAULT_SETTINGS.cursorSize);
+        setIsCursorEnabled(DEFAULT_SETTINGS.isCursorEnabled);
 
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
-                .set({
-                    [THEME_KEY]: DEFAULT_THEME,
-                    [FONT_SIZE_KEY]: DEFAULT_FONT_SIZE,
-                    [FONT_WEIGHT_KEY]: DEFAULT_FONT_WEIGHT,
-                })
-                .then(() => {
-                    logger.debug("설정이 초기화되었습니다.");
-                })
-                .catch((err) => logger.error("설정 초기화 중 오류:", err));
+        if (chrome?.storage?.sync?.set) {
+            chrome.storage.sync.set({ ...DEFAULT_SETTINGS });
         }
     };
 
@@ -225,27 +259,34 @@ export function AppThemeProvider({ children }: { children: React.ReactNode }) {
     };
 
     return (
-        <AppThemeContext.Provider
+        <ThemeContext.Provider
             value={{
                 theme,
-                setTheme,
                 fontSize,
-                setFontSize,
                 fontWeight,
-                setFontWeight,
+                cursorTheme,
+                cursorSize,
+                isCursorEnabled,
                 fontClasses,
+                setTheme,
+                setFontSize,
+                setFontWeight,
+                setCursorTheme,
+                setCursorSize,
+                toggleCursor,
                 resetSettings,
             }}
         >
             {children}
-        </AppThemeContext.Provider>
+        </ThemeContext.Provider>
     );
 }
 
-export function useAppTheme() {
-    const context = useContext(AppThemeContext);
-    if (!context) {
-        throw new Error("useAppTheme must be used within an AppThemeProvider");
-    }
+export function useTheme() {
+    const context = useContext(ThemeContext);
+    if (!context)
+        throw new Error(
+            "useUserPreferences must be used within a UserPreferencesProvider",
+        );
     return context;
 }
