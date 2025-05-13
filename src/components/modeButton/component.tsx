@@ -1,6 +1,6 @@
 import React from "react";
 import { CheckmarkIcon } from "../checkmarkIcon";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 interface ModeButtonProps {
     children: React.ReactNode;
@@ -15,7 +15,7 @@ export function ModeButton({
     isSelected = false,
     modeType,
 }: ModeButtonProps) {
-    const { fontClasses } = useAppTheme();
+    const { fontClasses } = useTheme();
     const isLightButton = modeType === "LIGHT";
     const isDarkButton = modeType === "DARK";
 
