@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import { getExtensionUrl } from "@src/utils/getExtensionUrl";
 import { CheckmarkIcon } from "../checkmarkIcon";
 
@@ -16,7 +16,7 @@ export function CursorButton({
     size = "medium",
     isSelected = false,
 }: CursorButtonProps) {
-    const { theme } = useAppTheme();
+    const { theme } = useTheme();
     const isDarkMode = theme === "dark";
 
     const fileName = `cursors/${color}_${size}.png`;

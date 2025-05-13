@@ -1,4 +1,4 @@
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
 import { CheckmarkIcon } from "../checkmarkIcon";
 
@@ -15,7 +15,7 @@ export function BaseButton({
     ariaLabel,
     isSelected = false,
 }: BaseButtonProps) {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     return (

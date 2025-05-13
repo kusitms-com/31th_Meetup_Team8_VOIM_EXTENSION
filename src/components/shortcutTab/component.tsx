@@ -1,9 +1,9 @@
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
 import { ContentBox } from "../contentBox";
 
 export function ShortcutTab() {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
     return (
         <div

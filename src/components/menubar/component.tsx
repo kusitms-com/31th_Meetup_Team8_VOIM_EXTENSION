@@ -1,7 +1,7 @@
 import React from "react";
 import { logger } from "@src/utils/logger";
-import { useAppTheme } from "@src/contexts/ThemeContext";
-import { useCursorTheme } from "@src/contexts/CursorContext";
+import { useTheme } from "@src/contexts/ThemeContext";
+
 import { BaseButton } from "../baseButton/component";
 import { CloseButton } from "../closeButton/component";
 
@@ -12,8 +12,8 @@ interface ModalProps {
 }
 
 export function Menubar({ isOpen, onClose, children }: ModalProps) {
-    const { theme, resetSettings } = useAppTheme();
-    const { resetCursorSettings } = useCursorTheme();
+    const { theme, resetSettings } = useTheme();
+
     const isDarkMode = theme === "dark";
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -27,7 +27,6 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
 
     const handleResetSettings = () => {
         resetSettings();
-        resetCursorSettings();
 
         chrome.runtime
             .sendMessage({ type: "RESET_SETTINGS" })

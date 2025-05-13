@@ -1,5 +1,5 @@
 import React from "react";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import { CheckmarkIcon } from "../checkmarkIcon";
 
 interface MenubarButtonProps {
@@ -15,7 +15,7 @@ export function MenubarButton({
     onClick,
     ariaLabel,
 }: MenubarButtonProps): JSX.Element {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     return (

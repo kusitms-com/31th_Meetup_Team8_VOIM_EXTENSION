@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { ModeButton } from "./component";
-import { useAppTheme, ThemeMode } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 const ControlMode = () => {
     const [selectedMode, setSelectedMode] = useState<"LIGHT" | "DARK">("LIGHT");
-    const { fontClasses, setTheme, theme } = useAppTheme();
+    const { fontClasses, setTheme, theme } = useTheme();
     const isDarkMode = theme === "dark";
 
     const modeMap: Record<string, "LIGHT" | "DARK"> = {

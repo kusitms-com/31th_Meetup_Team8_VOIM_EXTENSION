@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import type { FontWeight, FontSize } from "@src/contexts/ThemeContext";
 import { FontButton } from "./component";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 type UppercaseFontWeight = "REGULAR" | "BOLD" | "XBOLD";
 type UppercaseFontSize = "XS" | "S" | "M" | "L" | "XL";
@@ -17,7 +17,7 @@ const ControlFont = () => {
         theme,
         fontSize,
         fontWeight,
-    } = useAppTheme();
+    } = useTheme();
     const isDarkMode = theme === "dark";
 
     const toFontWeight = (value: string): FontWeight => {
