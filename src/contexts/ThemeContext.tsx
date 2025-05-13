@@ -3,7 +3,7 @@ import { useSyncedState } from "@src/hooks/useSyncedState";
 import { getFontClasses } from "@src/utils/fontUtils";
 import { applyCursorStyle } from "@src/utils/cursorUtils";
 
-export type Theme = "light" | "dark" | "system";
+export type Theme = "light" | "dark";
 export type FontSize = "xs" | "s" | "m" | "l" | "xl";
 export type FontWeight = "regular" | "bold" | "xbold";
 export type CursorTheme =
@@ -16,7 +16,7 @@ export type CursorTheme =
 export type CursorSize = "small" | "medium" | "large";
 
 const DEFAULT_SETTINGS = {
-    theme: "system" as Theme,
+    theme: "light" as Theme,
     fontSize: "m" as FontSize,
     fontWeight: "bold" as FontWeight,
     cursorTheme: "white" as CursorTheme,
