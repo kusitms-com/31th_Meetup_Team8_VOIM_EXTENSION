@@ -16,9 +16,14 @@ const CURSOR_COLORS: CursorColor[] = [
 ];
 
 export function CursorTab() {
-    const { theme, fontClasses } = useTheme();
-    const { setCursorSize, setCursorTheme, cursorSize, cursorTheme } =
-        useTheme();
+    const {
+        setCursorSize,
+        setCursorTheme,
+        cursorSize,
+        cursorTheme,
+        theme,
+        fontClasses,
+    } = useTheme();
 
     const isDarkMode = theme === "dark";
 
