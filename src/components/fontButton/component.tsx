@@ -1,6 +1,6 @@
 import React from "react";
 import { CheckmarkIcon } from "../checkmarkIcon";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 interface FontButtonProps {
     children: React.ReactNode;
@@ -15,7 +15,7 @@ export function FontButton({
     isSelected = false,
     fontType = "weight",
 }: FontButtonProps) {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     // 폰트 두께 또는 크기에 대한 스타일 매핑
@@ -50,8 +50,8 @@ export function FontButton({
                         ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"
                         : "bg-grayscale-100 text-grayscale-900 border-4 border-solid border-purple-default"
                     : isDarkMode
-                    ? "bg-grayscale-900 text-grayscale-100 hover:opacity-30 border-4 border-solid border-grayscale-700 active:border-purple-light active:hover:opacity-100"
-                    : "bg-grayscale-100 text-grayscale-900 hover:opacity-30 border-4 border-solid border-grayscale-300 active:border-purple-default active:hover:opacity-100"
+                      ? "bg-grayscale-900 text-grayscale-100 hover:opacity-30 border-4 border-solid border-grayscale-700 active:border-purple-light active:hover:opacity-100"
+                      : "bg-grayscale-100 text-grayscale-900 hover:opacity-30 border-4 border-solid border-grayscale-300 active:border-purple-default active:hover:opacity-100"
             }`}
             onClick={onClick}
             aria-label={`${

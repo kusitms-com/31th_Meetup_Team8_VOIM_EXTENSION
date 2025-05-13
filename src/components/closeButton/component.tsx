@@ -1,4 +1,4 @@
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
 
 interface CloseButtonProps {
@@ -7,7 +7,7 @@ interface CloseButtonProps {
 }
 
 export function CloseButton({ onClick, ariaLabel = "닫기" }: CloseButtonProps) {
-    const { theme } = useAppTheme();
+    const { theme } = useTheme();
     const isDarkMode = theme === "dark";
 
     const strokeColor = isDarkMode ? "#FEFEFE" : "#121212";

@@ -1,4 +1,4 @@
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
 
 interface ContentBoxProps {
@@ -7,7 +7,7 @@ interface ContentBoxProps {
 }
 
 export function ContentBox({ children, ariaLabel }: ContentBoxProps) {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
 
     const isDarkMode = theme === "dark";
     return (

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-import { useCursorTheme } from "@src/contexts/CursorContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import { CursorTab } from "@src/components/cursorTab";
 import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
@@ -40,7 +40,7 @@ const menuItems = [
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
-    const { toggleCursor } = useCursorTheme();
+    const { toggleCursor } = useTheme();
 
     const openModal = () => {
         setIsModalOpen(true);

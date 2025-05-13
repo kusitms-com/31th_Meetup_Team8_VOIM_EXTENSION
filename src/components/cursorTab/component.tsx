@@ -1,7 +1,6 @@
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
 import { CursorButton } from "../cursorButton";
-import { useCursorTheme } from "@src/contexts/CursorContext";
 
 type CursorSize = "small" | "medium" | "large";
 type CursorColor = "white" | "black" | "yellow" | "purple" | "mint" | "pink";
@@ -17,9 +16,9 @@ const CURSOR_COLORS: CursorColor[] = [
 ];
 
 export function CursorTab() {
-    const { theme, fontClasses } = useAppTheme();
+    const { theme, fontClasses } = useTheme();
     const { setCursorSize, setCursorTheme, cursorSize, cursorTheme } =
-        useCursorTheme();
+        useTheme();
 
     const isDarkMode = theme === "dark";
 

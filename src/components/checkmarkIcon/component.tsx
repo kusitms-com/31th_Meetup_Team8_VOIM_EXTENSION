@@ -1,10 +1,10 @@
 import React from "react";
-import { useAppTheme } from "@src/contexts/ThemeContext";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 export function CheckmarkIcon(
     props: React.SVGProps<SVGSVGElement>,
 ): JSX.Element {
-    const { theme: themeMode } = useAppTheme();
+    const { theme: themeMode } = useTheme();
     const isDarkMode = themeMode === "dark";
 
     return (
