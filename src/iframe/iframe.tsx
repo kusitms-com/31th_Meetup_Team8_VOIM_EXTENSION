@@ -117,14 +117,14 @@ const App = () => {
                         ariaLabel={`${item.text} 선택`}
                     />
                 ))}
-                <div
-                    className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto z-[999] transition-transform duration-300 ${
-                        isModalOpen && selectedMenu !== null ? "flex" : "hidden"
-                    }`}
-                >
-                    <PanelContent menuId={selectedMenu} />
-                </div>
             </Menubar>
+            <div
+                className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto  transition-transform duration-300 z-[10000] ${
+                    isModalOpen && selectedMenu !== null ? "flex" : "hidden"
+                }`}
+            >
+                <PanelContent menuId={selectedMenu} />
+            </div>
         </div>
     );
 };
