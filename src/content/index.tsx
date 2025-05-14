@@ -131,67 +131,63 @@ function applyFontStyle(style: FontStyle): void {
 }
 
 function applyModeStyle(modeType: ModeType): void {
-    const mode = modeStyleMap[modeType];
-    if (!mode) return;
-
-    const { backgroundColor, color } = mode;
-
+    // 기존 스타일 제거
     const oldStyle = document.getElementById("webeye-mode-style");
     if (oldStyle) oldStyle.remove();
 
+    // 기본 스타일 초기화
+    document.documentElement.style.filter = "none";
+    document.documentElement.style.backgroundColor = "";
+
     const style = document.createElement("style");
     style.id = "webeye-mode-style";
-    style.textContent = `
-        * {
-            color: ${color} !important;
-            background-color: ${backgroundColor} !important;
-        }
 
-        html, body {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-        }
+    if (modeType === "SET_MODE_DARK") {
+        // 전체 반전
+        document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
+        document.documentElement.style.backgroundColor = "#121212";
 
-        a, span, div, p, h1, h2, h3, h4, h5, h6, li, ul, em, strong, td, th, button {
-            color: ${color} !important;
-            background-color: ${backgroundColor} !important;
-            border-color: ${color} !important;
-        }
+        // dark 모드용 스타일
+        style.textContent = `
+            img, video, canvas {
+                filter: invert(1) hue-rotate(180deg) !important;
+    }
 
-        input, textarea, select {
-            background-color: ${backgroundColor} !important;
-            color: ${color} !important;
-            border: 1px solid ${color} !important;
-        }
+            [data-webeye-root], [data-webeye-root] * {
+                all: unset !important;
+                filter: none !important;
+                background-color: initial !important;
+                color: initial !important;
+                border-color: initial !important;
+            }
+        `;
+    } else {
+        // light 모드 복원
+        document.documentElement.style.filter = "none";
+        document.documentElement.style.backgroundColor = "#fefefe";
 
-        img, video {
-            filter: brightness(0.8) contrast(1.2);
-        }
-         
-        p, h1, h2, h3, h4, h5, h6, span, div, li {
-            overflow-wrap: break-word !important;
-            word-wrap: break-word !important;
-            hyphens: auto !important;
-            text-align: left !important; /* 왼쪽 정렬로 일관성 유지 */
-            max-width: 100% !important; /* 최대 너비 제한 */
-            text-overflow: ellipsis !important; /* 텍스트가 넘칠 경우 ... 표시 */
-        }
-        
-        /* 줄 간격 추가 스타일 - 모든 텍스트 요소에 적용 */
-        body, p, div, span, li, h1, h2, h3, h4, h5, h6 {
-            line-height: calc(1.5em + 0.2vw) !important;
-            margin-bottom: 0.5em !important; /* 단락 사이 간격 */
-        }
-        
-        /* 단락 간격 추가 */
-        p, li, div.paragraph {
-            margin-bottom: 1em !important;
-            padding-bottom: 0.5em !important;
-        }
-    `;
+        style.textContent = `
+            iframe#${EXTENSION_IFRAME_ID} {
+                filter: none !important;
+                mix-blend-mode: normal !important;
+            }
+
+            img, video, canvas {
+                filter: none !important;
+            }
+
+            [data-webeye-root], [data-webeye-root] * {
+                all: unset !important;
+                filter: none !important;
+                background-color: initial !important;
+                color: initial !important;
+                border-color: initial !important;
+            }
+        `;
+    }
+
     document.head.appendChild(style);
 }
-
 function saveSettings(settings: Partial<UserSettings>): void {
     chrome.storage.sync.get(["userSettings"], (result) => {
         const currentSettings: UserSettings = result.userSettings || {};
@@ -204,6 +200,7 @@ function saveSettings(settings: Partial<UserSettings>): void {
 }
 
 function loadAndApplySettings(): void {
+    console.log("loadAndApplySettings 호출됨");
     chrome.storage.sync.get(["userSettings"], (result) => {
         const settings: UserSettings = result.userSettings || {};
         console.log("Loaded settings:", settings);
