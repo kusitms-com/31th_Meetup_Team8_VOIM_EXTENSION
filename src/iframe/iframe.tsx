@@ -10,6 +10,7 @@ import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
 
 import "../css/app.css";
+import ControlService from "@src/components/serviceButton/ControlService";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -25,6 +26,8 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             return <ControlFont />;
         case "shortcut":
             return <ShortcutTab />;
+        case "service":
+            return <ControlService />;
         default:
             return null;
     }
@@ -35,6 +38,7 @@ const menuItems = [
     { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
+    { id: "service", text: "서비스 설정하기" },
 ];
 
 const App = () => {
