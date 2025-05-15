@@ -122,7 +122,7 @@ function applyFontStyle(style: FontStyle): void {
         const htmlEl = el as HTMLElement;
         if (style.fontSize) {
             htmlEl.style.fontSize = style.fontSize;
-            htmlEl.style.lineHeight = "1.0";
+            htmlEl.style.lineHeight = "1.1";
         }
         if (style.fontWeight) {
             htmlEl.style.fontWeight = style.fontWeight;
@@ -131,17 +131,49 @@ function applyFontStyle(style: FontStyle): void {
 }
 
 function applyModeStyle(modeType: ModeType): void {
-    document.getElementById("webeye-mode-style")?.remove();
+    // 기존 스타일 제거
+    const oldStyle = document.getElementById("webeye-mode-style");
+    if (oldStyle) oldStyle.remove();
+
+    // 기본 스타일 초기화
+    document.documentElement.style.filter = "none";
+    document.documentElement.style.backgroundColor = "";
+
+    const style = document.createElement("style");
+    style.id = "webeye-mode-style";
 
     if (modeType === "SET_MODE_DARK") {
+        // 전체 반전
         document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
         document.documentElement.style.backgroundColor = "#121212";
 
-        const style = document.createElement("style");
-        style.id = "webeye-mode-style";
+        // dark 모드용 스타일
         style.textContent = `
             img, video, canvas {
                 filter: invert(1) hue-rotate(180deg) !important;
+    }
+
+            [data-webeye-root], [data-webeye-root] * {
+                all: unset !important;
+                filter: none !important;
+                background-color: initial !important;
+                color: initial !important;
+                border-color: initial !important;
+            }
+        `;
+    } else {
+        // light 모드 복원
+        document.documentElement.style.filter = "none";
+        document.documentElement.style.backgroundColor = "#fefefe";
+
+        style.textContent = `
+            iframe#${EXTENSION_IFRAME_ID} {
+                filter: none !important;
+                mix-blend-mode: normal !important;
+            }
+
+            img, video, canvas {
+                filter: none !important;
             }
 
             [data-webeye-root], [data-webeye-root] * {
@@ -152,13 +184,10 @@ function applyModeStyle(modeType: ModeType): void {
                 border-color: initial !important;
             }
         `;
-        document.head.appendChild(style);
-    } else {
-        document.documentElement.style.filter = "none";
-        document.documentElement.style.backgroundColor = "#fefefe";
     }
-}
 
+    document.head.appendChild(style);
+}
 function saveSettings(settings: Partial<UserSettings>): void {
     chrome.storage.sync.get(["userSettings"], (result) => {
         const currentSettings: UserSettings = result.userSettings || {};
@@ -171,6 +200,7 @@ function saveSettings(settings: Partial<UserSettings>): void {
 }
 
 function loadAndApplySettings(): void {
+    console.log("loadAndApplySettings 호출됨");
     chrome.storage.sync.get(["userSettings"], (result) => {
         const settings: UserSettings = result.userSettings || {};
         console.log("Loaded settings:", settings);
