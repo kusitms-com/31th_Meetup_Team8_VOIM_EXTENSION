@@ -8,9 +8,9 @@ import { CursorTab } from "@src/components/cursorTab";
 import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
+import ControlService from "@src/components/serviceButton/ControlService";
 
 import "../css/app.css";
-import ControlService from "@src/components/serviceButton/ControlService";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -65,36 +65,6 @@ const App = () => {
         );
     };
 
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
-            }
-        };
-
-        window.addEventListener("message", handleMessage);
-
-        return () => {
-            window.removeEventListener("message", handleMessage);
-        };
-    }, [isModalOpen]);
-
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
-            } else if (event.data.type === "TOGGLE_CURSOR") {
-                toggleCursor();
-            }
-        };
-
-        window.addEventListener("message", handleMessage);
-
-        return () => {
-            window.removeEventListener("message", handleMessage);
-        };
-    }, [isModalOpen]);
-
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedMenu(null);
@@ -107,6 +77,38 @@ const App = () => {
     const handleMenuClick = (menuId: string) => {
         setSelectedMenu(menuId === selectedMenu ? null : menuId);
     };
+
+    useEffect(() => {
+        chrome.storage.local.get("logo-hidden", (res) => {
+            if (res["logo-hidden"]) {
+                document.getElementById("logo")?.classList.add("hidden");
+            }
+        });
+
+        const handleMessage = (event: MessageEvent) => {
+            switch (event.data.type) {
+                case "TOGGLE_MODAL":
+                    toggleModal();
+                    break;
+                case "TOGGLE_CURSOR":
+                    toggleCursor();
+                    break;
+                case "HIDE_LOGO":
+                    document.getElementById("logo")?.classList.add("hidden");
+                    chrome.storage.local.set({ "logo-hidden": true });
+                    break;
+                case "SHOW_LOGO":
+                    document.getElementById("logo")?.classList.remove("hidden");
+                    chrome.storage.local.set({ "logo-hidden": false });
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+        return () => window.removeEventListener("message", handleMessage);
+    }, [isModalOpen]);
 
     return (
         <div className="pointer-events-auto">

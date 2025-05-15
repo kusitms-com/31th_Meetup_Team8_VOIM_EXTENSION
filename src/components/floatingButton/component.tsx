@@ -30,6 +30,7 @@ export function FloatingButton({ onClick }: FloatingButtonProps) {
             className="fixed w-[58px] h-[58px] top-[1.5px] left-[1.5px] flex items-center justify-center cursor-pointer z-[9999] transition-all duration-200 ease-in-out hover:scale-105"
         >
             <img
+                id="logo"
                 src={getExtensionUrl("icon.png")}
                 alt="VOIM 익스텐션"
                 aria-hidden="true"

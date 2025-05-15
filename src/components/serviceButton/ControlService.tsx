@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { ServiceButton } from "./component";
 
 const ControlService = () => {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
+
+    const [isLogoVisible, setIsLogoVisible] = useState(true);
 
     const stopExtension = () => {
         chrome.runtime.sendMessage({ type: "STOP_EXTENSION" }, () => {
@@ -16,12 +18,15 @@ const ControlService = () => {
         const iframe = document.getElementById(
             "floating-button-extension-iframe",
         ) as HTMLIFrameElement;
+
         if (iframe && iframe.contentWindow) {
             iframe.contentWindow.postMessage(
                 { type: visible ? "SHOW_LOGO" : "HIDE_LOGO" },
                 "*",
             );
         }
+        chrome.storage.local.set({ "logo-hidden": !visible });
+        setIsLogoVisible(visible);
     };
 
     return (
@@ -45,10 +50,16 @@ const ControlService = () => {
                     아이콘 노출 여부 설정하기
                 </h2>
                 <div className="flex gap-4">
-                    <ServiceButton onClick={() => toggleLogo(true)}>
+                    <ServiceButton
+                        onClick={() => toggleLogo(true)}
+                        isSelected={isLogoVisible}
+                    >
                         보이기
                     </ServiceButton>
-                    <ServiceButton onClick={() => toggleLogo(false)}>
+                    <ServiceButton
+                        onClick={() => toggleLogo(false)}
+                        isSelected={!isLogoVisible}
+                    >
                         숨기기
                     </ServiceButton>
                 </div>
