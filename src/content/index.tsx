@@ -122,7 +122,7 @@ function applyFontStyle(style: FontStyle): void {
         const htmlEl = el as HTMLElement;
         if (style.fontSize) {
             htmlEl.style.fontSize = style.fontSize;
-            htmlEl.style.lineHeight = "1.0";
+            htmlEl.style.lineHeight = "1.1";
         }
         if (style.fontWeight) {
             htmlEl.style.fontWeight = style.fontWeight;
