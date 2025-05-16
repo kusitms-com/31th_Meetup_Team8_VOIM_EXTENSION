@@ -23,6 +23,7 @@ import {
     initCursorSettings,
 } from "./storage/settingsManager";
 import { ControlImage } from "../components/imageCheck/controlImage";
+import { MountCartSummaryApp } from "./coupang/CartSummary";
 
 let contentCursorEnabled = true;
 
@@ -263,3 +264,12 @@ document.querySelectorAll("img").forEach((img) => {
     const root = createRoot(container);
     root.render(<ControlImage targetImg={img} />);
 });
+
+if (location.href.includes("cart.coupang.com/cartView.pang")) {
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            MountCartSummaryApp();
+            console.log("실행해찌");
+        }, 1000);
+    });
+}
