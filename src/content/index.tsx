@@ -338,8 +338,6 @@ document.querySelectorAll("img").forEach((img) => {
 });
 
 function checkCategoryAndRender() {
-    console.log(" checkCategoryAndRender 실행됨");
-
     const breadcrumbEl = document.querySelector("#breadcrumb");
     if (!breadcrumbEl) {
         console.log("#breadcrumb 엘리먼트를 찾을 수 없음");
@@ -353,19 +351,14 @@ function checkCategoryAndRender() {
     console.log("공백 제거된 breadcrumb 텍스트:", cleanedText);
 
     const isFoodCategory = cleanedText.includes("식품");
-    console.log("'식품' 포함 여부:", isFoodCategory);
 
     if (!isFoodCategory) {
-        console.log("식품 카테고리가 아님. 컴포넌트 렌더링 중단");
         return;
     }
 
     if (document.getElementById("voim-food-component")) {
-        console.log(" 이미 FoodComponent가 렌더링되어 있음");
         return;
     }
-
-    console.log("FoodComponent를 렌더링합니다");
     const container = document.createElement("div");
     container.id = "webeye-food-component";
     document.body.appendChild(container);
@@ -376,10 +369,8 @@ function checkCategoryAndRender() {
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-        console.log("DOMContentLoaded 이후 checkCategoryAndRender 실행");
         checkCategoryAndRender();
     });
 } else {
-    console.log(" 이미 로드됨 → checkCategoryAndRender 즉시 실행");
     checkCategoryAndRender();
 }
