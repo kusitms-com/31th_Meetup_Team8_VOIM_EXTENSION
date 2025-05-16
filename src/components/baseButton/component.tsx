@@ -20,7 +20,7 @@ export function BaseButton({
 
     return (
         <button
-            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${
+            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px]  ${
                 isSelected
                     ? isDarkMode
                         ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"

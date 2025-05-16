@@ -2,9 +2,13 @@ import React, { useState } from "react";
 import { onboardingData } from "@src/assets/onboardingData";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "@src/components/closeButton";
-import { BaseButton } from "@src/components/baseButton/component";
+import { BaseFillButton } from "@src/components/baseFillButton/component";
 
-export function Onboarding() {
+interface OnboardingProps {
+    onComplete: () => void;
+}
+
+export function Onboarding({ onComplete }: OnboardingProps) {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const { fontClasses, theme } = useTheme();
     const isDarkMode = theme === "dark";
@@ -16,10 +20,18 @@ export function Onboarding() {
         onboardingData.theme,
     ];
 
+    const isLastPage = currentPage === sections.length - 1;
+
     const handleNext = () => {
-        if (currentPage < sections.length - 1) {
-            setCurrentPage(currentPage + 1);
+        if (!isLastPage) {
+            setCurrentPage((prev) => prev + 1);
+        } else {
+            onComplete();
         }
+    };
+
+    const handleClose = () => {
+        onComplete();
     };
 
     return (
@@ -34,9 +46,7 @@ export function Onboarding() {
                 className={`${fontClasses.fontHeading} flex justify-between items-center`}
             >
                 <div>{sections[currentPage].title}</div>
-                <CloseButton
-                    onClick={() => setCurrentPage(sections.length - 1)}
-                />
+                <CloseButton onClick={handleClose} />
             </div>
             <div>
                 {sections[currentPage].phrase.map((text, index) => (
@@ -52,7 +62,9 @@ export function Onboarding() {
                 ))}
             </div>
             <div className="onboarding-buttons">
-                <BaseButton onClick={handleNext}>다음</BaseButton>
+                <BaseFillButton onClick={handleNext}>
+                    {isLastPage ? "시작하기" : "다음"}
+                </BaseFillButton>
             </div>
         </div>
     );

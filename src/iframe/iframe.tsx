@@ -8,9 +8,10 @@ import { CursorTab } from "@src/components/cursorTab";
 import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
+import { MyInfo } from "@src/tabs/myInfo";
 
 import "../css/app.css";
-import { MyInfo } from "@src/tabs/myInfo";
+import { useUserInfo } from "@src/hooks/useUserInfo";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -44,7 +45,9 @@ const menuItems = [
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
+    const [isOnboarding, setIsOnboarding] = useState(false);
     const { toggleCursor } = useTheme();
+    const { birthYear, gender, loading } = useUserInfo();
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -57,6 +60,7 @@ const App = () => {
 
         if (!newState) {
             setSelectedMenu(null);
+            setIsOnboarding(false);
         }
 
         window.parent.postMessage(
@@ -64,20 +68,6 @@ const App = () => {
             "*",
         );
     };
-
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
-            }
-        };
-
-        window.addEventListener("message", handleMessage);
-
-        return () => {
-            window.removeEventListener("message", handleMessage);
-        };
-    }, [isModalOpen]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -98,6 +88,7 @@ const App = () => {
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedMenu(null);
+        setIsOnboarding(false);
         window.parent.postMessage(
             { type: "RESIZE_IFRAME", isOpen: false },
             "*",
@@ -121,15 +112,15 @@ const App = () => {
                         onClick={() => handleMenuClick(item.id)}
                         ariaLabel={`${item.text} 선택`}
                     />
-                ))}
+                ))}{" "}
+                <div
+                    className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto transition-transform duration-300 z-[10000] ${
+                        isModalOpen && selectedMenu !== null ? "flex" : "hidden"
+                    }`}
+                >
+                    <PanelContent menuId={selectedMenu} />
+                </div>
             </Menubar>
-            <div
-                className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto  transition-transform duration-300 z-[10000] ${
-                    isModalOpen && selectedMenu !== null ? "flex" : "hidden"
-                }`}
-            >
-                <PanelContent menuId={selectedMenu} />
-            </div>
         </div>
     );
 };
