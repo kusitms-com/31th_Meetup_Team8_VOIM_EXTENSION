@@ -337,11 +337,52 @@ function checkCategoryAndRender() {
     const root = createRoot(container);
     root.render(<FoodComponent />);
 }
+function renderCouponComponent() {
+    const couponLayer = document.querySelector(".prod-coupon-download-layer");
+    if (!couponLayer) return;
+
+    const couponItems = couponLayer.querySelectorAll(
+        ".prod-coupon-download-content li .prod-coupon-desc",
+    );
+
+    const couponTexts = Array.from(couponItems).map(
+        (el) => (el as HTMLElement).innerText,
+    );
+
+    if (couponTexts.length === 0) return;
+
+    if (document.getElementById("webeye-coupon-component")) return;
+
+    const container = document.createElement("div");
+    container.id = "webeye-coupon-component";
+    document.body.appendChild(container);
+
+    import("../components/productComponents/couponComponent").then(
+        ({ CouponComponent }) => {
+            const root = createRoot(container);
+            root.render(<CouponComponent coupons={couponTexts} />);
+        },
+    );
+}
+
+function setupCouponClickListener() {
+    const button = document.querySelector(".prod-coupon-download-btn");
+    if (!button) return;
+
+    button.addEventListener("click", () => {
+        setTimeout(() => {
+            renderCouponComponent();
+        }, 600);
+    });
+}
+
+function initializePageFeatures() {
+    checkCategoryAndRender();
+    setupCouponClickListener();
+}
 
 if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", () => {
-        checkCategoryAndRender();
-    });
+    document.addEventListener("DOMContentLoaded", initializePageFeatures);
 } else {
-    checkCategoryAndRender();
+    initializePageFeatures();
 }
