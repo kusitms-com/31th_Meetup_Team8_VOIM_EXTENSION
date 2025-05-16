@@ -1,13 +1,13 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import {
-    MessageType,
-    FontSizeType,
-    FontWeightType,
-    ModeType,
-    UserSettings,
-    FontStyle,
-} from "./types";
+// import {
+//     MessageType,
+//     FontSizeType,
+//     FontWeightType,
+//     ModeType,
+//     UserSettings,
+//     FontStyle,
+// } from "./types";
 import { fontSizeMap, fontWeightMap, targetSelectors } from "./constants";
 import {
     applyFontStyle,
@@ -53,16 +53,21 @@ type FontWeightType =
     | "SET_FONT_WEIGHT_BOLD"
     | "SET_FONT_WEIGHT_XBOLD";
 type ModeType = "SET_MODE_LIGHT" | "SET_MODE_DARK";
-type MessageType = FontSizeType | FontWeightType | ModeType;
+type MessageType =
+    | FontSizeType
+    | FontWeightType
+    | ModeType
+    | "DISABLE_ALL_STYLES"
+    | "RESTORE_ALL_STYLES";
 
-const fontSizeMap: Record<FontSizeType, string> = {
-    SET_FONT_SIZE_XS: "0.875rem",
-    SET_FONT_SIZE_S: "1rem",
-    SET_FONT_SIZE_M: "1.125rem",
-    SET_FONT_SIZE_L: "1.25rem",
-    SET_FONT_SIZE_XL: "1.5rem",
-};
-  
+// const fontSizeMap: Record<FontSizeType, string> = {
+//     SET_FONT_SIZE_XS: "0.875rem",
+//     SET_FONT_SIZE_S: "1rem",
+//     SET_FONT_SIZE_M: "1.125rem",
+//     SET_FONT_SIZE_L: "1.25rem",
+//     SET_FONT_SIZE_XL: "1.5rem",
+// };
+
 let contentCursorEnabled = true;
 
 checkExtensionState();
