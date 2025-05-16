@@ -1,3 +1,6 @@
+import { createRoot } from "react-dom/client";
+import React from "react";
+import { ControlImage } from "../components/imageCheck/controlImage";
 const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 
 interface ModeStyle {
@@ -299,4 +302,10 @@ const observer = new MutationObserver((mutations) => {
 observer.observe(document.body, {
     childList: true,
     subtree: true,
+});
+document.querySelectorAll("img").forEach((img) => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+    root.render(<ControlImage targetImg={img} />);
 });
