@@ -9,6 +9,7 @@ import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
 import { MyInfo } from "@src/tabs/myInfo";
+import ControlService from "@src/components/serviceButton/ControlService";
 
 import "../css/app.css";
 import { useUserInfo } from "@src/hooks/useUserInfo";
@@ -29,6 +30,8 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             return <ShortcutTab />;
         case "my-info":
             return <MyInfo />;
+        case "service":
+            return <ControlService />;
         default:
             return null;
     }
@@ -40,6 +43,7 @@ const menuItems = [
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
     { id: "my-info", text: "내 정보 설정하기" },
+    { id: "service", text: "서비스 설정하기" },
 ];
 
 const App = () => {
@@ -98,6 +102,38 @@ const App = () => {
     const handleMenuClick = (menuId: string) => {
         setSelectedMenu(menuId === selectedMenu ? null : menuId);
     };
+
+    useEffect(() => {
+        chrome.storage.local.get("logo-hidden", (res) => {
+            if (res["logo-hidden"]) {
+                document.getElementById("logo")?.classList.add("hidden");
+            }
+        });
+
+        const handleMessage = (event: MessageEvent) => {
+            switch (event.data.type) {
+                case "TOGGLE_MODAL":
+                    toggleModal();
+                    break;
+                case "TOGGLE_CURSOR":
+                    toggleCursor();
+                    break;
+                case "HIDE_LOGO":
+                    document.getElementById("logo")?.classList.add("hidden");
+                    chrome.storage.local.set({ "logo-hidden": true });
+                    break;
+                case "SHOW_LOGO":
+                    document.getElementById("logo")?.classList.remove("hidden");
+                    chrome.storage.local.set({ "logo-hidden": false });
+                    break;
+                default:
+                    break;
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+        return () => window.removeEventListener("message", handleMessage);
+    }, [isModalOpen]);
 
     return (
         <div className="pointer-events-auto">
