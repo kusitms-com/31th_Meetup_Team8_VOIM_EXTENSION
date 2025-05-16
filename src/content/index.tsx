@@ -1,5 +1,27 @@
-import { createRoot } from "react-dom/client";
 import React from "react";
+import { createRoot } from "react-dom/client";
+import {
+    MessageType,
+    FontSizeType,
+    FontWeightType,
+    ModeType,
+    UserSettings,
+    FontStyle,
+} from "./types";
+import { fontSizeMap, fontWeightMap, targetSelectors } from "./constants";
+import {
+    applyFontStyle,
+    applyModeStyle,
+    applyCursorStyle,
+    removeCursorStyle,
+} from "./styles";
+import {
+    checkExtensionState,
+    removeAllStyles,
+    restoreAllStyles,
+    saveSettings,
+    initCursorSettings,
+} from "./storage/settingsManager";
 import { ControlImage } from "../components/imageCheck/controlImage";
 import { FoodComponent } from "../components/productComponents/foodComponent";
 const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
@@ -40,223 +62,167 @@ const fontSizeMap: Record<FontSizeType, string> = {
     SET_FONT_SIZE_L: "1.25rem",
     SET_FONT_SIZE_XL: "1.5rem",
 };
+  
+let contentCursorEnabled = true;
 
-const fontWeightMap: Record<FontWeightType, string> = {
-    SET_FONT_WEIGHT_REGULAR: "400",
-    SET_FONT_WEIGHT_BOLD: "700",
-    SET_FONT_WEIGHT_XBOLD: "800",
-};
+checkExtensionState();
 
-const modeStyleMap: Record<ModeType, ModeStyle> = {
-    SET_MODE_LIGHT: {
-        backgroundColor: "#fefefe",
-        color: "#121212",
-    },
-    SET_MODE_DARK: {
-        backgroundColor: "#121212",
-        color: "#fefefe",
-    },
-};
+document.addEventListener("DOMContentLoaded", () => {
+    checkExtensionState();
+});
 
-const targetSelectors = [
-    "h1",
-    "h2",
-    "p",
-    "li",
-    "h5",
-    "ul",
-    ".name",
-    "em",
-    "span",
-    ".prod-buy-header__title",
-    ".prod-description",
-    ".prod-spec",
-    ".delivery-info",
-    "div",
-];
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        checkExtensionState();
+    }
+});
 
-function createIframe(): void {
-    if (!document.getElementById(EXTENSION_IFRAME_ID)) {
-        const iframe = document.createElement("iframe");
-        iframe.id = EXTENSION_IFRAME_ID;
-        iframe.src = chrome.runtime.getURL("iframe.html");
+initCursorSettings();
 
-        iframe.onerror = function (error: Event | string) {
-            console.error("Failed to load iframe:", error);
-        };
+chrome.runtime.onMessage.addListener(
+    (message: { type: MessageType; settings?: any }, sender, sendResponse) => {
+        const { type } = message;
 
-        iframe.style.cssText = `
-            position: fixed;
-            top: 70px;
-            right: 20px;
-            width: 65px;
-            height: 65px;
-            border: none;
-            background: transparent;
-            z-index: 2147483647;
-        `;
+        console.log("메시지 수신:", type);
 
-        window.addEventListener("message", (event: MessageEvent) => {
-            if (event.source !== iframe.contentWindow) {
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
+
+            if (
+                !stylesEnabled &&
+                type !== "RESTORE_ALL_STYLES" &&
+                type !== "DISABLE_ALL_STYLES"
+            ) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 메시지를 처리하지 않습니다:",
+                    type,
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
                 return;
             }
 
-            if (event.data.type === "RESIZE_IFRAME") {
-                if (event.data.isOpen) {
-                    iframe.style.width = "100%";
-                    iframe.style.height = "100%";
-                    iframe.style.top = "0";
-                    iframe.style.right = "0";
-                } else {
-                    iframe.style.width = "65px";
-                    iframe.style.height = "65px";
-                    iframe.style.top = "70px";
-                    iframe.style.right = "20px";
-                }
+            if (Object.keys(fontSizeMap).includes(type as string)) {
+                const fontSizeType = type as FontSizeType;
+                const fontSize = fontSizeMap[fontSizeType];
+                applyFontStyle({ fontSize });
+                saveSettings({ fontSize });
+                sendResponse({ success: true });
+            } else if (Object.keys(fontWeightMap).includes(type as string)) {
+                const fontWeightType = type as FontWeightType;
+                const fontWeight = fontWeightMap[fontWeightType];
+                applyFontStyle({ fontWeight });
+                saveSettings({ fontWeight });
+                sendResponse({ success: true });
+            } else if (type === "SET_MODE_LIGHT" || type === "SET_MODE_DARK") {
+                const modeType = type as ModeType;
+                applyModeStyle(modeType);
+                saveSettings({ mode: modeType });
+                sendResponse({ success: true });
+            } else if (type === "DISABLE_ALL_STYLES") {
+                removeAllStyles();
+                sendResponse({ success: true });
+            } else if (type === "RESTORE_ALL_STYLES") {
+                restoreAllStyles();
+                sendResponse({ success: true });
+            } else {
+                sendResponse({ success: false, error: "알 수 없는 메시지" });
             }
         });
-
-        document.body.appendChild(iframe);
-    }
-}
-
-function applyFontStyle(style: FontStyle): void {
-    const elements = document.querySelectorAll(targetSelectors.join(","));
-    elements.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        if (style.fontSize) {
-            htmlEl.style.fontSize = style.fontSize;
-            htmlEl.style.lineHeight = "1.1";
-        }
-        if (style.fontWeight) {
-            htmlEl.style.fontWeight = style.fontWeight;
-        }
-    });
-}
-
-function applyModeStyle(modeType: ModeType): void {
-    // 기존 스타일 제거
-    const oldStyle = document.getElementById("webeye-mode-style");
-    if (oldStyle) oldStyle.remove();
-
-    // 기본 스타일 초기화
-    document.documentElement.style.filter = "none";
-    document.documentElement.style.backgroundColor = "";
-
-    const style = document.createElement("style");
-    style.id = "webeye-mode-style";
-
-    if (modeType === "SET_MODE_DARK") {
-        // 전체 반전
-        document.documentElement.style.filter = "invert(1) hue-rotate(180deg)";
-        document.documentElement.style.backgroundColor = "#121212";
-
-        // dark 모드용 스타일
-        style.textContent = `
-            img, video, canvas {
-                filter: invert(1) hue-rotate(180deg) !important;
-    }
-
-            [data-webeye-root], [data-webeye-root] * {
-                all: unset !important;
-                filter: none !important;
-                background-color: initial !important;
-                color: initial !important;
-                border-color: initial !important;
-            }
-        `;
-    } else {
-        // light 모드 복원
-        document.documentElement.style.filter = "none";
-        document.documentElement.style.backgroundColor = "#fefefe";
-
-        style.textContent = `
-            iframe#${EXTENSION_IFRAME_ID} {
-                filter: none !important;
-                mix-blend-mode: normal !important;
-            }
-
-            img, video, canvas {
-                filter: none !important;
-            }
-
-            [data-webeye-root], [data-webeye-root] * {
-                all: unset !important;
-                filter: none !important;
-                background-color: initial !important;
-                color: initial !important;
-                border-color: initial !important;
-            }
-        `;
-    }
-
-    document.head.appendChild(style);
-}
-function saveSettings(settings: Partial<UserSettings>): void {
-    chrome.storage.sync.get(["userSettings"], (result) => {
-        const currentSettings: UserSettings = result.userSettings || {};
-        const updatedSettings = { ...currentSettings, ...settings };
-
-        chrome.storage.sync.set({ userSettings: updatedSettings }, () => {
-            console.log("Settings saved:", updatedSettings);
-        });
-    });
-}
-
-function loadAndApplySettings(): void {
-    console.log("loadAndApplySettings 호출됨");
-    chrome.storage.sync.get(["userSettings"], (result) => {
-        const settings: UserSettings = result.userSettings || {};
-        console.log("Loaded settings:", settings);
-
-        if (settings.fontSize) {
-            applyFontStyle({ fontSize: settings.fontSize });
-        }
-
-        if (settings.fontWeight) {
-            applyFontStyle({ fontWeight: settings.fontWeight });
-        }
-
-        if (settings.mode) {
-            applyModeStyle(settings.mode);
-        }
-    });
-}
-
-chrome.runtime.onMessage.addListener(
-    (message: { type: MessageType }, sender, sendResponse) => {
-        const { type } = message;
-
-        if (Object.keys(fontSizeMap).includes(type as string)) {
-            const fontSizeType = type as FontSizeType;
-            const fontSize = fontSizeMap[fontSizeType];
-            applyFontStyle({ fontSize });
-            saveSettings({ fontSize });
-            sendResponse({ success: true });
-        } else if (Object.keys(fontWeightMap).includes(type as string)) {
-            const fontWeightType = type as FontWeightType;
-            const fontWeight = fontWeightMap[fontWeightType];
-            applyFontStyle({ fontWeight });
-            saveSettings({ fontWeight });
-            sendResponse({ success: true });
-        } else if (Object.keys(modeStyleMap).includes(type as string)) {
-            const modeType = type as ModeType;
-            applyModeStyle(modeType);
-            saveSettings({ mode: modeType });
-            sendResponse({ success: true });
-        } else {
-            sendResponse({ success: false, error: "알 수 없는 메시지" });
-        }
 
         return true;
     },
 );
 
-createIframe();
-loadAndApplySettings();
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "UPDATE_CURSOR") {
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadAndApplySettings();
+            if (!stylesEnabled) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 커서 설정을 적용하지 않습니다.",
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
+                return;
+            }
+
+            if (message.isCursorEnabled && message.cursorUrl) {
+                applyCursorStyle(message.cursorUrl);
+                contentCursorEnabled = true;
+            } else {
+                removeCursorStyle();
+                contentCursorEnabled = false;
+            }
+
+            sendResponse({ success: true });
+        });
+        return true;
+    }
+    return false;
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "TOGGLE_MODAL") {
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
+
+            const iframe = document.getElementById(
+                "floating-button-extension-iframe",
+            );
+            if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ type: "TOGGLE_MODAL" }, "*");
+            }
+            sendResponse({ success: true });
+        });
+        return true;
+    } else if (message.action === "TOGGLE_CURSOR") {
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            const stylesEnabled =
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true;
+
+            if (!stylesEnabled) {
+                console.log(
+                    "스타일이 비활성화 상태입니다. 커서 토글을 적용하지 않습니다.",
+                );
+                sendResponse({
+                    success: false,
+                    error: "스타일이 비활성화 상태입니다",
+                });
+                return;
+            }
+
+            const iframe = document.getElementById(
+                "floating-button-extension-iframe",
+            );
+            if (iframe instanceof HTMLIFrameElement && iframe.contentWindow) {
+                iframe.contentWindow.postMessage(
+                    { type: "TOGGLE_CURSOR" },
+                    "*",
+                );
+            }
+            sendResponse({ success: true });
+        });
+        return true;
+    }
+
+    return false;
 });
 
 const observer = new MutationObserver((mutations) => {

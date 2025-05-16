@@ -8,9 +8,11 @@ import { CursorTab } from "@src/components/cursorTab";
 import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
+import { MyInfo } from "@src/tabs/myInfo";
 import ControlService from "@src/components/serviceButton/ControlService";
 
 import "../css/app.css";
+import { useUserInfo } from "@src/hooks/useUserInfo";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -26,6 +28,8 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             return <ControlFont />;
         case "shortcut":
             return <ShortcutTab />;
+        case "my-info":
+            return <MyInfo />;
         case "service":
             return <ControlService />;
         default:
@@ -38,13 +42,16 @@ const menuItems = [
     { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
+    { id: "my-info", text: "내 정보 설정하기" },
     { id: "service", text: "서비스 설정하기" },
 ];
 
 const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
+    const [isOnboarding, setIsOnboarding] = useState(false);
     const { toggleCursor } = useTheme();
+    const { birthYear, gender, loading } = useUserInfo();
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -57,6 +64,7 @@ const App = () => {
 
         if (!newState) {
             setSelectedMenu(null);
+            setIsOnboarding(false);
         }
 
         window.parent.postMessage(
@@ -65,9 +73,26 @@ const App = () => {
         );
     };
 
+    useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data.type === "TOGGLE_MODAL") {
+                toggleModal();
+            } else if (event.data.type === "TOGGLE_CURSOR") {
+                toggleCursor();
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+
+        return () => {
+            window.removeEventListener("message", handleMessage);
+        };
+    }, [isModalOpen]);
+
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedMenu(null);
+        setIsOnboarding(false);
         window.parent.postMessage(
             { type: "RESIZE_IFRAME", isOpen: false },
             "*",
@@ -113,6 +138,7 @@ const App = () => {
     return (
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={openModal} />}
+
             <Menubar isOpen={isModalOpen} onClose={closeModal}>
                 {menuItems.map((item) => (
                     <MenubarButton
@@ -122,9 +148,9 @@ const App = () => {
                         onClick={() => handleMenuClick(item.id)}
                         ariaLabel={`${item.text} 선택`}
                     />
-                ))}
+                ))}{" "}
                 <div
-                    className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto z-[999] transition-transform duration-300 ${
+                    className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto transition-transform duration-300 z-[10000] ${
                         isModalOpen && selectedMenu !== null ? "flex" : "hidden"
                     }`}
                 >
