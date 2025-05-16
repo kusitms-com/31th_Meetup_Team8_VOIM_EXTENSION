@@ -23,7 +23,46 @@ import {
     initCursorSettings,
 } from "./storage/settingsManager";
 import { ControlImage } from "../components/imageCheck/controlImage";
+import { FoodComponent } from "../components/productComponents/foodComponent";
+const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 
+interface ModeStyle {
+    backgroundColor: string;
+    color: string;
+}
+
+interface FontStyle {
+    fontSize?: string;
+    fontWeight?: string;
+}
+
+interface UserSettings {
+    fontSize?: string;
+    fontWeight?: string;
+    mode?: ModeType;
+}
+
+type FontSizeType =
+    | "SET_FONT_SIZE_XS"
+    | "SET_FONT_SIZE_S"
+    | "SET_FONT_SIZE_M"
+    | "SET_FONT_SIZE_L"
+    | "SET_FONT_SIZE_XL";
+type FontWeightType =
+    | "SET_FONT_WEIGHT_REGULAR"
+    | "SET_FONT_WEIGHT_BOLD"
+    | "SET_FONT_WEIGHT_XBOLD";
+type ModeType = "SET_MODE_LIGHT" | "SET_MODE_DARK";
+type MessageType = FontSizeType | FontWeightType | ModeType;
+
+const fontSizeMap: Record<FontSizeType, string> = {
+    SET_FONT_SIZE_XS: "0.875rem",
+    SET_FONT_SIZE_S: "1rem",
+    SET_FONT_SIZE_M: "1.125rem",
+    SET_FONT_SIZE_L: "1.25rem",
+    SET_FONT_SIZE_XL: "1.5rem",
+};
+  
 let contentCursorEnabled = true;
 
 checkExtensionState();
@@ -263,3 +302,41 @@ document.querySelectorAll("img").forEach((img) => {
     const root = createRoot(container);
     root.render(<ControlImage targetImg={img} />);
 });
+
+function checkCategoryAndRender() {
+    const breadcrumbEl = document.querySelector("#breadcrumb");
+    if (!breadcrumbEl) {
+        console.log("#breadcrumb 엘리먼트를 찾을 수 없음");
+        return;
+    }
+
+    const rawText = breadcrumbEl.textContent || "";
+    console.log("원본 breadcrumb textContent:", rawText);
+
+    const cleanedText = rawText.replace(/\s+/g, "");
+    console.log("공백 제거된 breadcrumb 텍스트:", cleanedText);
+
+    const isFoodCategory = cleanedText.includes("식품");
+
+    if (!isFoodCategory) {
+        return;
+    }
+
+    if (document.getElementById("voim-food-component")) {
+        return;
+    }
+    const container = document.createElement("div");
+    container.id = "webeye-food-component";
+    document.body.appendChild(container);
+
+    const root = createRoot(container);
+    root.render(<FoodComponent />);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        checkCategoryAndRender();
+    });
+} else {
+    checkCategoryAndRender();
+}
