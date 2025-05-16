@@ -232,6 +232,7 @@ observer.observe(document.body, {
     childList: true,
     subtree: true,
 });
+
 function isIgnorableImage(img: HTMLImageElement): boolean {
     const alt = img.alt?.toLowerCase();
     const className = img.className?.toLowerCase();
@@ -269,7 +270,6 @@ if (location.href.includes("cart.coupang.com/cartView.pang")) {
     window.addEventListener("load", () => {
         setTimeout(() => {
             MountCartSummaryApp();
-            console.log("실행해찌");
-        }, 1000);
+        }, 500);
     });
 }
