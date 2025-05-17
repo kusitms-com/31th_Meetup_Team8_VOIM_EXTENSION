@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
@@ -19,19 +19,51 @@ interface PanelContentProps {
 }
 
 const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
+    const panelRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (menuId && panelRef.current) {
+            panelRef.current.focus();
+        }
+    }, [menuId]);
+
     switch (menuId) {
         case "high-contrast":
-            return <ControlMode />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <ControlMode />
+                </div>
+            );
         case "cursor":
-            return <CursorTab />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <CursorTab />
+                </div>
+            );
         case "font":
-            return <ControlFont />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <ControlFont />
+                </div>
+            );
         case "shortcut":
-            return <ShortcutTab />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <ShortcutTab />
+                </div>
+            );
         case "my-info":
-            return <MyInfo />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <MyInfo />
+                </div>
+            );
         case "service":
-            return <ControlService />;
+            return (
+                <div ref={panelRef} tabIndex={-1}>
+                    <ControlService />
+                </div>
+            );
         default:
             return null;
     }
