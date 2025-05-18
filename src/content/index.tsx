@@ -8,7 +8,7 @@ import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { initDomObserver } from "./observers/domObserver";
 import { processImages } from "./imageHandlers/imageProcessor";
-import { MountCartSummaryApp } from "./coupang/CartSummary";
+import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
 
 checkExtensionState();
