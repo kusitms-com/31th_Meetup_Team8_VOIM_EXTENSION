@@ -1,5 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { MountCartSummaryApp } from "./coupang/cartSummary";
 // import {
 //     MessageType,
 //     FontSizeType,
@@ -143,6 +144,20 @@ chrome.runtime.onMessage.addListener(
         return true;
     },
 );
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === "FOOD_DATA_RESPONSE") {
+        console.log("content → postMessage:", message.data);
+        window.postMessage({ type: "VOIM_FOOD_DATA", data: message.data }, "*");
+    }
+
+    if (message.type === "FOOD_DATA_ERROR") {
+        console.log("content → postMessage 에러:", message.error);
+        window.postMessage(
+            { type: "VOIM_FOOD_ERROR", error: message.error },
+            "*",
+        );
+    }
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "UPDATE_CURSOR") {
@@ -316,73 +331,79 @@ function checkCategoryAndRender() {
     }
 
     const rawText = breadcrumbEl.textContent || "";
-    console.log("원본 breadcrumb textContent:", rawText);
-
     const cleanedText = rawText.replace(/\s+/g, "");
     console.log("공백 제거된 breadcrumb 텍스트:", cleanedText);
 
     const isFoodCategory = cleanedText.includes("식품");
 
-    if (!isFoodCategory) {
-        return;
-    }
+    if (!isFoodCategory) return;
 
     if (document.getElementById("voim-food-component")) {
+        console.log("이미 렌더된 컴포넌트가 있어서 return");
         return;
     }
-    const container = document.createElement("div");
-    container.id = "webeye-food-component";
-    document.body.appendChild(container);
 
-    const root = createRoot(container);
-    root.render(<FoodComponent />);
-}
-function renderCouponComponent() {
-    const couponLayer = document.querySelector(".prod-coupon-download-layer");
-    if (!couponLayer) return;
-
-    const couponItems = couponLayer.querySelectorAll(
-        ".prod-coupon-download-content li .prod-coupon-desc",
-    );
-
-    const couponTexts = Array.from(couponItems).map(
-        (el) => (el as HTMLElement).innerText,
-    );
-
-    if (couponTexts.length === 0) return;
-
-    if (document.getElementById("webeye-coupon-component")) return;
+    const imageUrl = getMainProductImageUrl();
+    if (imageUrl) {
+        (window as any).VOIM_PRODUCT_IMAGE_URL = imageUrl;
+        console.log(" main image URL 저장됨:", imageUrl);
+    }
 
     const container = document.createElement("div");
-    container.id = "webeye-coupon-component";
+    container.id = "voim-food-component";
     document.body.appendChild(container);
 
-    import("../components/productComponents/couponComponent").then(
-        ({ CouponComponent }) => {
-            const root = createRoot(container);
-            root.render(<CouponComponent coupons={couponTexts} />);
-        },
-    );
+    try {
+        const root = createRoot(container);
+        root.render(<FoodComponent />);
+        console.log("React 렌더 호출됨");
+    } catch (e) {
+        console.error("React 렌더 실패", e);
+    }
 }
 
-function setupCouponClickListener() {
-    const button = document.querySelector(".prod-coupon-download-btn");
-    if (!button) return;
+function waitForBreadcrumbAndRender() {
+    const targetNode = document.body;
 
-    button.addEventListener("click", () => {
-        setTimeout(() => {
-            renderCouponComponent();
-        }, 600);
+    const observer = new MutationObserver(() => {
+        const breadcrumbEl = document.querySelector("#breadcrumb");
+        if (breadcrumbEl) {
+            console.log("breadcrumb 발견됨, 렌더링 실행");
+            observer.disconnect();
+            checkCategoryAndRender();
+        }
+    });
+
+    observer.observe(targetNode, {
+        childList: true,
+        subtree: true,
     });
 }
 
-function initializePageFeatures() {
-    checkCategoryAndRender();
-    setupCouponClickListener();
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        waitForBreadcrumbAndRender();
+    });
+} else {
+    waitForBreadcrumbAndRender();
+}
+function getMainProductImageUrl(): string | null {
+    const img = document.querySelector(
+        ".type_IMAGE_NO_SPACE .subType-IMAGE img",
+    ) as HTMLImageElement | null;
+
+    if (img && img.src) {
+        const src = img.src.startsWith("//") ? "https:" + img.src : img.src;
+        return src;
+    }
+
+    return null;
 }
 
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initializePageFeatures);
-} else {
-    initializePageFeatures();
+if (location.href.includes("cart.coupang.com/cartView.pang")) {
+    window.addEventListener("load", () => {
+        setTimeout(() => {
+            MountCartSummaryApp();
+        }, 500);
+    });
 }
