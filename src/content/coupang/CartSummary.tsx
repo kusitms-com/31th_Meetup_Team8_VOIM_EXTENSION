@@ -51,9 +51,7 @@ const parseCartItems = (): CartItem[] => {
 };
 
 const CartSummary = () => {
-    const { fontClasses, theme } = useTheme();
-    const isDarkMode = theme === "dark";
-
+    const { fontClasses } = useTheme();
     const [items, setItems] = useState<CartItem[]>([]);
     const [showAll, setShowAll] = useState(false);
 
@@ -80,8 +78,8 @@ const CartSummary = () => {
         fontFamily: "KoddiUDOnGothic",
         width: "563px",
         padding: "28px",
-        backgroundColor: isDarkMode ? "#212121" : "#FFFFFF",
-        color: isDarkMode ? "#F5F5F5" : "#212121",
+        backgroundColor: "#FFFFFF",
+        color: "#212121",
     };
 
     const headerStyle = {
@@ -92,8 +90,10 @@ const CartSummary = () => {
     };
 
     const titleStyle = {
-        fontSize: fontClasses.fontHeading,
-        color: isDarkMode ? "#F5F5F5" : "#212121",
+        width: "50%",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
     };
 
     const subtitleStyle = {
@@ -109,18 +109,34 @@ const CartSummary = () => {
     };
 
     const itemListStyle = {
-        display: "flex",
-        flexDirection: "column" as const,
-        gap: "16px",
-        marginBottom: "16px",
+        marginBottom: "42px",
+        backgroundColor: "#F5F5F5",
+        padding: "24px 18px",
+        borderRadius: "14px",
+        fontSize: fontClasses.fontCommon,
     };
 
     const itemStyle = {
         display: "flex",
+        alignItems: "center",
         justifyContent: "space-between",
-        fontSize: fontClasses.fontCommon,
-        padding: "8px 0",
-        borderBottom: "1px solid #E0E0E0",
+    };
+
+    const quantityStyle = {
+        width: "25%",
+        textAlign: "center" as const,
+    };
+
+    const priceStyle = {
+        width: "25%",
+        textAlign: "right" as const,
+    };
+
+    const dividerStyle = {
+        height: "2px",
+        width: "100%",
+        backgroundColor: "#E0E0E0",
+        margin: "15px 0",
     };
 
     const buttonStyle = {
@@ -133,8 +149,8 @@ const CartSummary = () => {
         border: "none",
         cursor: "pointer",
         transition: "opacity 0.2s, background-color 0.2s",
-        backgroundColor: isDarkMode ? "#B39DDB" : "#8914FF",
-        color: isDarkMode ? "#212121" : "#F5F5F5",
+        backgroundColor: "#8914FF",
+        color: "#F5F5F5",
     };
 
     return (
@@ -152,10 +168,17 @@ const CartSummary = () => {
             </div>
 
             <div style={itemListStyle}>
-                {visibleItems.map((item, index) => (
-                    <div key={index} style={itemStyle}>
-                        <div>{item.title}</div>
-                        <div>{item.price}</div>
+                {visibleItems.map((item, idx) => (
+                    <div key={idx}>
+                        <div style={itemStyle}>
+                            <div style={titleStyle}>{item.title}</div>
+                            <div style={quantityStyle}>{item.quantity}개</div>
+                            <div style={priceStyle}>{item.price}</div>
+                        </div>
+
+                        {idx !== visibleItems.length - 1 && (
+                            <div style={dividerStyle} />
+                        )}
                     </div>
                 ))}
             </div>
