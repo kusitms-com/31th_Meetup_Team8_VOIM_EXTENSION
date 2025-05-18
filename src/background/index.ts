@@ -54,3 +54,36 @@ async function init() {
 }
 
 init();
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "FETCH_FOOD_DATA") {
+        const payload = message.payload;
+
+        fetch("https://voim.store/api/v1/products/foods", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("API 응답 성공:", data);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "FOOD_DATA_RESPONSE",
+                        data,
+                    });
+                }
+            })
+            .catch((err) => {
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "FOOD_DATA_ERROR",
+                        error: err.message,
+                    });
+                }
+            });
+
+        return true;
+    }
+});
