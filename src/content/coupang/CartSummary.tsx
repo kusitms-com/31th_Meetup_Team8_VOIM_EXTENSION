@@ -1,8 +1,6 @@
-import { BaseFillButton } from "@src/components/baseFillButton/component";
-import { ThemeContextProvider, useTheme } from "@src/contexts/ThemeContext";
 import React, { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
-import "../../css/app.css";
+import { ThemeContextProvider, useTheme } from "@src/contexts/ThemeContext";
 
 export const MountCartSummaryApp = () => {
     const container = document.createElement("div");
@@ -54,6 +52,7 @@ const parseCartItems = (): CartItem[] => {
 
 const CartSummary = () => {
     const { fontClasses, theme } = useTheme();
+    const isDarkMode = theme === "dark";
 
     const [items, setItems] = useState<CartItem[]>([]);
     const [showAll, setShowAll] = useState(false);
@@ -75,49 +74,99 @@ const CartSummary = () => {
         }, 0)
         .toLocaleString();
 
+    const containerStyle = {
+        borderRadius: "20px",
+        border: "4px solid #8914FF",
+        fontFamily: "KoddiUDOnGothic",
+        width: "563px",
+        padding: "28px",
+        backgroundColor: isDarkMode ? "#212121" : "#FFFFFF",
+        color: isDarkMode ? "#F5F5F5" : "#212121",
+    };
+
+    const headerStyle = {
+        display: "flex",
+        flexDirection: "column" as const,
+        gap: "16px",
+        marginBottom: "26px",
+    };
+
+    const titleStyle = {
+        fontSize: fontClasses.fontHeading,
+        color: isDarkMode ? "#F5F5F5" : "#212121",
+    };
+
+    const subtitleStyle = {
+        color: "#8914FF",
+        fontSize: fontClasses.fontHeading,
+    };
+
+    const priceContainerStyle = {
+        display: "flex",
+        justifyContent: "space-between",
+        marginBottom: "16px",
+        fontSize: fontClasses.fontCommon,
+    };
+
+    const itemListStyle = {
+        display: "flex",
+        flexDirection: "column" as const,
+        gap: "16px",
+        marginBottom: "16px",
+    };
+
+    const itemStyle = {
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: fontClasses.fontCommon,
+        padding: "8px 0",
+        borderBottom: "1px solid #E0E0E0",
+    };
+
+    const buttonStyle = {
+        fontFamily: "KoddiUDOnGothic",
+        fontSize: fontClasses.fontCommon,
+        padding: "16px 30px",
+        position: "relative" as const,
+        width: "100%",
+        borderRadius: "14px",
+        border: "none",
+        cursor: "pointer",
+        transition: "opacity 0.2s, background-color 0.2s",
+        backgroundColor: isDarkMode ? "#B39DDB" : "#8914FF",
+        color: isDarkMode ? "#212121" : "#F5F5F5",
+    };
+
     return (
-        <div className="rounded-[20px] border-4 font-koddi w-[563px] border-purple-default p-[28px]">
-            <div
-                className={`${fontClasses.fontHeading} flex flex-col gap-4 mb-[26px]`}
-            >
-                <div>장바구니 요약</div>
-                <div className="text-purple-default">
+        <div style={containerStyle}>
+            <div style={headerStyle}>
+                <div style={titleStyle}>장바구니 요약</div>
+                <div style={subtitleStyle}>
                     총 {items.length}개의 상품이 담겨있습니다.
                 </div>
             </div>
 
-            <div
-                className={`${fontClasses.fontCommon} flex justify-between mb-4`}
-            >
+            <div style={priceContainerStyle}>
                 <div>전체 금액</div>
                 <div>{totalPrice}원</div>
             </div>
 
-            <div
-                className={`${fontClasses.fontCommon} mb-[42px] bg-grayscale-200 px-[24px] py-[18px] rounded-[14px]`}
-            >
-                {visibleItems.map((item, idx) => (
-                    <div key={idx}>
-                        <div className="flex items-center justify-between">
-                            <div className="w-1/2 truncate">{item.title}</div>
-                            <div className="w-1/4 text-center">
-                                {item.quantity}개
-                            </div>
-                            <div className="w-1/4 text-right">{item.price}</div>
-                        </div>
-
-                        {idx !== visibleItems.length - 1 && (
-                            <div className="h-[2px] w-full bg-grayscale-300 my-[15px]" />
-                        )}
+            <div style={itemListStyle}>
+                {visibleItems.map((item, index) => (
+                    <div key={index} style={itemStyle}>
+                        <div>{item.title}</div>
+                        <div>{item.price}</div>
                     </div>
                 ))}
             </div>
 
-            {items.length > 3 && (
-                <BaseFillButton onClick={() => setShowAll((prev) => !prev)}>
-                    {showAll ? "닫기" : "전체보기"}
-                </BaseFillButton>
-            )}
+            <button
+                style={buttonStyle}
+                onClick={() => setShowAll(!showAll)}
+                aria-label={showAll ? "상품 목록 접기" : "상품 목록 펼치기"}
+            >
+                {showAll ? "상품 목록 접기" : "상품 목록 펼치기"}
+            </button>
         </div>
     );
 };
