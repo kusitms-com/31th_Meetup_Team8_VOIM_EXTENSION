@@ -10,13 +10,7 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
     const [position, setPosition] = useState({ top: 0, left: 0 });
 
     useEffect(() => {
-        if (!targetImg.complete) {
-            targetImg.onload = () => handleResize();
-        } else {
-            handleResize();
-        }
-
-        function handleResize() {
+        const handleResize = () => {
             const rect = targetImg.getBoundingClientRect();
             const imgWidth = rect.width;
             const smallBtnWidth = 50;
@@ -24,22 +18,32 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
 
             if (imgWidth >= largeBtnWidth * 2) {
                 setIsSmallButton(false);
-                setShowButton(true);
-            } else if (imgWidth >= smallBtnWidth * 2) {
-                setIsSmallButton(true);
-                setShowButton(true);
             } else {
-                setShowButton(false);
+                setIsSmallButton(true);
             }
 
             setPosition({
                 top: rect.top + window.scrollY + 10,
                 left: rect.left + window.scrollX + 10,
             });
+        };
+
+        if (!targetImg.complete) {
+            targetImg.onload = () => handleResize();
+        } else {
+            handleResize();
         }
 
+        const handleMouseEnter = () => setShowButton(true);
+        const handleMouseLeave = () => setShowButton(false);
+
+        targetImg.addEventListener("mouseenter", handleMouseEnter);
+        targetImg.addEventListener("mouseleave", handleMouseLeave);
         window.addEventListener("resize", handleResize);
+
         return () => {
+            targetImg.removeEventListener("mouseenter", handleMouseEnter);
+            targetImg.removeEventListener("mouseleave", handleMouseLeave);
             window.removeEventListener("resize", handleResize);
         };
     }, [targetImg]);
