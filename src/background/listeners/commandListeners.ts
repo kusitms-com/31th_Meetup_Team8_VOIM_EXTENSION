@@ -96,7 +96,106 @@ export function initCommandListeners(): void {
                     await iframeService.toggleIframeInActiveTab();
                 }
             } else if (command === "toggle-modal") {
-                await iframeService.toggleModalInActiveTab();
+                const tabs = await chrome.tabs.query({
+                    active: true,
+                    currentWindow: true,
+                });
+                if (tabs[0]?.id) {
+                    await chrome.scripting.executeScript({
+                        target: { tabId: tabs[0].id },
+                        func: function () {
+                            const iframeId = "floating-button-extension-iframe";
+                            let iframe = document.getElementById(
+                                iframeId,
+                            ) as HTMLIFrameElement;
+                            let wasCreated = false;
+
+                            if (!iframe) {
+                                wasCreated = true;
+                                iframe = document.createElement("iframe");
+                                iframe.id = iframeId;
+                                iframe.src =
+                                    chrome.runtime.getURL("iframe.html");
+
+                                iframe.style.position = "fixed";
+                                iframe.style.top = "70px";
+                                iframe.style.right = "20px";
+                                iframe.style.width = "65px";
+                                iframe.style.height = "65px";
+                                iframe.style.border = "none";
+                                iframe.style.background = "transparent";
+                                iframe.style.zIndex = "2147483647";
+
+                                const handleMessage = function (
+                                    event: MessageEvent,
+                                ) {
+                                    if (event.source !== iframe.contentWindow)
+                                        return;
+
+                                    if (event.data.type === "RESIZE_IFRAME") {
+                                        if (event.data.isOpen) {
+                                            iframe.style.width = "100%";
+                                            iframe.style.height = "100%";
+                                            iframe.style.top = "0";
+                                            iframe.style.right = "0";
+                                        } else {
+                                            iframe.style.width = "65px";
+                                            iframe.style.height = "65px";
+                                            iframe.style.top = "70px";
+                                            iframe.style.right = "20px";
+                                        }
+                                    }
+                                };
+
+                                window.addEventListener(
+                                    "message",
+                                    handleMessage,
+                                );
+                                document.body.appendChild(iframe);
+
+                                iframe.onload = function () {
+                                    if (iframe.contentWindow) {
+                                        iframe.contentWindow.postMessage(
+                                            { type: "TOGGLE_MODAL" },
+                                            "*",
+                                        );
+                                    }
+                                };
+                            } else {
+                                if (iframe.contentWindow) {
+                                    iframe.contentWindow.postMessage(
+                                        { type: "TOGGLE_MODAL" },
+                                        "*",
+                                    );
+                                }
+                            }
+
+                            const modalCloseListener = function (
+                                event: MessageEvent,
+                            ) {
+                                if (event.source !== iframe.contentWindow)
+                                    return;
+
+                                if (
+                                    event.data.type === "RESIZE_IFRAME" &&
+                                    !event.data.isOpen &&
+                                    wasCreated
+                                ) {
+                                    iframe.remove();
+                                    window.removeEventListener(
+                                        "message",
+                                        modalCloseListener,
+                                    );
+                                }
+                            };
+
+                            window.addEventListener(
+                                "message",
+                                modalCloseListener,
+                            );
+                        },
+                    });
+                }
             } else if (command === "toggle-cursor") {
                 await cursorService.toggleCursor();
             } else if (command === "toggle-all-features") {
