@@ -8,7 +8,6 @@ import {
     restoreIframe,
 } from "../iframe/iframeManager";
 import { removeStyleFromIframes } from "../styles/cursorStyles";
-import { targetSelectors } from "../constants";
 
 let originalSettings: UserSettings | null = null;
 let contentCursorEnabled = true;
@@ -59,15 +58,6 @@ function iframeVisible(): boolean {
  * 모든 스타일이 제거되었는지 확인하고 제거합니다.
  */
 function ensureStylesRemoved(): void {
-    const elements = document.querySelectorAll("*");
-    elements.forEach((el) => {
-        const htmlEl = el as HTMLElement;
-        if (htmlEl.style) {
-            htmlEl.style.fontSize = "";
-            htmlEl.style.fontWeight = "";
-        }
-    });
-
     const modeStyle = document.getElementById("webeye-mode-style");
     if (modeStyle) {
         modeStyle.remove();
@@ -96,10 +86,7 @@ export function removeAllStyles(): void {
         chrome.storage.sync.set({ stylesEnabled: false }, () => {
             console.log("스타일 비활성화 상태 저장됨");
 
-            // 모든 스타일 속성 제거
-            document.documentElement.style.filter = "none";
-            document.documentElement.style.backgroundColor = "";
-
+            // 모든 요소의 인라인 스타일 제거
             const elements = document.querySelectorAll("*");
             elements.forEach((el) => {
                 const htmlEl = el as HTMLElement;
@@ -124,35 +111,20 @@ export function removeAllStyles(): void {
                 globalFontStyle.remove();
             }
 
-            const resetStyle = document.createElement("style");
-            resetStyle.id = "webeye-reset-style";
-            resetStyle.textContent = `
-                * {
-                    font-size: initial !important;
-                    font-weight: initial !important;
-                    filter: none !important;
-                    background-color: initial !important;
-                    color: initial !important;
-                }
-                
-                body, h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select, li, ul, ol {
-                    font-size: initial !important;
-                    font-weight: initial !important;
-                    filter: none !important;
-                    background-color: initial !important;
-                    color: initial !important;
-                }
-
-                img, video, canvas {
-                    filter: none !important;
-                }
-            `;
-            document.head.appendChild(resetStyle);
-
             const cursorStyle = document.getElementById("custom-cursor-style");
             if (cursorStyle) {
                 document.head.removeChild(cursorStyle);
             }
+
+            // 폰트 스타일 관련 추가 제거
+            const fontStyles = document.querySelectorAll(
+                '[style*="font-size"], [style*="font-weight"]',
+            );
+            fontStyles.forEach((el) => {
+                const htmlEl = el as HTMLElement;
+                htmlEl.style.removeProperty("font-size");
+                htmlEl.style.removeProperty("font-weight");
+            });
 
             removeStyleFromIframes();
             removeIframe();
@@ -169,16 +141,10 @@ export function restoreAllStyles(): void {
     chrome.storage.sync.set({ stylesEnabled: true }, () => {
         console.log("스타일 활성화 상태 저장됨");
 
-        const resetStyle = document.getElementById("webeye-reset-style");
-        if (resetStyle) {
-            resetStyle.remove();
-        }
-
         chrome.storage.sync.get(["userSettings"], (result) => {
             const settings = result.userSettings || originalSettings || {};
 
             setTimeout(() => {
-                // 테마 모드 복원
                 if (settings.mode) {
                     applyModeStyle(settings.mode);
                 }
@@ -256,10 +222,12 @@ export function loadAndApplySettings(): void {
             applyModeStyle(settings.mode);
         }
 
-        const fontStyle: Partial<FontStyle> = {};
-        if (settings.fontSize) fontStyle.fontSize = settings.fontSize;
-        if (settings.fontWeight) fontStyle.fontWeight = settings.fontWeight;
-        if (Object.keys(fontStyle).length) {
+        const fontStyle: FontStyle = {
+            fontSize: settings.fontSize,
+            fontWeight: settings.fontWeight,
+        };
+
+        if (fontStyle.fontSize || fontStyle.fontWeight) {
             applyFontStyle(fontStyle);
         }
     });
