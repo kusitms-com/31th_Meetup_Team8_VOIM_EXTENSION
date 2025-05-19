@@ -110,22 +110,28 @@ export function initCommandListeners(): void {
                             ) as HTMLIFrameElement;
                             let wasCreated = false;
 
-                            if (!iframe) {
-                                wasCreated = true;
-                                iframe = document.createElement("iframe");
-                                iframe.id = iframeId;
-                                iframe.src =
+                            function createIframe() {
+                                const newIframe =
+                                    document.createElement("iframe");
+                                newIframe.id = iframeId;
+                                newIframe.src =
                                     chrome.runtime.getURL("iframe.html");
 
-                                iframe.style.position = "fixed";
-                                iframe.style.top = "70px";
-                                iframe.style.right = "20px";
-                                iframe.style.width = "65px";
-                                iframe.style.height = "65px";
-                                iframe.style.border = "none";
-                                iframe.style.background = "transparent";
-                                iframe.style.zIndex = "2147483647";
+                                newIframe.style.position = "fixed";
+                                newIframe.style.top = "70px";
+                                newIframe.style.right = "20px";
+                                newIframe.style.width = "65px";
+                                newIframe.style.height = "65px";
+                                newIframe.style.border = "none";
+                                newIframe.style.background = "transparent";
+                                newIframe.style.zIndex = "2147483647";
 
+                                return newIframe;
+                            }
+
+                            function setupResizeHandler(
+                                iframe: HTMLIFrameElement,
+                            ) {
                                 const handleMessage = function (
                                     event: MessageEvent,
                                 ) {
@@ -151,17 +157,38 @@ export function initCommandListeners(): void {
                                     "message",
                                     handleMessage,
                                 );
-                                document.body.appendChild(iframe);
+                            }
 
-                                iframe.onload = function () {
-                                    if (iframe.contentWindow) {
-                                        iframe.contentWindow.postMessage(
-                                            { type: "TOGGLE_MODAL" },
-                                            "*",
+                            function setupModalCloseHandler(
+                                iframe: HTMLIFrameElement,
+                                wasCreated: boolean,
+                            ) {
+                                const modalCloseListener = function (
+                                    event: MessageEvent,
+                                ) {
+                                    if (event.source !== iframe.contentWindow)
+                                        return;
+
+                                    if (
+                                        event.data.type === "RESIZE_IFRAME" &&
+                                        !event.data.isOpen &&
+                                        wasCreated
+                                    ) {
+                                        iframe.remove();
+                                        window.removeEventListener(
+                                            "message",
+                                            modalCloseListener,
                                         );
                                     }
                                 };
-                            } else {
+
+                                window.addEventListener(
+                                    "message",
+                                    modalCloseListener,
+                                );
+                            }
+
+                            function toggleModal(iframe: HTMLIFrameElement) {
                                 if (iframe.contentWindow) {
                                     iframe.contentWindow.postMessage(
                                         { type: "TOGGLE_MODAL" },
@@ -170,29 +197,20 @@ export function initCommandListeners(): void {
                                 }
                             }
 
-                            const modalCloseListener = function (
-                                event: MessageEvent,
-                            ) {
-                                if (event.source !== iframe.contentWindow)
-                                    return;
+                            if (!iframe) {
+                                wasCreated = true;
+                                iframe = createIframe();
+                                setupResizeHandler(iframe);
+                                document.body.appendChild(iframe);
 
-                                if (
-                                    event.data.type === "RESIZE_IFRAME" &&
-                                    !event.data.isOpen &&
-                                    wasCreated
-                                ) {
-                                    iframe.remove();
-                                    window.removeEventListener(
-                                        "message",
-                                        modalCloseListener,
-                                    );
-                                }
-                            };
+                                iframe.onload = function () {
+                                    toggleModal(iframe);
+                                };
+                            } else {
+                                toggleModal(iframe);
+                            }
 
-                            window.addEventListener(
-                                "message",
-                                modalCloseListener,
-                            );
+                            setupModalCloseHandler(iframe, wasCreated);
                         },
                     });
                 }
