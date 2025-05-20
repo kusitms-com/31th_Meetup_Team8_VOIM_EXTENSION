@@ -21,8 +21,6 @@ async function init() {
 
         logger.debug("모든 리스너가 초기화되었습니다");
 
-        const settings = await storageService.loadInitialSettings();
-
         const result = await chrome.storage.sync.get([
             STORAGE_KEYS.CURSOR_THEME,
             STORAGE_KEYS.CURSOR_SIZE,
@@ -54,6 +52,7 @@ async function init() {
 }
 
 init();
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;
@@ -67,7 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log("API 응답 성공:", data);
+                console.log("FOOD API 응답 성공:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_RESPONSE",
@@ -82,6 +81,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         error: err.message,
                     });
                 }
+            });
+
+        return true;
+    }
+
+    if (message.type === "FETCH_IMAGE_ANALYSIS") {
+        const imageUrl = message.payload?.url;
+
+        fetch("https://voim.store/api/v1/image-analysis", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url: imageUrl }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("백그라운드 API 응답:", data);
+                console.log("보낼 data.data:", data.data);
+
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "IMAGE_ANALYSIS_RESPONSE",
+                        data: data.data,
+                    });
+                }
+
+                sendResponse({
+                    type: "IMAGE_ANALYSIS_RESPONSE",
+                    data: data.data,
+                });
+            })
+            .catch((err) => {
+                console.error("이미지 분석 에러:", err);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "IMAGE_ANALYSIS_ERROR",
+                        error: err.message,
+                    });
+                }
+                sendResponse({
+                    type: "IMAGE_ANALYSIS_ERROR",
+                    error: err.message,
+                });
             });
 
         return true;
