@@ -75,9 +75,11 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                     <div style={{ flex: 1 }}>
                         <p
                             style={{
-                                fontSize: "15px",
-                                fontWeight: 500,
-                                lineHeight: "1.6",
+                                fontFamily: "KoddiUD OnGothic",
+                                fontSize: "24px",
+                                fontStyle: "normal",
+                                fontWeight: 700,
+                                lineHeight: "150%",
                                 color: "#222",
                                 textAlign: "left",
                             }}
