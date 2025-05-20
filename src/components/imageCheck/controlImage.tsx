@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 interface ControlImageProps {
     targetImg: HTMLImageElement;
@@ -8,47 +8,62 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
     const [showButton, setShowButton] = useState(false);
     const [isSmallButton, setIsSmallButton] = useState(true);
     const [position, setPosition] = useState({ top: 0, left: 0 });
+    const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
-        const handleResize = () => {
+        const updatePosition = () => {
             const rect = targetImg.getBoundingClientRect();
             const imgWidth = rect.width;
-            const smallBtnWidth = 50;
             const largeBtnWidth = 158;
 
-            if (imgWidth >= largeBtnWidth * 2) {
-                setIsSmallButton(false);
-            } else {
-                setIsSmallButton(true);
-            }
-
+            setIsSmallButton(imgWidth < largeBtnWidth * 2);
             setPosition({
-                top: rect.top + window.scrollY + 10,
-                left: rect.left + window.scrollX + 10,
+                top: rect.top + window.scrollY,
+                left: rect.left + window.scrollX,
             });
         };
 
-        if (!targetImg.complete) {
-            targetImg.onload = () => handleResize();
+        const handleMove = (e: MouseEvent) => {
+            const rect = targetImg.getBoundingClientRect();
+            const isOver =
+                e.clientX >= rect.left &&
+                e.clientX <= rect.right &&
+                e.clientY >= rect.top &&
+                e.clientY <= rect.bottom;
+
+            if (isOver) {
+                if (hideTimer.current) {
+                    clearTimeout(hideTimer.current);
+                    hideTimer.current = null;
+                }
+                setShowButton(true);
+            } else {
+                if (!hideTimer.current) {
+                    hideTimer.current = setTimeout(() => {
+                        setShowButton(false);
+                        hideTimer.current = null;
+                    }, 300);
+                }
+            }
+        };
+
+        if (!targetImg.complete || targetImg.naturalWidth === 0) {
+            targetImg.onload = updatePosition;
         } else {
-            handleResize();
+            updatePosition();
         }
 
-        const handleMouseEnter = () => setShowButton(true);
-        const handleMouseLeave = () => setShowButton(false);
-
-        targetImg.addEventListener("mouseenter", handleMouseEnter);
-        targetImg.addEventListener("mouseleave", handleMouseLeave);
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("mousemove", handleMove);
+        window.addEventListener("scroll", updatePosition);
+        window.addEventListener("resize", updatePosition);
 
         return () => {
-            targetImg.removeEventListener("mouseenter", handleMouseEnter);
-            targetImg.removeEventListener("mouseleave", handleMouseLeave);
-            window.removeEventListener("resize", handleResize);
+            window.removeEventListener("mousemove", handleMove);
+            window.removeEventListener("scroll", updatePosition);
+            window.removeEventListener("resize", updatePosition);
+            if (hideTimer.current) clearTimeout(hideTimer.current);
         };
     }, [targetImg]);
-
-    if (!showButton) return null;
 
     return (
         <div
@@ -56,7 +71,10 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                 position: "absolute",
                 top: position.top,
                 left: position.left,
-                zIndex: 9999,
+                zIndex: 2147483647,
+                pointerEvents: "none",
+                opacity: showButton ? 1 : 0,
+                transition: "opacity 0.2s ease-in-out",
             }}
         >
             {isSmallButton ? (
@@ -65,9 +83,12 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                     alt="돋보기"
                     width={50}
                     height={50}
-                    style={{ cursor: "pointer" }}
+                    style={{
+                        cursor: "pointer",
+                        pointerEvents: "auto",
+                    }}
                     onClick={() => {
-                        // 버튼 클릭 로직
+                        console.log("분석 버튼 클릭");
                     }}
                 />
             ) : (
@@ -77,13 +98,13 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                         color: "white",
                         fontWeight: "bold",
                         padding: "8px 16px",
-                        borderRadius: "8px",
                         fontSize: "16px",
                         textAlign: "center",
                         cursor: "pointer",
+                        pointerEvents: "auto",
                     }}
                     onClick={() => {
-                        // 버튼 클릭 로직
+                        console.log("분석 버튼 클릭");
                     }}
                 >
                     이미지 분석 클릭
