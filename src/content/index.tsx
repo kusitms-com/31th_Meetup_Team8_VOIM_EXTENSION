@@ -5,10 +5,10 @@ import {
 import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
-import { createStyleObserver } from "./observers/styleObserver";
 import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
+import { initDomObserver } from "./observers/domObserver";
 
 checkExtensionState();
 
@@ -37,12 +37,25 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return handleModalMessage(message, sendResponse);
 });
 
-const observer = createStyleObserver();
-observer.observe(document.body, {
-    childList: true,
-    subtree: true,
-});
+const checkStylesEnabled = () => {
+    return new Promise<boolean>((resolve) => {
+        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+            resolve(
+                result.stylesEnabled !== undefined
+                    ? result.stylesEnabled
+                    : true,
+            );
+        });
+    });
+};
 
+const observer = initDomObserver(() => {
+    let enabled = true;
+    checkStylesEnabled().then((result) => {
+        enabled = result;
+    });
+    return enabled;
+});
 processImages();
 
 if (location.href.includes("cart.coupang.com/cartView.pang")) {
