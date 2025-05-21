@@ -37,25 +37,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return handleModalMessage(message, sendResponse);
 });
 
-const checkStylesEnabled = () => {
-    return new Promise<boolean>((resolve) => {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
-            resolve(
-                result.stylesEnabled !== undefined
-                    ? result.stylesEnabled
-                    : true,
-            );
-        });
-    });
-};
-
-const observer = initDomObserver(() => {
-    let enabled = true;
-    checkStylesEnabled().then((result) => {
-        enabled = result;
-    });
-    return enabled;
+initDomObserver(() => {
+    return true;
 });
+
 processImages();
 
 if (location.href.includes("cart.coupang.com/cartView.pang")) {
