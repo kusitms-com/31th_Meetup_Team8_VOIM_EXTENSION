@@ -9,6 +9,7 @@ import { createStyleObserver } from "./observers/styleObserver";
 import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
+import { renderCouponComponent } from "./coupang/renderCouponComponent";
 
 checkExtensionState();
 
@@ -21,7 +22,11 @@ document.addEventListener("visibilitychange", () => {
         checkExtensionState();
     }
 });
-
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        renderCouponComponent();
+    }, 1500);
+});
 initCursorSettings();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {

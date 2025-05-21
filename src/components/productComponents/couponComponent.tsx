@@ -5,18 +5,35 @@ interface Props {
 }
 
 export const CouponComponent: React.FC<Props> = ({ coupons }) => {
+    if (!coupons || coupons.length === 0) return null;
+
+    const commonTextStyle: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "28px",
+        fontStyle: "normal",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "center",
+    };
+
+    const firstCoupon = coupons[0];
+    const remainingCount = coupons.length - 1;
+
     return (
-        <div className="p-4 rounded-2xl shadow-md border border-grayscale-300 bg-white">
-            <ul className="list-disc pl-5 space-y-1">
-                {coupons.map((text, i) => (
-                    <li key={i} className="font-16-Regular text-grayscale-800">
-                        {text}
-                    </li>
-                ))}
-                <h2 className="font-20-Bold mb-2 text-purple-default">
-                    를 사용 가능합니다{" "}
-                </h2>
-            </ul>
+        <div
+            style={{
+                padding: "16px",
+                borderRadius: "20px",
+                width: "618px",
+                border: "4px solid #8914FF",
+                backgroundColor: "#ffffff",
+            }}
+        >
+            <p style={commonTextStyle}>
+                {firstCoupon}
+                {remainingCount > 0 &&
+                    ` 외 ${remainingCount}종의 쿠폰이 있습니다.`}
+            </p>
         </div>
     );
 };
