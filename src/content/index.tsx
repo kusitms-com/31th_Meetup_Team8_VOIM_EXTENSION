@@ -5,10 +5,10 @@ import {
 import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
-import { createStyleObserver } from "./observers/styleObserver";
 import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
+import { initDomObserver } from "./observers/domObserver";
 
 checkExtensionState();
 
@@ -37,10 +37,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return handleModalMessage(message, sendResponse);
 });
 
-const observer = createStyleObserver();
-observer.observe(document.body, {
-    childList: true,
-    subtree: true,
+initDomObserver(() => {
+    return true;
 });
 
 processImages();
