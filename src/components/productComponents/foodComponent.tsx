@@ -36,7 +36,7 @@ export const FoodComponent = () => {
         fontStyle: "normal",
         fontWeight: 700,
         lineHeight: "150%",
-        textAlign: "center",
+        textAlign: "left",
     };
 
     useEffect(() => {
