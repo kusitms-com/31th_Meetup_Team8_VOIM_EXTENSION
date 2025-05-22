@@ -4,6 +4,14 @@ interface NutrientAlert {
     name: string;
     percent: number;
 }
+function escapeHtml(html: string): string {
+    return html
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
 
 export const FoodComponent = () => {
     const [nutrientAlerts, setNutrientAlerts] = useState<
@@ -11,7 +19,25 @@ export const FoodComponent = () => {
     >(null);
 
     useEffect(() => {
-        const fetchNutrientData = async () => {
+        const waitForVendorItem = () => {
+            const observer = new MutationObserver(() => {
+                const vendorEl = document.querySelector(".vendor-item");
+                if (vendorEl) {
+                    console.log("[voim] .vendor-item 등장 감지 ");
+                    observer.disconnect();
+                    fetchNutrientData(vendorEl);
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+            });
+
+            console.log("[voim] .vendor-item 등장 대기 중");
+        };
+
+        const fetchNutrientData = async (vendorEl: Element) => {
             const { birthYear, gender } = await chrome.storage.local.get([
                 "birthYear",
                 "gender",
@@ -29,75 +55,67 @@ export const FoodComponent = () => {
                 return;
             }
 
-            const imgEl = document.querySelector(
-                ".type_IMAGE_NO_SPACE .subType-IMAGE img",
-            ) as HTMLImageElement | null;
+            const rawHtml = vendorEl.outerHTML;
 
-            const imgUrl = imgEl?.getAttribute("src");
-            const fullImgUrl = imgUrl?.startsWith("//")
-                ? "https:" + imgUrl
-                : imgUrl;
-
-            if (!fullImgUrl) {
-                console.warn("이미지 URL을 찾지 못했습니다.");
-                return;
-            }
+            const formattedHtml = rawHtml
+                .replace(/src="https?:\/\/([^"]+)"/g, 'src="//$1"')
+                .replace(
+                    /src="image11\.coupangcdn\.com/g,
+                    'src="//image11.coupangcdn.com',
+                )
+                .replace(/\sonerror="[^"]*"/g, "")
+                .replace(/"/g, '\\"')
+                .replace(/\n/g, "")
+                .trim();
+            console.log("[voim] 전송할 HTML:", formattedHtml);
 
             const payload = {
                 productId,
                 title: document.title,
-                urls: [fullImgUrl],
+                html: formattedHtml,
                 birthYear: Number(birthYear),
                 gender: gender.toUpperCase(),
                 allergies: [],
             };
 
-            console.log(" FETCH_FOOD_DATA 메시지 전송됨:", payload);
-
             chrome.runtime.sendMessage({ type: "FETCH_FOOD_DATA", payload });
         };
 
-        fetchNutrientData();
-
-        const handleMessage = (event: MessageEvent) => {
-            if (event.source !== window) return;
-
-            if (event.data?.type === "VOIM_FOOD_DATA") {
-                console.log(" 영양소 데이터 수신:", event.data.data);
-                setNutrientAlerts(event.data.data.exceededNutrients);
-            }
-
-            if (event.data?.type === "VOIM_FOOD_ERROR") {
-                console.error(" Food API 에러:", event.data.error);
-            }
-        };
-
-        window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
+        waitForVendorItem();
     }, []);
 
     if (!nutrientAlerts) return null;
 
+    const allergyCount = 2;
+
     return (
-        <div className="fixed bottom-5 right-5 bg-white border-2 border-purple-default rounded-[12px] p-4 shadow-lg z-[9999] w-80">
-            <p className="text-purple-default font-bold mb-2">
-                [식품] 영양성분 하루 기준치 초과 주의
+        <div className="fixed bottom-5 right-5 bg-white border-2 border-purple-default rounded-2xl p-6 shadow-lg z-[9999] w-[360px] font-koddi">
+            <p className="text-black text-[18px] font-bold mb-1">
+                [식품] 영양 및 알레르기 성분 안내
             </p>
-            <p className="text-grayscale-700 text-sm mb-2">
-                하루 기준 섭취량의 40%를 넘는 영양성분이 {nutrientAlerts.length}
-                가지 들어 있습니다. 섭취 시 참고해주세요.
+            <p className="text-grayscale-700 text-[14px] mb-4">
+                섭취 시 참고해주세요.
             </p>
-            <ul className="text-sm text-grayscale-800">
-                {nutrientAlerts.map((item) => (
-                    <li
-                        key={item.name}
-                        className="flex justify-between border-b border-grayscale-300 py-1"
-                    >
-                        <span>{item.name}</span>
-                        <span className="font-bold">{item.percent}%</span>
-                    </li>
-                ))}
-            </ul>
+
+            <div className="border-t border-grayscale-300 my-2"></div>
+
+            <div className="flex justify-between text-[16px] font-bold text-grayscale-800 mb-2">
+                <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
+                <span>총 {nutrientAlerts.length}개</span>
+            </div>
+
+            <button className="w-full py-3 text-white bg-purple-default rounded-xl font-bold text-[16px] mb-4">
+                주의 성분 전체 보기
+            </button>
+
+            <div className="flex justify-between text-[16px] font-bold text-grayscale-800 mb-2">
+                <span>알레르기 유발 식품</span>
+                <span>총 {allergyCount}개</span>
+            </div>
+
+            <button className="w-full py-3 text-white bg-purple-default rounded-xl font-bold text-[16px]">
+                알레르기 유발 식품 전체 보기
+            </button>
         </div>
     );
 };

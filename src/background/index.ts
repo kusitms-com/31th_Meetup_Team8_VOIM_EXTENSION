@@ -56,6 +56,7 @@ init();
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;
+        console.log("[voim][background] FETCH_FOOD_DATA 요청 수신됨:", payload);
 
         fetch("https://voim.store/api/v1/products/foods", {
             method: "POST",
@@ -64,17 +65,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify(payload),
         })
-            .then((res) => res.json())
+            .then((res) => {
+                console.log(
+                    "[voim][background] FOOD API 응답 상태코드:",
+                    res.status,
+                );
+                return res.json();
+            })
             .then((data) => {
-                console.log("FOOD API 응답 성공:", data);
+                console.log("[voim][background] FOOD API 응답 성공:", data);
+
                 if (sender.tab?.id) {
+                    console.log(
+                        "[voim][background] content script로 FOOD_DATA_RESPONSE 전송",
+                    );
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_RESPONSE",
                         data,
                     });
+                } else {
+                    console.warn(
+                        "[voim][background] sender.tab.id가 없어 메시지를 보낼 수 없음",
+                    );
                 }
             })
             .catch((err) => {
+                console.error(
+                    "[voim][background] FOOD API 요청 실패:",
+                    err.message,
+                );
+
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_ERROR",
