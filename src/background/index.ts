@@ -247,4 +247,58 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         return true;
     }
+    if (message.type === "FETCH_HEALTH_DATA") {
+        const { productId, title, html, birthYear, gender, allergies } =
+            message.payload;
+        console.log(
+            "[voim][background] FETCH_HEALTH_DATA 요청 수신:",
+            productId,
+        );
+
+        fetch("https://voim.store/api/v1/health-food/keywords", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                productId,
+                title,
+                html,
+                birthYear,
+                gender,
+                allergies,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("[voim][background] HEALTH 응답 성공:", data);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "HEALTH_DATA_RESPONSE",
+                        data: data.data,
+                    });
+                }
+
+                sendResponse({
+                    type: "HEALTH_DATA_RESPONSE",
+                    data: data.data,
+                });
+            })
+            .catch((err) => {
+                console.error("[voim][background] HEALTH 요청 실패:", err);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "HEALTH_DATA_ERROR",
+                        error: err.message,
+                    });
+                }
+
+                sendResponse({
+                    type: "HEALTH_DATA_ERROR",
+                    error: err.message,
+                });
+            });
+
+        return true;
+    }
 });

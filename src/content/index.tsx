@@ -9,6 +9,7 @@ import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/CartSummary";
 import { checkCategoryCosmeticAndRender } from "./coupang/categoryHandler/categoryHandlerCosmetic";
 import { checkCategoryFoodAndRender } from "./coupang/categoryHandler/categoryHandlerFood";
+import { checkCategoryHealthAndRender } from "./coupang/categoryHandler/categoryHandlerHealth";
 import { renderCouponComponent } from "./coupang/renderCouponComponent";
 import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
 import { initDomObserver } from "./observers/domObserver";
@@ -72,4 +73,11 @@ if (document.readyState === "loading") {
     });
 } else {
     checkCategoryCosmeticAndRender();
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        checkCategoryHealthAndRender();
+    });
+} else {
+    checkCategoryHealthAndRender();
 }
