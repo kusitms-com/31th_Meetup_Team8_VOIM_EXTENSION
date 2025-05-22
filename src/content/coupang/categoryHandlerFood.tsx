@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { FoodComponent } from "../../components/productComponents/foodComponent";
 
-export const observeBreadcrumbAndRender = () => {
+export const observeBreadcrumbFoodAndRender = () => {
     const observer = new MutationObserver(() => {
         const breadcrumbEl = document.querySelector("#breadcrumb");
         if (breadcrumbEl) {

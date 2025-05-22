@@ -10,9 +10,11 @@ export const sendOutlineInfoRequest = (
             },
             (response) => {
                 if (chrome.runtime.lastError) {
-                    reject(new Error(chrome.runtime.lastError.message));
-                } else if (response?.type === "OUTLINE_INFO_RESPONSE") {
-                    resolve(response.data);
+                    return reject(new Error(chrome.runtime.lastError.message));
+                }
+
+                if (response?.type === "OUTLINE_INFO_RESPONSE") {
+                    resolve(response.data.detail);
                 } else if (response?.type === "OUTLINE_INFO_ERROR") {
                     reject(new Error(response.error));
                 } else {
