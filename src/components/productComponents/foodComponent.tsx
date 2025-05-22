@@ -162,7 +162,10 @@ export const FoodComponent = () => {
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: "12px",
-                    fontWeight: "bold",
+                    fontSize: "24px",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    fontFamily: "KoddiUDOnGothic",
                 }}
             >
                 <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
@@ -184,7 +187,10 @@ export const FoodComponent = () => {
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                fontWeight: "600",
+                                fontSize: "24px",
+                                fontStyle: "normal",
+                                fontWeight: 700,
+                                fontFamily: "KoddiUDOnGothic",
                                 marginBottom:
                                     idx < nutrientAlerts.length - 1
                                         ? "12px"
