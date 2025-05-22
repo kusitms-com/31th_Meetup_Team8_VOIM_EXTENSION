@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { sendImageAnalysisRequest } from "../../content/apiSetting/sendImageAnalysisRequest";
+import { Player } from "@lottiefiles/react-lottie-player";
 
 interface ImageModalProps {
     imageUrl: string;
@@ -12,12 +13,12 @@ export const ImageModal: React.FC<ImageModalProps> = ({
     description,
     onClose,
 }) => {
-    const [analysis, setAnalysis] = useState<string>("이미지 분석 중입니다...");
+    const [analysis, setAnalysis] = useState<string>();
 
     useEffect(() => {
         sendImageAnalysisRequest(imageUrl)
             .then((res) => {
-                console.log("✅ 이미지 분석 응답:", res);
+                console.log("이미지 분석 응답:", res);
                 setAnalysis(res || "분석 결과가 없습니다.");
             })
             .catch((err) => {
@@ -73,19 +74,41 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                         }}
                     />
                     <div style={{ flex: 1 }}>
-                        <p
-                            style={{
-                                fontFamily: "KoddiUD OnGothic",
-                                fontSize: "24px",
-                                fontStyle: "normal",
-                                fontWeight: 700,
-                                lineHeight: "150%",
-                                color: "#222",
-                                textAlign: "left",
-                            }}
-                        >
-                            {analysis}
-                        </p>
+                        {analysis ? (
+                            <p
+                                style={{
+                                    fontFamily: "KoddiUD OnGothic",
+                                    fontSize: "24px",
+                                    fontStyle: "normal",
+                                    fontWeight: 700,
+                                    lineHeight: "150%",
+                                    color: "#222",
+                                    textAlign: "left",
+                                }}
+                            >
+                                {analysis}
+                            </p>
+                        ) : (
+                            <div style={{ textAlign: "center" }}>
+                                {/* <Player
+                                    autoplay
+                                    loop
+                                    src="https://lottie.host/aa702275-ad1e-4b56-9baa-b8226f5a2efc/0XpUpYljD5.json"
+                                    style={{ height: "150px", width: "150px" }}
+                                /> */}
+                                <p
+                                    style={{
+                                        marginTop: "8px",
+                                        fontFamily: "KoddiUD OnGothic",
+                                        fontSize: "18px",
+                                        fontWeight: 600,
+                                        color: "#555",
+                                    }}
+                                >
+                                    이미지를 분석 중입니다. 잠시만 기다려주세요.
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
                 <button

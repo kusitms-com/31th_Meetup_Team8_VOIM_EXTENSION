@@ -8,7 +8,9 @@ import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
+import { renderCouponComponent } from "./coupang/renderCouponComponent";
 import { initDomObserver } from "./observers/domObserver";
+
 
 checkExtensionState();
 
@@ -21,7 +23,11 @@ document.addEventListener("visibilitychange", () => {
         checkExtensionState();
     }
 });
-
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        renderCouponComponent();
+    }, 1500);
+});
 initCursorSettings();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
