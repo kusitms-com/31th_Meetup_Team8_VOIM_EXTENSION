@@ -6,89 +6,107 @@ interface Nutrient {
     percentage: number;
 }
 
+const nutrientNameMap: Record<string, string> = {
+    SODIUM: "나트륨",
+    CARBOHYDRATE: "탄수화물",
+    SUGARS: "당류",
+    FAT: "지방",
+    TRANS_FAT: "트랜스지방",
+    SATURATED_FAT: "포화지방",
+    CHOLESTEROL: "콜레스테롤",
+    PROTEIN: "단백질",
+    CALCIUM: "칼슘",
+    PHOSPHORUS: "인",
+    NIACIN: "나이아신",
+    VITAMIN_B: "비타민 B",
+    VITAMIN_E: "비타민 E",
+};
+
 export const FoodComponent = () => {
     const [nutrientAlerts, setNutrientAlerts] = useState<Nutrient[] | null>(
         null,
     );
     const [allergyTypes, setAllergyTypes] = useState<string[] | null>(null);
-    const [nutrientOpen, setNutrientOpen] = useState(false);
+    const [nutrientOpen, setNutrientOpen] = useState(true);
     const [allergyOpen, setAllergyOpen] = useState(false);
 
+    const commonTextStyle: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "28px",
+        fontStyle: "normal",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "center",
+    };
+
     useEffect(() => {
-        const waitForVendorItem = () => {
-            const observer = new MutationObserver(() => {
-                const vendorEl = document.querySelector(".vendor-item");
-                if (vendorEl) {
-                    console.log("[voim] .vendor-item 등장 감지 ");
-                    observer.disconnect();
-                    fetchNutrientData(vendorEl);
-                }
-            });
-
-            observer.observe(document.body, {
-                childList: true,
-                subtree: true,
-            });
-
-            console.log("[voim] .vendor-item 등장 대기 중");
-        };
-
-        const fetchNutrientData = async (vendorEl: Element) => {
-            const { birthYear, gender } = await chrome.storage.local.get([
-                "birthYear",
-                "gender",
-            ]);
-
-            if (!birthYear || !gender) {
-                console.warn("birthYear 또는 gender가 없습니다.");
-                return;
-            }
-
-            const match = window.location.href.match(/products\/(\d+)/);
-            const productId = match ? match[1] : null;
-            if (!productId) {
-                console.warn("productId를 추출하지 못했습니다.");
-                return;
-            }
-
-            const rawHtml = vendorEl.outerHTML;
-            const formattedHtml = rawHtml
-                .replace(/src=\"https?:\/\/([^\"]+)\"/g, 'src="//$1"')
-                .replace(
-                    /src=\"image11\.coupangcdn\.com/g,
-                    'src="//image11.coupangcdn.com',
-                )
-                .replace(/\sonerror=\"[^\"]*\"/g, "")
-                .replace(/\"/g, '\\"')
-                .replace(/\n/g, "")
-                .trim();
-
-            const payload = {
-                productId,
-                title: document.title,
-                html: formattedHtml,
-                birthYear: Number(birthYear),
-                gender: gender.toUpperCase(),
-                allergies: [],
-            };
-
+        const fetchData = async (vendorEl: Element) => {
             try {
-                const res = await sendFoodDataRequest(payload);
-                console.log("[voim] FOOD API 응답:", res);
+                const { birthYear, gender } = await chrome.storage.local.get([
+                    "birthYear",
+                    "gender",
+                ]);
 
-                if (res) {
-                    setNutrientAlerts(res.overRecommendationNutrients || []);
-                    setAllergyTypes(res.allergyTypes || []);
-                } else {
-                    console.warn("[voim] 응답이 undefined입니다.");
-                }
-            } catch (error) {
-                console.error("[voim] FOOD API 요청 실패:", error);
+                const productId =
+                    window.location.href.match(/products\/(\d+)/)?.[1];
+                if (!birthYear || !gender || !productId) return;
+
+                const rawHtml = vendorEl.outerHTML
+                    .replace(/\sonerror=\"[^\"]*\"/g, "")
+                    .replace(/\n/g, "")
+                    .trim();
+
+                const payload = {
+                    productId,
+                    title: document.title,
+                    html: rawHtml,
+                    birthYear: Number(birthYear),
+                    gender: gender.toUpperCase(),
+                    allergies: [],
+                };
+
+                const res = await sendFoodDataRequest(payload);
+                if (!res) throw new Error("응답 없음");
+
+                setNutrientAlerts(res.overRecommendationNutrients || []);
+                setAllergyTypes(res.allergyTypes || []);
+            } catch (e) {
+                console.error("[voim] FOOD API 실패:", e);
             }
         };
 
-        waitForVendorItem();
+        const vendorEl = document.querySelector(".vendor-item");
+        if (vendorEl) {
+            console.log("[voim] .vendor-item DOM에서 바로 발견됨");
+            fetchData(vendorEl);
+            return;
+        }
+
+        const observer = new MutationObserver(() => {
+            const foundEl = document.querySelector(".vendor-item");
+            if (foundEl) {
+                console.log("[voim] .vendor-item 등장 감지됨 (observer)");
+                observer.disconnect();
+                fetchData(foundEl);
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        return () => observer.disconnect();
     }, []);
+
+    useEffect(() => {
+        const timeout = setTimeout(() => {
+            if (nutrientAlerts === null || allergyTypes === null) {
+                console.warn("[voim] 데이터 로딩 타임아웃: 기본값 처리");
+                setNutrientAlerts([]);
+                setAllergyTypes([]);
+            }
+        }, 10000);
+
+        return () => clearTimeout(timeout);
+    }, [nutrientAlerts, allergyTypes]);
 
     if (nutrientAlerts === null || allergyTypes === null) {
         return (
@@ -97,15 +115,13 @@ export const FoodComponent = () => {
                     position: "fixed",
                     bottom: "20px",
                     right: "20px",
-                    backgroundColor: "white",
+                    backgroundColor: "#fff",
                     border: "2px solid #8914FF",
-                    borderRadius: "16px",
+                    borderRadius: "20px",
                     padding: "24px",
-                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
-                    zIndex: 9999,
                     width: "360px",
-                    fontFamily: "KoddiUDOnGothic, sans-serif",
-                    color: "#555",
+                    zIndex: 9999,
+                    fontFamily: "KoddiUDOnGothic",
                     fontSize: "16px",
                     textAlign: "center",
                 }}
@@ -118,39 +134,72 @@ export const FoodComponent = () => {
     return (
         <div
             style={{
-                position: "fixed",
-                bottom: "20px",
-                right: "20px",
-                backgroundColor: "white",
-                border: "2px solid #8914FF",
-                borderRadius: "16px",
-                padding: "24px",
-                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                padding: "16px",
+                borderRadius: "20px",
+                width: "618px",
+                border: "4px solid #8914FF",
+                backgroundColor: "#ffffff",
+                position: "absolute",
+                top: "610px",
+                right: "490px",
                 zIndex: 9999,
-                width: "360px",
-                fontFamily: "KoddiUDOnGothic, sans-serif",
+                fontFamily: "KoddiUDOnGothic",
             }}
         >
-            <p
+            <p style={commonTextStyle}>
+                [식품] 영양 및 알레르기 유발 식재료 안내
+            </p>
+
+            <div
                 style={{
-                    fontSize: "18px",
+                    borderTop: "1px solid #EAEDF4",
+                    margin: "16px 0",
+                }}
+            />
+
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "12px",
                     fontWeight: "bold",
-                    marginBottom: "4px",
-                    color: "#000",
                 }}
             >
-                [식품] 영양성분 하루 기준치 초과 주의
-            </p>
-            <p
-                style={{
-                    fontSize: "14px",
-                    color: "#6C6E73",
-                    marginBottom: "16px",
-                }}
-            >
-                하루 기준 섭취량의 40%를 넘는 영양성분이 {nutrientAlerts.length}
-                가지 들어 있습니다. 섭취 시 참고해주세요.
-            </p>
+                <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
+                <span>총 {nutrientAlerts.length}개</span>
+            </div>
+
+            {nutrientOpen && (
+                <div
+                    style={{
+                        backgroundColor: "#F5F7FB",
+                        borderRadius: "12px",
+                        padding: "16px",
+                        marginBottom: "16px",
+                    }}
+                >
+                    {nutrientAlerts.map((item, idx) => (
+                        <div
+                            key={idx}
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                fontWeight: "600",
+                                marginBottom:
+                                    idx < nutrientAlerts.length - 1
+                                        ? "12px"
+                                        : "0",
+                            }}
+                        >
+                            <span>
+                                {nutrientNameMap[item.nutrientType] ||
+                                    item.nutrientType}
+                            </span>
+                            <span>{item.percentage}%</span>
+                        </div>
+                    ))}
+                </div>
+            )}
 
             <button
                 style={{
@@ -161,42 +210,71 @@ export const FoodComponent = () => {
                     borderRadius: "12px",
                     fontWeight: "bold",
                     fontSize: "16px",
-                    marginBottom: nutrientOpen ? "8px" : "16px",
                     border: "none",
+                    marginBottom: "20px",
                     cursor: "pointer",
                 }}
                 onClick={() => setNutrientOpen(!nutrientOpen)}
             >
-                {nutrientOpen ? "전체 보기 닫기" : "전체 보기 열기"}
+                {nutrientOpen ? "전체 보기 닫기" : "전체 보기"}
             </button>
 
-            {nutrientOpen && (
-                <ul
+            <div
+                style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginBottom: "12px",
+                    fontWeight: "bold",
+                }}
+            >
+                <span>알레르기 유발 성분</span>
+                <span>총 {allergyTypes.length}개</span>
+            </div>
+
+            {allergyOpen && (
+                <div
                     style={{
-                        marginBottom: "16px",
-                        color: "#505156",
                         backgroundColor: "#F5F7FB",
                         borderRadius: "12px",
                         padding: "16px",
+                        marginTop: "12px",
                     }}
                 >
-                    {nutrientAlerts.map((item, idx) => (
-                        <li
+                    {allergyTypes.map((item, idx) => (
+                        <div
                             key={idx}
                             style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                marginBottom: "8px",
-                                fontSize: "16px",
                                 fontWeight: 600,
+                                marginBottom:
+                                    idx < allergyTypes.length - 1
+                                        ? "12px"
+                                        : "0",
                             }}
                         >
-                            <span>{item.nutrientType}</span>
-                            <span>{item.percentage}%</span>
-                        </li>
+                            {item}
+                        </div>
                     ))}
-                </ul>
+                </div>
             )}
+
+            <button
+                style={{
+                    width: "100%",
+                    padding: "12px 0",
+                    backgroundColor: "#8914FF",
+                    color: "white",
+                    borderRadius: "12px",
+                    fontWeight: "bold",
+                    fontSize: "16px",
+                    border: "none",
+                    cursor: "pointer",
+                }}
+                onClick={() => setAllergyOpen(!allergyOpen)}
+            >
+                {allergyOpen
+                    ? "전체 보기 닫기"
+                    : "알레르기 유발 식품 전체 보기"}
+            </button>
         </div>
     );
 };
