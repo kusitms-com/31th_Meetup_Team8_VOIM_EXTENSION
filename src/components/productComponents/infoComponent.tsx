@@ -16,16 +16,16 @@ export const InfoComponent = () => {
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
 
+    if (!window.location.href.includes("coupang.com/vp/products/")) return null;
+
     const commonTextStyle: React.CSSProperties = {
         fontFamily: "KoddiUD OnGothic",
-        fontSize: "24px",
+        fontSize: "28px",
         fontStyle: "normal",
         fontWeight: 700,
         lineHeight: "150%",
         textAlign: "center",
     };
-
-    if (!window.location.href.includes("coupang.com/vp/products/")) return null;
 
     const handleClick = async (outline: OutlineCategory) => {
         if (selected === outline) {
@@ -83,7 +83,7 @@ export const InfoComponent = () => {
             </h2>
             <p
                 style={{
-                    color: "#505156",
+                    color: "#121212",
                     marginBottom: "16px",
                     fontSize: "24px",
                     fontStyle: "normal",
@@ -95,63 +95,68 @@ export const InfoComponent = () => {
                 클릭 시, 아래에 클릭한 정보가 표시됩니다.
             </p>
 
-            {selected && (
-                <div
-                    style={{
-                        backgroundColor: "#FEFEFE",
-                        padding: "16px",
-                        borderRadius: "12px",
-                        border: "1px solid #EAEDF4",
-                        marginBottom: "20px",
-                    }}
-                >
-                    <button
-                        onClick={() => setSelected(null)}
-                        style={{
-                            width: "100%",
-                            backgroundColor: "#8914FF",
-                            color: "white",
-                            fontSize: "18px",
-                            fontWeight: 700,
-                            border: "none",
-                            padding: "12px 0",
-                            borderRadius: "12px",
-                            marginBottom: "12px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        닫기
-                    </button>
-                    <p
-                        style={{
-                            ...commonTextStyle,
-                            whiteSpace: "pre-wrap",
-                        }}
-                    >
-                        {loading ? "불러오는 중..." : info}
-                    </p>
-                </div>
-            )}
-
             {OUTLINE_CATEGORIES.map(({ key, label }) => (
                 <div
                     key={key}
-                    onClick={() => handleClick(key)}
                     style={{
                         width: "96%",
                         padding: "16px",
                         backgroundColor: "#FEFEFE",
-                        borderRadius: "14px",
+                        marginBottom: "5px",
                         fontWeight: 700,
                         fontSize: "24px",
                         fontFamily: "KoddiUD OnGothic",
-                        marginBottom: "12px",
-                        cursor: "pointer",
                         textAlign: "center",
-                        border: "4px solid #EAEDF4",
                     }}
                 >
-                    {label}
+                    {selected === key && (
+                        <>
+                            <div
+                                style={{
+                                    ...commonTextStyle,
+                                    whiteSpace: "pre-wrap",
+                                }}
+                            >
+                                {loading ? "불러오는 중..." : info}
+                            </div>
+                            <button
+                                onClick={() => setSelected(null)}
+                                style={{
+                                    width: "100%",
+                                    backgroundColor: "#8914FF",
+                                    color: "white",
+                                    fontSize: "18px",
+                                    fontWeight: 700,
+                                    border: "none",
+                                    padding: "12px 0",
+                                    borderRadius: "12px",
+                                    marginBottom: "16px",
+                                    cursor: "pointer",
+                                    marginTop: "20px",
+                                }}
+                            >
+                                닫기
+                            </button>
+                        </>
+                    )}
+                    <div
+                        onClick={() => handleClick(key)}
+                        style={{
+                            width: "96%",
+                            padding: "16px",
+                            backgroundColor: "#FEFEFE",
+                            borderRadius: "14px",
+                            fontWeight: 700,
+                            fontSize: "24px",
+                            fontFamily: "KoddiUD OnGothic",
+                            marginBottom: "12px",
+                            cursor: "pointer",
+                            textAlign: "center",
+                            border: "4px solid #EAEDF4",
+                        }}
+                    >
+                        {label}
+                    </div>
                 </div>
             ))}
         </div>
