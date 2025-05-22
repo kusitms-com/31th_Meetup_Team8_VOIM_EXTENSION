@@ -3,7 +3,12 @@ import { createRoot } from "react-dom/client";
 import { InfoComponent } from "../../components/productComponents/infoComponent";
 
 export const renderInfoComponent = () => {
+    if (!window.location.hostname.includes("coupang.com")) {
+        return;
+    }
+
     console.log("[voim] Info 컴포넌트 렌더링 시작");
+
     if (document.getElementById("voim-info-component")) {
         console.log("[voim] 이미 Info 컴포넌트가 렌더링되어 있음");
         return;
