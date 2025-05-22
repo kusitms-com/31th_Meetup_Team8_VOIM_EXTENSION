@@ -76,18 +76,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 console.log("[voim][background] FOOD API 응답 성공:", data);
 
                 if (sender.tab?.id) {
-                    console.log(
-                        "[voim][background] content script로 FOOD_DATA_RESPONSE 전송",
-                    );
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_RESPONSE",
                         data,
                     });
-                } else {
-                    console.warn(
-                        "[voim][background] sender.tab.id가 없어 메시지를 보낼 수 없음",
-                    );
                 }
+                sendResponse({
+                    status: 200,
+                    data,
+                });
             })
             .catch((err) => {
                 console.error(
@@ -101,6 +98,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         error: err.message,
                     });
                 }
+
+                sendResponse({
+                    status: 500,
+                    error: err.message,
+                });
             });
 
         return true;

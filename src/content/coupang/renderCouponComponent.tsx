@@ -55,9 +55,9 @@ export const renderCouponComponent = () => {
 
     const container = document.createElement("div");
     container.id = "voim-coupon-component";
-    container.style.position = "fixed";
-    container.style.bottom = "20px";
-    container.style.right = "20px";
+    container.style.position = "absolute";
+    container.style.top = "390px";
+    container.style.right = "490px";
     container.style.zIndex = "9999";
     document.body.appendChild(container);
 

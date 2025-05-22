@@ -1,8 +1,16 @@
 import React, { useEffect, useState } from "react";
+import { sendFoodDataRequest } from "../../content/apiSetting/sendFoodDataRequest";
+
+interface Nutrient {
+    nutrientType: string;
+    percentage: number;
+}
 
 export const FoodComponent = () => {
-    const [nutrientAlerts, setNutrientAlerts] = useState<string[]>([]);
-    const [allergyTypes, setAllergyTypes] = useState<string[]>([]);
+    const [nutrientAlerts, setNutrientAlerts] = useState<Nutrient[] | null>(
+        null,
+    );
+    const [allergyTypes, setAllergyTypes] = useState<string[] | null>(null);
     const [nutrientOpen, setNutrientOpen] = useState(false);
     const [allergyOpen, setAllergyOpen] = useState(false);
 
@@ -45,13 +53,13 @@ export const FoodComponent = () => {
 
             const rawHtml = vendorEl.outerHTML;
             const formattedHtml = rawHtml
-                .replace(/src="https?:\/\/([^"]+)"/g, 'src="//$1"')
+                .replace(/src=\"https?:\/\/([^\"]+)\"/g, 'src="//$1"')
                 .replace(
-                    /src="image11\.coupangcdn\.com/g,
+                    /src=\"image11\.coupangcdn\.com/g,
                     'src="//image11.coupangcdn.com',
                 )
-                .replace(/\sonerror="[^"]*"/g, "")
-                .replace(/"/g, '\\"')
+                .replace(/\sonerror=\"[^\"]*\"/g, "")
+                .replace(/\"/g, '\\"')
                 .replace(/\n/g, "")
                 .trim();
 
@@ -64,29 +72,48 @@ export const FoodComponent = () => {
                 allergies: [],
             };
 
-            chrome.runtime.sendMessage(
-                { type: "FETCH_FOOD_DATA", payload },
-                (res) => {
-                    if (res?.status === 200) {
-                        console.log(
-                            "[voim][background] FOOD API 응답 성공:",
-                            res,
-                        );
-                        setNutrientAlerts(
-                            res.data.overRecommendationNutrients || [],
-                        );
-                        setAllergyTypes(res.data.allergyTypes || []);
-                    } else {
-                        console.warn("[voim] FOOD API 에러:", res);
-                    }
-                },
-            );
+            try {
+                const res = await sendFoodDataRequest(payload);
+                console.log("[voim] FOOD API 응답:", res);
+
+                if (res) {
+                    setNutrientAlerts(res.overRecommendationNutrients || []);
+                    setAllergyTypes(res.allergyTypes || []);
+                } else {
+                    console.warn("[voim] 응답이 undefined입니다.");
+                }
+            } catch (error) {
+                console.error("[voim] FOOD API 요청 실패:", error);
+            }
         };
 
         waitForVendorItem();
     }, []);
 
-    if (nutrientAlerts.length === 0 && allergyTypes.length === 0) return null;
+    if (nutrientAlerts === null || allergyTypes === null) {
+        return (
+            <div
+                style={{
+                    position: "fixed",
+                    bottom: "20px",
+                    right: "20px",
+                    backgroundColor: "white",
+                    border: "2px solid #8914FF",
+                    borderRadius: "16px",
+                    padding: "24px",
+                    boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                    zIndex: 9999,
+                    width: "360px",
+                    fontFamily: "KoddiUDOnGothic, sans-serif",
+                    color: "#555",
+                    fontSize: "16px",
+                    textAlign: "center",
+                }}
+            >
+                제품 정보를 분석 중입니다...
+            </div>
+        );
+    }
 
     return (
         <div
@@ -112,7 +139,7 @@ export const FoodComponent = () => {
                     color: "#000",
                 }}
             >
-                [식품] 영양 및 알레르기 성분 안내
+                [식품] 영양성분 하루 기준치 초과 주의
             </p>
             <p
                 style={{
@@ -121,30 +148,9 @@ export const FoodComponent = () => {
                     marginBottom: "16px",
                 }}
             >
-                섭취 시 참고해주세요.
+                하루 기준 섭취량의 40%를 넘는 영양성분이 {nutrientAlerts.length}
+                가지 들어 있습니다. 섭취 시 참고해주세요.
             </p>
-
-            <div
-                style={{
-                    borderTop: "1px solid #EAEDF4",
-                    marginTop: "8px",
-                    marginBottom: "8px",
-                }}
-            ></div>
-
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    color: "#323335",
-                    marginBottom: "8px",
-                }}
-            >
-                <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
-                <span>총 {nutrientAlerts.length}개</span>
-            </div>
 
             <button
                 style={{
@@ -161,67 +167,33 @@ export const FoodComponent = () => {
                 }}
                 onClick={() => setNutrientOpen(!nutrientOpen)}
             >
-                {nutrientOpen ? "전체 보기 닫기" : "주의 성분 전체 보기"}
+                {nutrientOpen ? "전체 보기 닫기" : "전체 보기 열기"}
             </button>
 
             {nutrientOpen && (
                 <ul
                     style={{
                         marginBottom: "16px",
-                        paddingLeft: "16px",
                         color: "#505156",
+                        backgroundColor: "#F5F7FB",
+                        borderRadius: "12px",
+                        padding: "16px",
                     }}
                 >
-                    {nutrientAlerts.map((name) => (
-                        <li key={name}>- {name}</li>
-                    ))}
-                </ul>
-            )}
-
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    color: "#323335",
-                    marginBottom: "8px",
-                }}
-            >
-                <span>알레르기 유발 식품</span>
-                <span>총 {allergyTypes.length}개</span>
-            </div>
-
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    marginBottom: allergyOpen ? "8px" : "0px",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-                onClick={() => setAllergyOpen(!allergyOpen)}
-            >
-                {allergyOpen
-                    ? "전체 보기 닫기"
-                    : "알레르기 유발 식품 전체 보기"}
-            </button>
-
-            {allergyOpen && (
-                <ul
-                    style={{
-                        marginTop: "12px",
-                        paddingLeft: "16px",
-                        color: "#505156",
-                    }}
-                >
-                    {allergyTypes.map((name) => (
-                        <li key={name}>- {name}</li>
+                    {nutrientAlerts.map((item, idx) => (
+                        <li
+                            key={idx}
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                marginBottom: "8px",
+                                fontSize: "16px",
+                                fontWeight: 600,
+                            }}
+                        >
+                            <span>{item.nutrientType}</span>
+                            <span>{item.percentage}%</span>
+                        </li>
                     ))}
                 </ul>
             )}
