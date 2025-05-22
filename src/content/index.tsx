@@ -10,7 +10,9 @@ import { processImages } from "./imageHandlers/imageProcessor";
 import { MountCartSummaryApp } from "./coupang/cartSummary";
 import { checkCategoryAndRender } from "./coupang/categoryHandler";
 import { renderCouponComponent } from "./coupang/renderCouponComponent";
+import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
 
+renderInfoComponent();
 checkExtensionState();
 
 document.addEventListener("DOMContentLoaded", () => {
