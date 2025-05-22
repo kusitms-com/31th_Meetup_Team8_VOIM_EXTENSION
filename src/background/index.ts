@@ -201,4 +201,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         return true;
     }
+    if (message.type === "FETCH_COSMETIC_DATA") {
+        const { productId, html } = message.payload;
+        console.log(
+            "[voim][background] FETCH_COSMETIC_DATA 요청 수신:",
+            productId,
+        );
+
+        fetch(`https://voim.store/api/v1/cosmetic`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ productId, html }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log("[voim][background] COSMETIC 응답 성공:", data);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "COSMETIC_DATA_RESPONSE",
+                        data: data.data,
+                    });
+                }
+
+                sendResponse({
+                    type: "COSMETIC_DATA_RESPONSE",
+                    data: data.data,
+                });
+            })
+            .catch((err) => {
+                console.error("[voim][background] COSMETIC 요청 실패:", err);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "COSMETIC_DATA_ERROR",
+                        error: err.message,
+                    });
+                }
+
+                sendResponse({
+                    type: "COSMETIC_DATA_ERROR",
+                    error: err.message,
+                });
+            });
+
+        return true;
+    }
 });

@@ -7,7 +7,7 @@ export const observeBreadcrumbFoodAndRender = () => {
         const breadcrumbEl = document.querySelector("#breadcrumb");
         if (breadcrumbEl) {
             observer.disconnect();
-            checkCategoryAndRender();
+            checkCategoryFoodAndRender();
         }
     });
 
@@ -17,7 +17,7 @@ export const observeBreadcrumbFoodAndRender = () => {
     });
 };
 
-export const checkCategoryAndRender = () => {
+export const checkCategoryFoodAndRender = () => {
     const breadcrumbEl = document.querySelector("#breadcrumb");
     if (!breadcrumbEl) {
         return;
