@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { FoodComponent } from "../../components/productComponents/foodComponent";
+import { FoodComponent } from "../../../components/productComponents/foodComponent";
 
 export const observeBreadcrumbFoodAndRender = () => {
     const observer = new MutationObserver(() => {
