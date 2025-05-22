@@ -35,20 +35,30 @@ export const handleStyleMessage = (
 
         if (Object.keys(fontSizeMap).includes(type as string)) {
             const fontSizeType = type as FontSizeType;
-            const fontSize = fontSizeMap[fontSizeType];
-            applyFontStyle({ fontSize });
-            saveSettings({ fontSize });
+            const fontSizeKeyword = fontSizeType
+                .replace("SET_FONT_SIZE_", "")
+                .toLowerCase();
+            const fontSizePixel = fontSizeMap[fontSizeType];
+
+            applyFontStyle({ fontSize: fontSizePixel });
+            saveSettings({ fontSize: fontSizeKeyword });
             sendResponse({ success: true });
         } else if (Object.keys(fontWeightMap).includes(type as string)) {
             const fontWeightType = type as FontWeightType;
-            const fontWeight = fontWeightMap[fontWeightType];
-            applyFontStyle({ fontWeight });
-            saveSettings({ fontWeight });
+            const fontWeightKeyword = fontWeightType
+                .replace("SET_FONT_WEIGHT_", "")
+                .toLowerCase();
+            const fontWeightPixel = fontWeightMap[fontWeightType];
+
+            applyFontStyle({ fontWeight: fontWeightPixel });
+            saveSettings({ fontWeight: fontWeightKeyword });
             sendResponse({ success: true });
         } else if (type === "SET_MODE_LIGHT" || type === "SET_MODE_DARK") {
             const modeType = type as ModeType;
+            const modeKeyword = modeType.replace("SET_MODE_", "").toLowerCase();
+
             applyModeStyle(modeType);
-            saveSettings({ mode: modeType });
+            saveSettings({ mode: modeKeyword });
             sendResponse({ success: true });
         } else if (type === "DISABLE_ALL_STYLES") {
             removeAllStyles();

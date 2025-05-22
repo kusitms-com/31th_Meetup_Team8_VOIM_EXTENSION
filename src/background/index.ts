@@ -1,9 +1,16 @@
 import { initMessageListeners } from "./listeners/messageListeners";
 import { initStorageListeners } from "./listeners/storageListeners";
 import { initTabListeners } from "./listeners/tabListeners";
-import { storageService } from "./services/storageService";
 import { logger } from "@src/utils/logger";
-import { STORAGE_KEYS } from "./constants";
+import {
+    STORAGE_KEYS,
+    DEFAULT_THEME,
+    DEFAULT_FONT_SIZE,
+    DEFAULT_FONT_WEIGHT,
+    DEFAULT_CURSOR_THEME,
+    DEFAULT_CURSOR_SIZE,
+    DEFAULT_CURSOR_ENABLED,
+} from "./constants";
 import { initCommandListeners } from "./listeners/commandListeners";
 import { cursorService } from "./services/cursorService";
 
@@ -52,6 +59,24 @@ async function init() {
 }
 
 init();
+
+chrome.runtime.onInstalled.addListener((details) => {
+    if (details.reason === "install") {
+        const defaultSettings = {
+            [STORAGE_KEYS.THEME_MODE]: DEFAULT_THEME,
+            [STORAGE_KEYS.FONT_SIZE]: DEFAULT_FONT_SIZE,
+            [STORAGE_KEYS.FONT_WEIGHT]: DEFAULT_FONT_WEIGHT,
+            [STORAGE_KEYS.CURSOR_THEME]: DEFAULT_CURSOR_THEME,
+            [STORAGE_KEYS.CURSOR_SIZE]: DEFAULT_CURSOR_SIZE,
+            [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
+        };
+        chrome.storage.sync.set(defaultSettings, () => {
+            logger.debug(
+                "확장 프로그램 설치됨: 스토리지에 기본 설정 저장 완료",
+            );
+        });
+    }
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_FOOD_DATA") {

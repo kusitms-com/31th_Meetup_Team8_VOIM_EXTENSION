@@ -2,6 +2,15 @@ import React, { createContext, useContext, useEffect } from "react";
 import { useSyncedState } from "@src/hooks/useSyncedState";
 import { getFontClasses } from "@src/utils/fontUtils";
 import { applyCursorStyle } from "@src/utils/cursorUtils";
+import {
+    STORAGE_KEYS,
+    DEFAULT_THEME,
+    DEFAULT_FONT_SIZE,
+    DEFAULT_FONT_WEIGHT,
+    DEFAULT_CURSOR_THEME,
+    DEFAULT_CURSOR_SIZE,
+    DEFAULT_CURSOR_ENABLED,
+} from "@src/background/constants";
 
 export type Theme = "light" | "dark";
 export type FontSize = "xs" | "s" | "m" | "l" | "xl";
@@ -15,13 +24,22 @@ export type CursorTheme =
     | "black";
 export type CursorSize = "small" | "medium" | "large";
 
-const DEFAULT_SETTINGS = {
-    theme: "light" as Theme,
-    fontSize: "m" as FontSize,
-    fontWeight: "bold" as FontWeight,
-    cursorTheme: "white" as CursorTheme,
-    cursorSize: "medium" as CursorSize,
-    isCursorEnabled: true,
+interface DefaultSettings {
+    theme: Theme;
+    fontSize: FontSize;
+    fontWeight: FontWeight;
+    cursorTheme: CursorTheme;
+    cursorSize: CursorSize;
+    isCursorEnabled: boolean;
+}
+
+const DEFAULT_SETTINGS: DefaultSettings = {
+    theme: DEFAULT_THEME,
+    fontSize: DEFAULT_FONT_SIZE,
+    fontWeight: DEFAULT_FONT_WEIGHT,
+    cursorTheme: DEFAULT_CURSOR_THEME,
+    cursorSize: DEFAULT_CURSOR_SIZE,
+    isCursorEnabled: DEFAULT_CURSOR_ENABLED,
 };
 
 interface ThemeContextValue {
@@ -53,27 +71,27 @@ export function ThemeContextProvider({
     children: React.ReactNode;
 }) {
     const [theme, setTheme] = useSyncedState<Theme>(
-        "theme",
+        STORAGE_KEYS.THEME_MODE,
         DEFAULT_SETTINGS.theme,
     );
     const [fontSize, setFontSize] = useSyncedState<FontSize>(
-        "fontSize",
+        STORAGE_KEYS.FONT_SIZE,
         DEFAULT_SETTINGS.fontSize,
     );
     const [fontWeight, setFontWeight] = useSyncedState<FontWeight>(
-        "fontWeight",
+        STORAGE_KEYS.FONT_WEIGHT,
         DEFAULT_SETTINGS.fontWeight,
     );
     const [cursorTheme, setCursorTheme] = useSyncedState<CursorTheme>(
-        "cursorTheme",
+        STORAGE_KEYS.CURSOR_THEME,
         DEFAULT_SETTINGS.cursorTheme,
     );
     const [cursorSize, setCursorSize] = useSyncedState<CursorSize>(
-        "cursorSize",
+        STORAGE_KEYS.CURSOR_SIZE,
         DEFAULT_SETTINGS.cursorSize,
     );
     const [isCursorEnabled, setIsCursorEnabled] = useSyncedState<boolean>(
-        "isCursorEnabled",
+        STORAGE_KEYS.IS_CURSOR_ENABLED,
         DEFAULT_SETTINGS.isCursorEnabled,
     );
 
@@ -120,7 +138,8 @@ export function ThemeContextProvider({
 
 export function useTheme() {
     const context = useContext(ThemeContext);
-    if (!context)
+    if (context === undefined) {
         throw new Error("useTheme must be used within a ThemeContextProvider");
+    }
     return context;
 }

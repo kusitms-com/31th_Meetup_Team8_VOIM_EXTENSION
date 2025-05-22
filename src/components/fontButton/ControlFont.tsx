@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import type { FontWeight, FontSize } from "@src/contexts/ThemeContext";
 import { FontButton } from "./component";
 import { useTheme } from "@src/contexts/ThemeContext";
+import { STORAGE_KEYS } from "../../background/constants";
 
 type UppercaseFontWeight = "REGULAR" | "BOLD" | "XBOLD";
 type UppercaseFontSize = "XS" | "S" | "M" | "L" | "XL";
@@ -86,7 +87,7 @@ const ControlFont = () => {
 
         if (chrome?.storage?.sync) {
             chrome.storage.sync
-                .set({ "font-weight": toFontWeight(value) })
+                .set({ [STORAGE_KEYS.FONT_WEIGHT]: toFontWeight(value) })
                 .catch((err) => console.error("폰트 굵기 저장 오류:", err));
         }
 
@@ -102,7 +103,7 @@ const ControlFont = () => {
 
         if (chrome?.storage?.sync) {
             chrome.storage.sync
-                .set({ "font-size": toFontSize(value) })
+                .set({ [STORAGE_KEYS.FONT_SIZE]: toFontSize(value) })
                 .catch((err) => console.error("폰트 크기 저장 오류:", err));
         }
 
