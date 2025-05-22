@@ -16,6 +16,15 @@ export const InfoComponent = () => {
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
 
+    const commonTextStyle: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "24px",
+        fontStyle: "normal",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "center",
+    };
+
     if (!window.location.href.includes("coupang.com/vp/products/")) return null;
 
     const handleClick = async (outline: OutlineCategory) => {
@@ -57,11 +66,8 @@ export const InfoComponent = () => {
                 border: "4px solid #8914FF",
                 borderRadius: "20px",
                 backgroundColor: "#ffffff",
-                width: "800px",
+                width: "1188px",
                 fontFamily: "KoddiUDOnGothic",
-                position: "fixed",
-                bottom: "20px",
-                right: "20px",
                 zIndex: 9999,
             }}
         >
@@ -70,15 +76,19 @@ export const InfoComponent = () => {
                     fontSize: "24px",
                     fontWeight: 700,
                     marginBottom: "12px",
+                    fontFamily: "KoddiUDOnGothic",
                 }}
             >
                 상세정보 요약
             </h2>
             <p
                 style={{
-                    fontSize: "16px",
                     color: "#505156",
                     marginBottom: "16px",
+                    fontSize: "24px",
+                    fontStyle: "normal",
+                    fontWeight: 700,
+                    fontFamily: "KoddiUDOnGothic",
                 }}
             >
                 해당 상품의 상세 정보에는 다음과 같은 정보가 담겨 있습니다. 버튼
@@ -86,7 +96,15 @@ export const InfoComponent = () => {
             </p>
 
             {selected && (
-                <>
+                <div
+                    style={{
+                        backgroundColor: "#FEFEFE",
+                        padding: "16px",
+                        borderRadius: "12px",
+                        border: "1px solid #EAEDF4",
+                        marginBottom: "20px",
+                    }}
+                >
                     <button
                         onClick={() => setSelected(null)}
                         style={{
@@ -98,16 +116,21 @@ export const InfoComponent = () => {
                             border: "none",
                             padding: "12px 0",
                             borderRadius: "12px",
-                            marginBottom: "16px",
+                            marginBottom: "12px",
                             cursor: "pointer",
                         }}
                     >
                         닫기
                     </button>
-                    <p style={{ fontSize: "16px", marginBottom: "20px" }}>
+                    <p
+                        style={{
+                            ...commonTextStyle,
+                            whiteSpace: "pre-wrap",
+                        }}
+                    >
                         {loading ? "불러오는 중..." : info}
                     </p>
-                </>
+                </div>
             )}
 
             {OUTLINE_CATEGORIES.map(({ key, label }) => (
@@ -115,16 +138,17 @@ export const InfoComponent = () => {
                     key={key}
                     onClick={() => handleClick(key)}
                     style={{
-                        width: "100%",
+                        width: "96%",
                         padding: "16px",
-                        backgroundColor: "#F5F7FB",
-                        borderRadius: "12px",
-                        fontWeight: 600,
-                        fontSize: "18px",
+                        backgroundColor: "#FEFEFE",
+                        borderRadius: "14px",
+                        fontWeight: 700,
+                        fontSize: "24px",
+                        fontFamily: "KoddiUD OnGothic",
                         marginBottom: "12px",
                         cursor: "pointer",
                         textAlign: "center",
-                        border: "1px solid #EAEDF4",
+                        border: "4px solid #EAEDF4",
                     }}
                 >
                     {label}
