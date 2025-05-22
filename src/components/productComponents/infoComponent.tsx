@@ -1,6 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { sendOutlineInfoRequest } from "../../content/apiSetting/sendInfoRequest";
+
 type OutlineCategory = "MAIN" | "USAGE" | "WARNING" | "SPECS" | "CERTIFICATION";
+
 const OUTLINE_CATEGORIES = [
     { key: "MAIN", label: "주요 정보" },
     { key: "USAGE", label: "사용 방법 및 대상" },
@@ -14,6 +16,8 @@ export const InfoComponent = () => {
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
 
+    if (!window.location.href.includes("coupang.com/vp/products/")) return null;
+
     const handleClick = async (outline: OutlineCategory) => {
         if (selected === outline) {
             setSelected(null);
@@ -24,12 +28,22 @@ export const InfoComponent = () => {
         setLoading(true);
 
         try {
-            const html =
-                document.querySelector(".vendor-item")?.outerHTML || "";
-            const result = await sendOutlineInfoRequest(outline, html);
+            const vendorEl = document.querySelector(".vendor-item");
+            if (!vendorEl) {
+                console.warn("[voim] .vendor-item 요소가 없습니다.");
+                setInfo("상품 정보를 불러올 수 없습니다.");
+                return;
+            }
+
+            const rawHtml = vendorEl.outerHTML
+                .replace(/\sonerror=\"[^\"]*\"/g, "")
+                .replace(/\n/g, "")
+                .trim();
+
+            const result = await sendOutlineInfoRequest(outline, rawHtml);
             setInfo(result || "정보가 없습니다.");
         } catch (error) {
-            console.error("[voim]INFO API 실패", error);
+            console.error("[voim] INFO API 실패", error);
             setInfo("정보를 불러오지 못했습니다.");
         } finally {
             setLoading(false);

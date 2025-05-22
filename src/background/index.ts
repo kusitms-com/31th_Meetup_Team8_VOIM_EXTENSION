@@ -167,6 +167,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
             .then((res) => res.json())
             .then((data) => {
+                console.log(
+                    "[voim][background] OUTLINE INFO 응답 데이터:",
+                    data,
+                );
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "OUTLINE_INFO_RESPONSE",
