@@ -7,6 +7,7 @@ interface ModeButtonProps {
     onClick: () => void;
     isSelected?: boolean;
     modeType: "LIGHT" | "DARK";
+    "aria-label": string;
 }
 
 export function ModeButton({
@@ -14,6 +15,7 @@ export function ModeButton({
     onClick,
     isSelected = false,
     modeType,
+    "aria-label": ariaLabel,
 }: ModeButtonProps) {
     const { fontClasses } = useTheme();
     const isLightButton = modeType === "LIGHT";
@@ -31,7 +33,7 @@ export function ModeButton({
                       : "bg-grayscale-900 text-grayscale-100 hover:opacity-30 border-4 border-solid border-grayscale-700 active:border-purple-light active:hover:opacity-100"
             }`}
             onClick={onClick}
-            aria-label={`${typeof children === "string" ? children : "모드"} 선택`}
+            aria-label={ariaLabel}
             aria-pressed={isSelected}
         >
             {children}

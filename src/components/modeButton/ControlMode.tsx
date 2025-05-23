@@ -69,6 +69,7 @@ const ControlMode = () => {
                             onClick={() => handleModeClick(label)}
                             isSelected={value === selectedMode}
                             modeType={value}
+                            aria-label={label.replace("\n", " ")}
                         >
                             {label.split("\n").map((line, i) => (
                                 <div key={i}>{line}</div>

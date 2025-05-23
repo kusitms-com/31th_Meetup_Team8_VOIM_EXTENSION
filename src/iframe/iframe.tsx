@@ -30,37 +30,67 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     switch (menuId) {
         case "high-contrast":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="고대비 화면 설정"
+                >
                     <ControlMode />
                 </div>
             );
         case "cursor":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="마우스 커서 설정"
+                >
                     <CursorTab />
                 </div>
             );
         case "font":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="글자 설정"
+                >
                     <ControlFont />
                 </div>
             );
         case "shortcut":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="단축키 안내"
+                >
                     <ShortcutTab />
                 </div>
             );
         case "my-info":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="내 정보 설정"
+                >
                     <MyInfo />
                 </div>
             );
         case "service":
             return (
-                <div ref={panelRef} tabIndex={-1}>
+                <div
+                    ref={panelRef}
+                    tabIndex={-1}
+                    role="tabpanel"
+                    aria-label="서비스 설정"
+                >
                     <ControlService />
                 </div>
             );
