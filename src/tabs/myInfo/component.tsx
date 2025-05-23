@@ -1,8 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useUserInfo } from "@src/hooks/useUserInfo";
-import { Onboarding, InfoForm } from "./components";
+import { InfoForm } from "./components";
 
-export function MyInfo() {
+interface MyInfoProps {
+    onComplete?: () => void;
+}
+
+export function MyInfo({ onComplete }: MyInfoProps) {
     const {
         birthYear,
         setBirthYear,
@@ -14,21 +18,15 @@ export function MyInfo() {
         handleSave,
     } = useUserInfo();
 
-    const [onboardingDone, setOnboardingDone] = useState<boolean | null>(null);
-
-    useEffect(() => {
-        if (!loading) {
-            const hasInfo = birthYear !== "" || gender !== "";
-            setOnboardingDone(hasInfo);
+    const handleSaveWithComplete = async () => {
+        await handleSave();
+        if (onComplete) {
+            onComplete();
         }
-    }, [loading, birthYear, gender]);
+    };
 
-    if (loading || onboardingDone === null) {
+    if (loading === null) {
         return null;
-    }
-
-    if (!onboardingDone) {
-        return <Onboarding onComplete={() => setOnboardingDone(true)} />;
     }
 
     return (
@@ -40,7 +38,7 @@ export function MyInfo() {
             error={error}
             saved={saved}
             loading={loading}
-            handleSave={handleSave}
+            handleSave={handleSaveWithComplete}
         />
     );
 }
