@@ -66,6 +66,7 @@ export const InfoComponent = () => {
                 border: "4px solid #8914FF",
                 borderRadius: "20px",
                 backgroundColor: "#ffffff",
+                width: "1188px",
                 fontFamily: "KoddiUDOnGothic",
                 zIndex: 9999,
             }}
