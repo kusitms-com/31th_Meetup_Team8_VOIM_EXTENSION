@@ -1,4 +1,5 @@
 import { applyCursorStyle, removeCursorStyle } from "../styles";
+import { STORAGE_KEYS } from "../../background/constants";
 
 let contentCursorEnabled = true;
 
@@ -7,11 +8,8 @@ export const handleCursorMessage = (
     sendResponse: (response: any) => void,
 ) => {
     if (message.type === "UPDATE_CURSOR") {
-        chrome.storage.local.get(["stylesEnabled"], (result) => {
-            const stylesEnabled =
-                result.stylesEnabled !== undefined
-                    ? result.stylesEnabled
-                    : true;
+        chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
+            const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
 
             if (!stylesEnabled) {
                 console.log(

@@ -239,8 +239,6 @@ export function restoreAllStyles(): void {
                 ) {
                     applyCursorStyle(response.cursorUrl);
                     contentCursorEnabled = true;
-                } else {
-                    removeCursorStyle();
                 }
             },
         );
@@ -255,15 +253,65 @@ export function saveSettings(settings: {
     fontSize?: string;
     fontWeight?: string;
     mode?: string;
+    cursorTheme?: string;
+    cursorSize?: string;
+    isCursorEnabled?: boolean;
 }): void {
-    const updates: Record<string, string> = {};
+    const updates: Record<string, any> = {};
     if (settings.fontSize) updates[STORAGE_KEYS.FONT_SIZE] = settings.fontSize;
     if (settings.fontWeight)
         updates[STORAGE_KEYS.FONT_WEIGHT] = settings.fontWeight;
     if (settings.mode) updates[STORAGE_KEYS.THEME_MODE] = settings.mode;
+    if (settings.cursorTheme)
+        updates[STORAGE_KEYS.CURSOR_THEME] = settings.cursorTheme;
+    if (settings.cursorSize)
+        updates[STORAGE_KEYS.CURSOR_SIZE] = settings.cursorSize;
+    if (settings.isCursorEnabled !== undefined)
+        updates[STORAGE_KEYS.IS_CURSOR_ENABLED] = settings.isCursorEnabled;
 
     chrome.storage.local.set(updates, () => {
         console.log("Settings saved:", updates);
+
+        // 커서 설정이 변경된 경우 즉시 적용
+        if (
+            settings.cursorTheme ||
+            settings.cursorSize ||
+            settings.isCursorEnabled !== undefined
+        ) {
+            // 첫 번째 요청
+            chrome.runtime.sendMessage(
+                { type: "GET_CURSOR_SETTINGS" },
+                (response) => {
+                    if (response) {
+                        contentCursorEnabled = response.isCursorEnabled;
+
+                        if (contentCursorEnabled && response.cursorUrl) {
+                            applyCursorStyle(response.cursorUrl);
+                        } else {
+                            removeCursorStyle();
+                        }
+                    }
+                },
+            );
+
+            // 두 번째 요청 (100ms 후)
+            setTimeout(() => {
+                chrome.runtime.sendMessage(
+                    { type: "GET_CURSOR_SETTINGS" },
+                    (response) => {
+                        if (response) {
+                            contentCursorEnabled = response.isCursorEnabled;
+
+                            if (contentCursorEnabled && response.cursorUrl) {
+                                applyCursorStyle(response.cursorUrl);
+                            } else {
+                                removeCursorStyle();
+                            }
+                        }
+                    },
+                );
+            }, 100);
+        }
     });
 }
 

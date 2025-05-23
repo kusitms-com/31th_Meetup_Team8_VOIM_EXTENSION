@@ -9,7 +9,7 @@ import { cursorService } from "../services/cursorService";
  */
 export function initStorageListeners(): void {
     chrome.storage.onChanged.addListener((changes, areaName) => {
-        if (areaName !== "sync") return;
+        if (areaName !== "local") return;
 
         let needsUpdate = false;
 
