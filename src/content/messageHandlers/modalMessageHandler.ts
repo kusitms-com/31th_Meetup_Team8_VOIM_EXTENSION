@@ -5,7 +5,7 @@ export const handleModalMessage = (
     sendResponse: (response: any) => void,
 ) => {
     if (message.action === "TOGGLE_MODAL") {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        chrome.storage.local.get(["stylesEnabled"], (result) => {
             const stylesEnabled =
                 result.stylesEnabled !== undefined
                     ? result.stylesEnabled
@@ -19,7 +19,7 @@ export const handleModalMessage = (
         });
         return true;
     } else if (message.action === "TOGGLE_CURSOR") {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        chrome.storage.local.get(["stylesEnabled"], (result) => {
             const stylesEnabled =
                 result.stylesEnabled !== undefined
                     ? result.stylesEnabled

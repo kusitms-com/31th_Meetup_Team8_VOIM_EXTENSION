@@ -85,8 +85,8 @@ const ControlFont = () => {
         const value = weightMap[label];
         setSelectedWeight(value);
 
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
+        if (chrome?.storage?.local) {
+            chrome.storage.local
                 .set({ [STORAGE_KEYS.FONT_WEIGHT]: toFontWeight(value) })
                 .catch((err) => console.error("폰트 굵기 저장 오류:", err));
         }
@@ -101,8 +101,8 @@ const ControlFont = () => {
         const value = sizeMap[label];
         setSelectedSize(value);
 
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
+        if (chrome?.storage?.local) {
+            chrome.storage.local
                 .set({ [STORAGE_KEYS.FONT_SIZE]: toFontSize(value) })
                 .catch((err) => console.error("폰트 크기 저장 오류:", err));
         }

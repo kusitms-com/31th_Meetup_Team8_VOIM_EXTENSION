@@ -28,7 +28,7 @@ class StorageService {
      */
     async loadInitialSettings(): Promise<SavedSettings> {
         try {
-            const result = await chrome.storage.sync.get([
+            const result = await chrome.storage.local.get([
                 STORAGE_KEYS.CURSOR_THEME,
                 STORAGE_KEYS.CURSOR_SIZE,
                 STORAGE_KEYS.IS_CURSOR_ENABLED,
@@ -81,7 +81,7 @@ class StorageService {
                 [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
             };
 
-            await chrome.storage.sync.set(defaultStorageValues);
+            await chrome.storage.local.set(defaultStorageValues);
             this.savedSettings = DEFAULT_SETTINGS;
 
             logger.debug("모든 설정이 초기화되었습니다.");

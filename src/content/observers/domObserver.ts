@@ -11,7 +11,7 @@ export function initDomObserver(
     stylesEnabledCallback: () => boolean,
 ): MutationObserver {
     const observer = new MutationObserver((mutations) => {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        chrome.storage.local.get(["stylesEnabled"], (result) => {
             const stylesEnabled =
                 result.stylesEnabled !== undefined
                     ? result.stylesEnabled
@@ -19,7 +19,7 @@ export function initDomObserver(
 
             if (!stylesEnabled) return;
 
-            chrome.storage.sync.get(
+            chrome.storage.local.get(
                 [STORAGE_KEYS.FONT_SIZE, STORAGE_KEYS.FONT_WEIGHT],
                 (result) => {
                     const fontSize = result[STORAGE_KEYS.FONT_SIZE];

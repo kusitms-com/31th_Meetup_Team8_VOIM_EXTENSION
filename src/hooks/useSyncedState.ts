@@ -7,7 +7,7 @@ export function useSyncedState<T>(
     const [state, setState] = useState<T>(defaultValue);
 
     useEffect(() => {
-        chrome?.storage?.sync?.get([key], (result) => {
+        chrome?.storage?.local?.get([key], (result) => {
             if (result[key] !== undefined) {
                 setState(result[key]);
             }
@@ -16,7 +16,7 @@ export function useSyncedState<T>(
 
     const update = (v: T) => {
         setState(v);
-        chrome?.storage?.sync?.set({ [key]: v });
+        chrome?.storage?.local?.set({ [key]: v });
     };
 
     return [state, update];

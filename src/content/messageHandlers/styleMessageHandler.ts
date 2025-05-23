@@ -13,7 +13,7 @@ export const handleStyleMessage = (
 ) => {
     const { type } = message;
 
-    chrome.storage.sync.get(["stylesEnabled"], (result) => {
+    chrome.storage.local.get(["stylesEnabled"], (result) => {
         const stylesEnabled =
             result.stylesEnabled !== undefined ? result.stylesEnabled : true;
 

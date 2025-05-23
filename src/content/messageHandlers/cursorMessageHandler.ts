@@ -7,7 +7,7 @@ export const handleCursorMessage = (
     sendResponse: (response: any) => void,
 ) => {
     if (message.type === "UPDATE_CURSOR") {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        chrome.storage.local.get(["stylesEnabled"], (result) => {
             const stylesEnabled =
                 result.stylesEnabled !== undefined
                     ? result.stylesEnabled

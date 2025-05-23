@@ -28,7 +28,7 @@ async function init() {
 
         logger.debug("모든 리스너가 초기화되었습니다");
 
-        const result = await chrome.storage.sync.get([
+        const result = await chrome.storage.local.get([
             STORAGE_KEYS.CURSOR_THEME,
             STORAGE_KEYS.CURSOR_SIZE,
             STORAGE_KEYS.IS_CURSOR_ENABLED,
@@ -70,10 +70,14 @@ chrome.runtime.onInstalled.addListener((details) => {
             [STORAGE_KEYS.CURSOR_SIZE]: DEFAULT_CURSOR_SIZE,
             [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
         };
-        chrome.storage.sync.set(defaultSettings, () => {
+        chrome.storage.local.set(defaultSettings, () => {
             logger.debug(
                 "확장 프로그램 설치됨: 스토리지에 기본 설정 저장 완료",
             );
+        });
+
+        chrome.storage.local.set({ iframeInvisible: false }, () => {
+            logger.debug("iframe 기본 설정 저장 완료");
         });
     }
 });

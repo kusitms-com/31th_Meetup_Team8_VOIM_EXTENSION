@@ -54,7 +54,7 @@
                 "default": "Alt+A",
                 "mac": "Alt+A"
             },
-            "description": "테마와 커서 동시 토글"
+            "description": "모든 기능 토글"
         }
     }
 }

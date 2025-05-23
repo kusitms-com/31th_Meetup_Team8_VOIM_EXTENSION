@@ -13,6 +13,7 @@ import {
     DEFAULT_THEME,
     DEFAULT_FONT_SIZE,
     DEFAULT_FONT_WEIGHT,
+    EXTENSION_IFRAME_ID,
 } from "../../background/constants";
 import { fontSizeMap, fontWeightMap, modeStyleMap } from "../constants";
 import { FontSizeType, FontWeightType, ModeType } from "../types";
@@ -28,19 +29,16 @@ let contentCursorEnabled = true;
  * 확장 프로그램의 상태를 확인하고 적절히 처리합니다.
  */
 export function checkExtensionState(): void {
-    chrome.storage.sync.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
+    chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
         const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
+        console.log("현재 스타일 활성화 상태:", stylesEnabled);
 
         if (stylesEnabled) {
             loadAndApplySettings();
-            if (!iframeVisible()) {
-                createIframe();
-            }
+            restoreIframe();
         } else {
             ensureStylesRemoved();
-            if (iframeVisible()) {
-                removeIframe();
-            }
+            removeIframe();
         }
     });
 }
@@ -51,7 +49,7 @@ export function checkExtensionState(): void {
 export function getStylesEnabledState(
     callback: (enabled: boolean) => void,
 ): void {
-    chrome.storage.sync.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
+    chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
         const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
         callback(stylesEnabled);
     });
@@ -61,7 +59,7 @@ export function getStylesEnabledState(
  * iframe의 가시성 상태를 확인합니다.
  */
 function iframeVisible(): boolean {
-    return document.getElementById("floating-button-extension-iframe") !== null;
+    return document.getElementById(EXTENSION_IFRAME_ID) !== null;
 }
 
 /**
@@ -90,7 +88,7 @@ function ensureStylesRemoved(): void {
  * 모든 스타일을 제거합니다.
  */
 export function removeAllStyles(): void {
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
         [
             STORAGE_KEYS.FONT_SIZE,
             STORAGE_KEYS.FONT_WEIGHT,
@@ -103,7 +101,7 @@ export function removeAllStyles(): void {
                 mode: result[STORAGE_KEYS.THEME_MODE],
             };
 
-            chrome.storage.sync.set(
+            chrome.storage.local.set(
                 { [STORAGE_KEYS.STYLES_ENABLED]: false },
                 () => {
                     console.log("스타일 비활성화 상태 저장됨");
@@ -139,7 +137,6 @@ export function removeAllStyles(): void {
                         document.head.removeChild(cursorStyle);
                     }
 
-                    // 폰트 스타일 관련 추가 제거
                     const fontStyles = document.querySelectorAll(
                         '[style*="font-size"], [style*="font-weight"]',
                     );
@@ -150,8 +147,9 @@ export function removeAllStyles(): void {
                     });
 
                     removeStyleFromIframes();
+                    removeIframe();
 
-                    console.log("모든 스타일과 iframe이 제거되었습니다.");
+                    checkExtensionState();
                 },
             );
         },
@@ -162,10 +160,10 @@ export function removeAllStyles(): void {
  * 모든 스타일을 복원합니다.
  */
 export function restoreAllStyles(): void {
-    chrome.storage.sync.set({ [STORAGE_KEYS.STYLES_ENABLED]: true }, () => {
+    chrome.storage.local.set({ [STORAGE_KEYS.STYLES_ENABLED]: true }, () => {
         console.log("스타일 활성화 상태 저장됨");
 
-        chrome.storage.sync.get(
+        chrome.storage.local.get(
             [
                 STORAGE_KEYS.FONT_SIZE,
                 STORAGE_KEYS.FONT_WEIGHT,
@@ -188,7 +186,6 @@ export function restoreAllStyles(): void {
                         DEFAULT_THEME,
                 };
 
-                // 키워드를 실제 CSS 값 또는 메시지 타입으로 변환
                 const fontSizePixel =
                     fontSizeMap[
                         `SET_FONT_SIZE_${settings.fontSize.toUpperCase()}` as FontSizeType
@@ -202,19 +199,32 @@ export function restoreAllStyles(): void {
 
                 setTimeout(() => {
                     if (modeMessageType) {
-                        applyModeStyle(modeMessageType); // 변환된 메시지 타입 사용
+                        applyModeStyle(modeMessageType);
                     }
 
                     const fontStyle: Partial<FontStyle> = {};
-                    if (fontSizePixel) fontStyle.fontSize = fontSizePixel; // 변환된 픽셀 값 사용
-                    if (fontWeightPixel) fontStyle.fontWeight = fontWeightPixel; // 변환된 픽셀 값 또는 CSS 키워드 사용
+                    if (fontSizePixel) fontStyle.fontSize = fontSizePixel;
+                    if (fontWeightPixel) fontStyle.fontWeight = fontWeightPixel;
                     if (Object.keys(fontStyle).length) {
                         applyFontStyle(fontStyle);
                     }
 
-                    restoreIframe();
+                    chrome.storage.local.get(["iframeInvisible"], (result) => {
+                        const isInvisible = result.iframeInvisible ?? false;
 
-                    console.log("모든 스타일과 iframe이 복원되었습니다.");
+                        if (isInvisible) {
+                            chrome.storage.local.set(
+                                { iframeInvisible: false },
+                                () => {
+                                    restoreIframe();
+                                },
+                            );
+                        } else {
+                            restoreIframe();
+                        }
+                    });
+
+                    checkExtensionState();
                 }, 100);
             },
         );
@@ -230,7 +240,7 @@ export function restoreAllStyles(): void {
                     applyCursorStyle(response.cursorUrl);
                     contentCursorEnabled = true;
                 } else {
-                    removeCursorStyle(); // 커서 비활성화 상태 처리 추가
+                    removeCursorStyle();
                 }
             },
         );
@@ -252,7 +262,7 @@ export function saveSettings(settings: {
         updates[STORAGE_KEYS.FONT_WEIGHT] = settings.fontWeight;
     if (settings.mode) updates[STORAGE_KEYS.THEME_MODE] = settings.mode;
 
-    chrome.storage.sync.set(updates, () => {
+    chrome.storage.local.set(updates, () => {
         console.log("Settings saved:", updates);
     });
 }
@@ -261,7 +271,7 @@ export function saveSettings(settings: {
  * 설정을 로드하고 페이지에 적용합니다.
  */
 export function loadAndApplySettings(): void {
-    chrome.storage.sync.get(
+    chrome.storage.local.get(
         [
             STORAGE_KEYS.FONT_SIZE,
             STORAGE_KEYS.FONT_WEIGHT,
@@ -291,7 +301,6 @@ export function loadAndApplySettings(): void {
                 result[STORAGE_KEYS.FONT_WEIGHT] ?? DEFAULT_FONT_WEIGHT;
             const themeMode = result[STORAGE_KEYS.THEME_MODE] ?? DEFAULT_THEME;
 
-            // 키워드를 실제 CSS 값 또는 메시지 타입으로 변환
             const fontSizePixel =
                 fontSizeMap[
                     `SET_FONT_SIZE_${fontSize.toUpperCase()}` as FontSizeType
@@ -303,14 +312,13 @@ export function loadAndApplySettings(): void {
             const modeMessageType =
                 `SET_MODE_${themeMode.toUpperCase()}` as ModeType;
 
-            // 테마 모드 적용
             if (modeMessageType) {
-                applyModeStyle(modeMessageType); // 변환된 메시지 타입 사용
+                applyModeStyle(modeMessageType);
             }
 
             const fontStyle: Partial<FontStyle> = {
-                fontSize: fontSizePixel, // 변환된 픽셀 값 사용
-                fontWeight: fontWeightPixel, // 변환된 픽셀 값 또는 CSS 키워드 사용
+                fontSize: fontSizePixel,
+                fontWeight: fontWeightPixel,
             };
 
             if (fontStyle.fontSize || fontStyle.fontWeight) {
@@ -326,7 +334,7 @@ export function loadAndApplySettings(): void {
 export function initCursorSettings(): void {
     contentCursorEnabled = true;
 
-    chrome.storage.sync.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
+    chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
         const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
 
         if (!stylesEnabled) {

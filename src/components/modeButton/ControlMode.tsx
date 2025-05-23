@@ -32,8 +32,8 @@ const ControlMode = () => {
         setTheme(themeMode);
 
         // chrome.storage에 테마 저장
-        if (chrome?.storage?.sync) {
-            chrome.storage.sync
+        if (chrome?.storage?.local) {
+            chrome.storage.local
                 .set({ [STORAGE_KEYS.THEME_MODE]: `SET_MODE_${value}` })
                 .catch((err) => console.error("테마 모드 저장 오류:", err));
         }
