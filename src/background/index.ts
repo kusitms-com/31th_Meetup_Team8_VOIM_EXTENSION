@@ -95,7 +95,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log("FOOD API 응답 성공:", data);
+                logger.debug("FOOD API 응답 성공:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_RESPONSE",
@@ -127,8 +127,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log("백그라운드 API 응답:", data);
-                console.log("보낼 data.data:", data.data);
+                logger.debug("백그라운드 API 응답:", data);
+                logger.debug("보낼 data.data:", data.data);
 
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
