@@ -285,6 +285,9 @@ export function saveSettings(settings: {
     if (settings.isCursorEnabled !== undefined)
         updates[STORAGE_KEYS.IS_CURSOR_ENABLED] = settings.isCursorEnabled;
 
+    // 스타일이 변경되면 STYLES_ENABLED를 true로 설정
+    updates[STORAGE_KEYS.STYLES_ENABLED] = true;
+
     chrome.storage.local.set(updates, () => {
         console.log("Settings saved:", updates);
 

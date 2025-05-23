@@ -7,6 +7,7 @@ import {
     saveSettings,
     removeAllStyleSheets,
 } from "../storage/settingsManager";
+import { STORAGE_KEYS } from "../../background/constants";
 
 export const handleStyleMessage = (
     message: { type: MessageType; settings?: any },
@@ -42,9 +43,14 @@ export const handleStyleMessage = (
                 .toLowerCase();
             const fontSizePixel = fontSizeMap[fontSizeType];
 
-            applyFontStyle({ fontSize: fontSizePixel });
-            saveSettings({ fontSize: fontSizeKeyword });
-            sendResponse({ success: true });
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyFontStyle({ fontSize: fontSizePixel });
+                    saveSettings({ fontSize: fontSizeKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (Object.keys(fontWeightMap).includes(type as string)) {
             const fontWeightType = type as FontWeightType;
             const fontWeightKeyword = fontWeightType
@@ -52,16 +58,26 @@ export const handleStyleMessage = (
                 .toLowerCase();
             const fontWeightPixel = fontWeightMap[fontWeightType];
 
-            applyFontStyle({ fontWeight: fontWeightPixel });
-            saveSettings({ fontWeight: fontWeightKeyword });
-            sendResponse({ success: true });
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyFontStyle({ fontWeight: fontWeightPixel });
+                    saveSettings({ fontWeight: fontWeightKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (type === "SET_MODE_LIGHT" || type === "SET_MODE_DARK") {
             const modeType = type as ModeType;
             const modeKeyword = modeType.replace("SET_MODE_", "").toLowerCase();
 
-            applyModeStyle(modeType);
-            saveSettings({ mode: modeKeyword });
-            sendResponse({ success: true });
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyModeStyle(modeType);
+                    saveSettings({ mode: modeKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (type === "DISABLE_ALL_STYLES") {
             removeAllStyles();
             sendResponse({ success: true });
