@@ -5,7 +5,9 @@ import {
     removeAllStyles,
     restoreAllStyles,
     saveSettings,
+    removeAllStyleSheets,
 } from "../storage/settingsManager";
+import { STORAGE_KEYS } from "../../background/constants";
 
 export const handleStyleMessage = (
     message: { type: MessageType; settings?: any },
@@ -13,14 +15,15 @@ export const handleStyleMessage = (
 ) => {
     const { type } = message;
 
-    chrome.storage.sync.get(["stylesEnabled"], (result) => {
+    chrome.storage.local.get(["stylesEnabled"], (result) => {
         const stylesEnabled =
             result.stylesEnabled !== undefined ? result.stylesEnabled : true;
 
         if (
             !stylesEnabled &&
             type !== "RESTORE_ALL_STYLES" &&
-            type !== "DISABLE_ALL_STYLES"
+            type !== "DISABLE_ALL_STYLES" &&
+            type !== "REMOVE_ALL_STYLE_SHEETS"
         ) {
             console.log(
                 "스타일이 비활성화 상태입니다. 메시지를 처리하지 않습니다:",
@@ -35,23 +38,51 @@ export const handleStyleMessage = (
 
         if (Object.keys(fontSizeMap).includes(type as string)) {
             const fontSizeType = type as FontSizeType;
-            const fontSize = fontSizeMap[fontSizeType];
-            applyFontStyle({ fontSize });
-            saveSettings({ fontSize });
-            sendResponse({ success: true });
+            const fontSizeKeyword = fontSizeType
+                .replace("SET_FONT_SIZE_", "")
+                .toLowerCase();
+            const fontSizePixel = fontSizeMap[fontSizeType];
+
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyFontStyle({ fontSize: fontSizePixel });
+                    saveSettings({ fontSize: fontSizeKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (Object.keys(fontWeightMap).includes(type as string)) {
             const fontWeightType = type as FontWeightType;
-            const fontWeight = fontWeightMap[fontWeightType];
-            applyFontStyle({ fontWeight });
-            saveSettings({ fontWeight });
-            sendResponse({ success: true });
+            const fontWeightKeyword = fontWeightType
+                .replace("SET_FONT_WEIGHT_", "")
+                .toLowerCase();
+            const fontWeightPixel = fontWeightMap[fontWeightType];
+
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyFontStyle({ fontWeight: fontWeightPixel });
+                    saveSettings({ fontWeight: fontWeightKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (type === "SET_MODE_LIGHT" || type === "SET_MODE_DARK") {
             const modeType = type as ModeType;
-            applyModeStyle(modeType);
-            saveSettings({ mode: modeType });
-            sendResponse({ success: true });
+            const modeKeyword = modeType.replace("SET_MODE_", "").toLowerCase();
+
+            chrome.storage.local.set(
+                { [STORAGE_KEYS.STYLES_ENABLED]: true },
+                () => {
+                    applyModeStyle(modeType);
+                    saveSettings({ mode: modeKeyword });
+                    sendResponse({ success: true });
+                },
+            );
         } else if (type === "DISABLE_ALL_STYLES") {
             removeAllStyles();
+            sendResponse({ success: true });
+        } else if (type === "REMOVE_ALL_STYLE_SHEETS") {
+            removeAllStyleSheets();
             sendResponse({ success: true });
         } else if (type === "RESTORE_ALL_STYLES") {
             restoreAllStyles();
