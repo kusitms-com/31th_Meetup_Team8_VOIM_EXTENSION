@@ -99,7 +99,7 @@ export const CosmeticComponent = () => {
                     backgroundColor: "#ffffff",
                     position: "absolute",
                     top: "610px",
-                    right: "490px",
+                    right: "280px",
                     zIndex: 9999,
                     fontFamily: "KoddiUDOnGothic",
                     textAlign: "center",
@@ -122,7 +122,7 @@ export const CosmeticComponent = () => {
                 backgroundColor: "#ffffff",
                 position: "absolute",
                 top: "610px",
-                right: "490px",
+                right: "280px",
                 zIndex: 9999,
                 fontFamily: "KoddiUDOnGothic",
             }}

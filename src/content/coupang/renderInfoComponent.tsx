@@ -18,7 +18,7 @@ export const renderInfoComponent = () => {
     container.id = "voim-info-component";
     container.style.position = "absolute";
     container.style.top = "1080px";
-    container.style.right = "480px";
+    container.style.right = "280px";
     container.style.zIndex = "9999";
     document.body.appendChild(container);
 
