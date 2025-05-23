@@ -10,6 +10,7 @@ import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
 import { MyInfo } from "@src/tabs/myInfo";
 import ControlService from "@src/components/serviceButton/ControlService";
+import { Onboarding } from "@src/tabs/myInfo/components";
 
 import "../css/app.css";
 import { useUserInfo } from "@src/hooks/useUserInfo";
@@ -112,8 +113,45 @@ const App = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
     const [isOnboarding, setIsOnboarding] = useState(false);
+    const [showUserInfo, setShowUserInfo] = useState(false);
     const { toggleCursor } = useTheme();
     const { birthYear, gender, loading } = useUserInfo();
+
+    useEffect(() => {
+        // Check if it's first installation or user info is empty
+        chrome.storage.local.get(["isFirstInstall"], (result) => {
+            if (result.isFirstInstall === undefined) {
+                // First time installation
+                chrome.storage.local.set({ isFirstInstall: true });
+                setIsOnboarding(true);
+                window.parent.postMessage(
+                    { type: "RESIZE_IFRAME", isOpen: true },
+                    "*",
+                );
+            } else if (!birthYear && !gender && !loading) {
+                // User info is empty, show onboarding
+                setIsOnboarding(true);
+                window.parent.postMessage(
+                    { type: "RESIZE_IFRAME", isOpen: true },
+                    "*",
+                );
+            }
+        });
+    }, [birthYear, gender, loading]);
+
+    const handleOnboardingComplete = () => {
+        setIsOnboarding(false);
+        setShowUserInfo(true);
+        chrome.storage.local.set({ isFirstInstall: false });
+    };
+
+    const handleUserInfoComplete = () => {
+        setShowUserInfo(false);
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: false },
+            "*",
+        );
+    };
 
     const openModal = () => {
         setIsModalOpen(true);
@@ -197,6 +235,22 @@ const App = () => {
         return () => window.removeEventListener("message", handleMessage);
     }, [isModalOpen]);
 
+    if (isOnboarding) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
+                <Onboarding onComplete={handleOnboardingComplete} />
+            </div>
+        );
+    }
+
+    if (showUserInfo) {
+        return (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
+                <MyInfo onComplete={handleUserInfoComplete} />
+            </div>
+        );
+    }
+
     return (
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={openModal} />}
@@ -210,7 +264,7 @@ const App = () => {
                         onClick={() => handleMenuClick(item.id)}
                         ariaLabel={`${item.text} 선택`}
                     />
-                ))}{" "}
+                ))}
                 <div
                     className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto transition-transform duration-300 z-[10000] ${
                         isModalOpen && selectedMenu !== null ? "flex" : "hidden"
