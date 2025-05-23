@@ -8,10 +8,6 @@ module.exports = {
     entry: {
         background: path.join(__dirname, "src/background/index.ts"),
         content: path.join(__dirname, "src/content/index.tsx"),
-        autoCollectReview: path.join(
-            __dirname,
-            "src/content/scripts/autoCollectReview.ts",
-        ),
         iframe: path.join(__dirname, "src/iframe/index.tsx"),
     },
     output: {
