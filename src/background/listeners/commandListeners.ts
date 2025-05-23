@@ -318,6 +318,16 @@ export function initCommandListeners(): void {
                 });
 
                 if (tabs[0]?.id) {
+                    // 현재 스타일 상태 확인
+                    const currentStyleState = await chrome.storage.local.get([
+                        "stylesEnabled",
+                    ]);
+                    const isStylesEnabled =
+                        currentStyleState.stylesEnabled ?? true;
+
+                    // settingsService의 상태 동기화
+                    settingsService.setStylesEnabled(isStylesEnabled);
+
                     await chrome.scripting.executeScript({
                         target: { tabId: tabs[0].id },
                         func: function () {
@@ -396,6 +406,27 @@ export function initCommandListeners(): void {
                             }
                         },
                     });
+
+                    // 스타일 상태 토글
+                    if (isStylesEnabled) {
+                        // 스타일이 켜져있으면 끄기
+                        await chrome.tabs.sendMessage(tabs[0].id, {
+                            type: "DISABLE_ALL_STYLES",
+                        });
+                        await chrome.storage.local.set({
+                            stylesEnabled: false,
+                        });
+                        settingsService.setStylesEnabled(false);
+                    } else {
+                        // 스타일이 꺼져있으면 켜기
+                        await chrome.tabs.sendMessage(tabs[0].id, {
+                            type: "RESTORE_ALL_STYLES",
+                        });
+                        await chrome.storage.local.set({
+                            stylesEnabled: true,
+                        });
+                        settingsService.setStylesEnabled(true);
+                    }
                 }
             }
         } catch (error) {
