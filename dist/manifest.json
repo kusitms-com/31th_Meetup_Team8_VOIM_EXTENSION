@@ -12,6 +12,11 @@
             "js": ["js/content.js"],
             "run_at": "document_end",
             "all_frames": true
+        },
+        {
+            "matches": ["*://*.coupang.com/vp/*"],
+            "js": ["js/autoCollectReview.js"],
+            "run_at": "document_end"
         }
     ],
     "web_accessible_resources": [
