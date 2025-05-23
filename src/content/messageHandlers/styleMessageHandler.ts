@@ -5,6 +5,7 @@ import {
     removeAllStyles,
     restoreAllStyles,
     saveSettings,
+    removeAllStyleSheets,
 } from "../storage/settingsManager";
 
 export const handleStyleMessage = (
@@ -20,7 +21,8 @@ export const handleStyleMessage = (
         if (
             !stylesEnabled &&
             type !== "RESTORE_ALL_STYLES" &&
-            type !== "DISABLE_ALL_STYLES"
+            type !== "DISABLE_ALL_STYLES" &&
+            type !== "REMOVE_ALL_STYLE_SHEETS"
         ) {
             console.log(
                 "스타일이 비활성화 상태입니다. 메시지를 처리하지 않습니다:",
@@ -62,6 +64,9 @@ export const handleStyleMessage = (
             sendResponse({ success: true });
         } else if (type === "DISABLE_ALL_STYLES") {
             removeAllStyles();
+            sendResponse({ success: true });
+        } else if (type === "REMOVE_ALL_STYLE_SHEETS") {
+            removeAllStyleSheets();
             sendResponse({ success: true });
         } else if (type === "RESTORE_ALL_STYLES") {
             restoreAllStyles();

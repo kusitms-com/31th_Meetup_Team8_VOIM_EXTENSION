@@ -11,6 +11,7 @@ import {
     DEFAULT_CURSOR_SIZE,
     DEFAULT_CURSOR_ENABLED,
 } from "@src/background/constants";
+import { removeAllStyleSheets } from "@src/content/storage/settingsManager";
 
 export type Theme = "light" | "dark";
 export type FontSize = "xs" | "s" | "m" | "l" | "xl";
@@ -108,6 +109,15 @@ export function ThemeContextProvider({
         setCursorTheme(DEFAULT_SETTINGS.cursorTheme);
         setCursorSize(DEFAULT_SETTINGS.cursorSize);
         setIsCursorEnabled(DEFAULT_SETTINGS.isCursorEnabled);
+
+        // 스타일만 제거하고 iframe은 유지
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]?.id) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    type: "REMOVE_ALL_STYLE_SHEETS",
+                });
+            }
+        });
     };
 
     const fontClasses = getFontClasses(fontSize, fontWeight);

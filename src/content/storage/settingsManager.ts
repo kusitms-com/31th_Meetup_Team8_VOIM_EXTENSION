@@ -29,18 +29,34 @@ let contentCursorEnabled = true;
  * 확장 프로그램의 상태를 확인하고 적절히 처리합니다.
  */
 export function checkExtensionState(): void {
-    chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
-        const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
-        console.log("현재 스타일 활성화 상태:", stylesEnabled);
+    chrome.storage.local.get(
+        [STORAGE_KEYS.STYLES_ENABLED, "iframeInvisible"],
+        (result) => {
+            const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
+            const iframeInvisible = result.iframeInvisible ?? false;
+            const iframeExists =
+                document.getElementById(EXTENSION_IFRAME_ID) !== null;
+            console.log("현재 스타일 활성화 상태:", stylesEnabled);
+            console.log("현재 iframe 가시성 상태:", !iframeInvisible);
+            console.log("현재 iframe 존재 여부:", iframeExists);
 
-        if (stylesEnabled) {
-            loadAndApplySettings();
-            restoreIframe();
-        } else {
-            ensureStylesRemoved();
-            removeIframe();
-        }
-    });
+            if (stylesEnabled) {
+                loadAndApplySettings();
+                if (iframeInvisible && iframeExists) {
+                    removeIframe();
+                } else if (!iframeInvisible && !iframeExists) {
+                    restoreIframe();
+                }
+            } else {
+                ensureStylesRemoved();
+                if (iframeInvisible && iframeExists) {
+                    removeIframe();
+                } else if (!iframeInvisible && !iframeExists) {
+                    restoreIframe();
+                }
+            }
+        },
+    );
 }
 
 /**
@@ -406,5 +422,53 @@ export function initCursorSettings(): void {
                 }
             },
         );
+    });
+}
+
+/**
+ * 모든 스타일시트만 제거합니다. iframe은 유지됩니다.
+ */
+export function removeAllStyleSheets(): void {
+    chrome.storage.local.set({ [STORAGE_KEYS.STYLES_ENABLED]: false }, () => {
+        console.log("스타일 비활성화 상태 저장됨");
+
+        const elements = document.querySelectorAll("*");
+        elements.forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            if (htmlEl.style) {
+                htmlEl.style.removeProperty("fontSize");
+                htmlEl.style.removeProperty("fontWeight");
+                htmlEl.style.removeProperty("filter");
+                htmlEl.style.removeProperty("backgroundColor");
+            }
+        });
+
+        const modeStyle = document.getElementById("webeye-mode-style");
+        if (modeStyle) {
+            modeStyle.remove();
+        }
+
+        const globalFontStyle = document.getElementById(
+            "webeye-global-font-style",
+        );
+        if (globalFontStyle) {
+            globalFontStyle.remove();
+        }
+
+        const cursorStyle = document.getElementById("custom-cursor-style");
+        if (cursorStyle) {
+            document.head.removeChild(cursorStyle);
+        }
+
+        const fontStyles = document.querySelectorAll(
+            '[style*="font-size"], [style*="font-weight"]',
+        );
+        fontStyles.forEach((el) => {
+            const htmlEl = el as HTMLElement;
+            htmlEl.style.removeProperty("font-size");
+            htmlEl.style.removeProperty("font-weight");
+        });
+
+        checkExtensionState();
     });
 }

@@ -27,4 +27,5 @@ export type MessageType =
     | FontWeightType
     | ModeType
     | "DISABLE_ALL_STYLES"
-    | "RESTORE_ALL_STYLES";
+    | "RESTORE_ALL_STYLES"
+    | "REMOVE_ALL_STYLE_SHEETS";
