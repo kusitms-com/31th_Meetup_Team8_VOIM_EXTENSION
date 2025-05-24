@@ -112,18 +112,19 @@ export const FoodComponent = () => {
         return (
             <div
                 style={{
-                    position: "fixed",
-                    bottom: "20px",
-                    right: "20px",
-                    backgroundColor: "#fff",
-                    border: "2px solid #8914FF",
+                    padding: "16px",
                     borderRadius: "20px",
-                    padding: "24px",
-                    width: "360px",
+                    width: "618px",
+                    border: "4px solid #8914FF",
+                    backgroundColor: "#ffffff",
+                    position: "absolute",
+                    top: "610px",
+                    right: "490px",
                     zIndex: 9999,
                     fontFamily: "KoddiUDOnGothic",
-                    fontSize: "16px",
                     textAlign: "center",
+                    fontSize: "20px",
+                    fontWeight: "bold",
                 }}
             >
                 제품 정보를 분석 중입니다...
