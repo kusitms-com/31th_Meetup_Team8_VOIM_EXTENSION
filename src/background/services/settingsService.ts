@@ -50,10 +50,9 @@ class SettingsService {
                         await chrome.tabs.sendMessage(tab.id, {
                             type: "APPLY_SETTINGS",
                             settings: {
-                                theme: DEFAULT_THEME,
+                                themeMode: DEFAULT_THEME,
                                 fontSize: DEFAULT_FONT_SIZE,
                                 fontWeight: DEFAULT_FONT_WEIGHT,
-
                                 cursorTheme: DEFAULT_CURSOR_THEME,
                                 cursorSize: DEFAULT_CURSOR_SIZE,
                                 isCursorEnabled: DEFAULT_CURSOR_ENABLED,
@@ -94,9 +93,9 @@ class SettingsService {
                 const savedSettings = storageService.getSavedSettings();
 
                 if (savedSettings) {
-                    if (savedSettings.userSettings?.mode) {
+                    if (savedSettings.themeMode) {
                         await chrome.tabs.sendMessage(tabId, {
-                            type: savedSettings.userSettings.mode,
+                            type: `SET_MODE_${savedSettings.themeMode.toUpperCase()}`,
                         });
                     }
 

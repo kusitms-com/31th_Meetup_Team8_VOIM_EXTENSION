@@ -1,6 +1,7 @@
-import { FontStyle, UserSettings } from "../types";
+import { FontStyle } from "../types";
 import { applyFontStyleToNode } from "../styles/fontStyles";
 import { targetSelectors } from "../constants";
+import { STORAGE_KEYS } from "../../background/constants";
 
 /**
  * DOM 변경을 감지하는 MutationObserver를 초기화합니다.
@@ -10,7 +11,7 @@ export function initDomObserver(
     stylesEnabledCallback: () => boolean,
 ): MutationObserver {
     const observer = new MutationObserver((mutations) => {
-        chrome.storage.sync.get(["stylesEnabled"], (result) => {
+        chrome.storage.local.get(["stylesEnabled"], (result) => {
             const stylesEnabled =
                 result.stylesEnabled !== undefined
                     ? result.stylesEnabled
@@ -18,56 +19,59 @@ export function initDomObserver(
 
             if (!stylesEnabled) return;
 
-            chrome.storage.sync.get(["userSettings"], (result) => {
-                const settings: UserSettings = result.userSettings || {};
+            chrome.storage.local.get(
+                [STORAGE_KEYS.FONT_SIZE, STORAGE_KEYS.FONT_WEIGHT],
+                (result) => {
+                    const fontSize = result[STORAGE_KEYS.FONT_SIZE];
+                    const fontWeight = result[STORAGE_KEYS.FONT_WEIGHT];
 
-                if (settings.fontSize || settings.fontWeight) {
-                    mutations.forEach((mutation) => {
-                        if (mutation.addedNodes.length > 0) {
-                            const fontStyle: FontStyle = {};
-                            if (settings.fontSize)
-                                fontStyle.fontSize = settings.fontSize;
-                            if (settings.fontWeight)
-                                fontStyle.fontWeight = settings.fontWeight;
-
-                            mutation.addedNodes.forEach((node) => {
-                                applyFontStyleToNode(node, fontStyle);
-                            });
-                        }
-
-                        if (
-                            mutation.type === "attributes" &&
-                            mutation.attributeName === "style" &&
-                            mutation.target.nodeType === Node.ELEMENT_NODE
-                        ) {
-                            const element = mutation.target as HTMLElement;
-                            const targetMatches = targetSelectors.some(
-                                (selector) => {
-                                    try {
-                                        return element.matches(selector);
-                                    } catch (e) {
-                                        return false;
-                                    }
-                                },
-                            );
-
-                            if (targetMatches) {
+                    if (fontSize || fontWeight) {
+                        mutations.forEach((mutation) => {
+                            if (mutation.addedNodes.length > 0) {
                                 const fontStyle: FontStyle = {};
-                                if (settings.fontSize)
-                                    fontStyle.fontSize = settings.fontSize;
-                                if (settings.fontWeight)
-                                    fontStyle.fontWeight = settings.fontWeight;
+                                if (fontSize) fontStyle.fontSize = fontSize;
+                                if (fontWeight)
+                                    fontStyle.fontWeight = fontWeight;
 
-                                if (fontStyle.fontSize)
-                                    element.style.fontSize = fontStyle.fontSize;
-                                if (fontStyle.fontWeight)
-                                    element.style.fontWeight =
-                                        fontStyle.fontWeight;
+                                mutation.addedNodes.forEach((node) => {
+                                    applyFontStyleToNode(node, fontStyle);
+                                });
                             }
-                        }
-                    });
-                }
-            });
+
+                            if (
+                                mutation.type === "attributes" &&
+                                mutation.attributeName === "style" &&
+                                mutation.target.nodeType === Node.ELEMENT_NODE
+                            ) {
+                                const element = mutation.target as HTMLElement;
+                                const targetMatches = targetSelectors.some(
+                                    (selector) => {
+                                        try {
+                                            return element.matches(selector);
+                                        } catch (e) {
+                                            return false;
+                                        }
+                                    },
+                                );
+
+                                if (targetMatches) {
+                                    const fontStyle: FontStyle = {};
+                                    if (fontSize) fontStyle.fontSize = fontSize;
+                                    if (fontWeight)
+                                        fontStyle.fontWeight = fontWeight;
+
+                                    if (fontStyle.fontSize)
+                                        element.style.fontSize =
+                                            fontStyle.fontSize;
+                                    if (fontStyle.fontWeight)
+                                        element.style.fontWeight =
+                                            fontStyle.fontWeight;
+                                }
+                            }
+                        });
+                    }
+                },
+            );
         });
     });
 
