@@ -26,11 +26,12 @@ document.addEventListener("visibilitychange", () => {
         checkExtensionState();
     }
 });
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        renderCouponComponent();
-    }, 1500);
-});
+// window.addEventListener("load", () => {
+//     setTimeout(() => {
+//         renderCouponComponent();
+//     }, 1500);
+// });
+renderCouponComponent();
 initCursorSettings();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
