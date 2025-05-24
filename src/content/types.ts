@@ -8,12 +8,6 @@ export interface FontStyle {
     fontWeight?: string;
 }
 
-export interface UserSettings {
-    fontSize?: string;
-    fontWeight?: string;
-    mode?: ModeType;
-}
-
 export type FontSizeType =
     | "SET_FONT_SIZE_XS"
     | "SET_FONT_SIZE_S"
@@ -33,4 +27,5 @@ export type MessageType =
     | FontWeightType
     | ModeType
     | "DISABLE_ALL_STYLES"
-    | "RESTORE_ALL_STYLES";
+    | "RESTORE_ALL_STYLES"
+    | "REMOVE_ALL_STYLE_SHEETS";

@@ -1,7 +1,5 @@
 import { EXTENSION_IFRAME_ID } from "../constants";
 
-let iframeVisible = false;
-let savedIframeElement: HTMLIFrameElement | null = null;
 let currentListener: ((event: MessageEvent) => void) | null = null;
 
 /**
@@ -75,10 +73,20 @@ export function createIframe(): void {
         window.addEventListener("message", currentListener);
 
         document.body.appendChild(iframe);
-        iframeVisible = true;
-        savedIframeElement = iframe;
+
+        // iframeInvisible 값을 false로 설정
+        chrome.storage.local.set({ iframeInvisible: false }, () => {
+            console.log("iframe 보임 상태 저장됨");
+        });
     }
 }
+
+// 메시지 핸들러 추가
+window.addEventListener("message", (event) => {
+    if (event.data.type === "SET_IFRAME_VISIBLE") {
+        setIframeVisible(event.data.visible);
+    }
+});
 
 /**
  * iframe을 제거합니다.
@@ -94,9 +102,12 @@ export function removeIframe(): void {
             currentListener = null;
         }
 
-        savedIframeElement = iframe;
         iframe.remove();
-        iframeVisible = false;
+
+        // iframeInvisible 값을 true로 설정
+        chrome.storage.local.set({ iframeInvisible: true }, () => {
+            console.log("iframe 숨김 상태 저장됨");
+        });
     }
 }
 
@@ -104,36 +115,34 @@ export function removeIframe(): void {
  * iframe을 복원합니다.
  */
 export function restoreIframe(): void {
-    if (!iframeVisible && savedIframeElement) {
-        // iframe을 완전히 초기 상태로 리셋
-        resetIframeState(savedIframeElement);
+    chrome.storage.local.get(["iframeInvisible"], (result) => {
+        const isInvisible = result.iframeInvisible ?? false;
+        console.log("현재 iframe 상태:", isInvisible ? "숨김" : "보임");
 
-        // 기존 리스너 제거
-        if (currentListener) {
-            window.removeEventListener("message", currentListener);
+        if (!isInvisible) {
+            createIframe();
         }
-
-        // 새 리스너 설정
-        currentListener = handleResizeMessageFactory(savedIframeElement);
-        window.addEventListener("message", currentListener);
-
-        document.body.appendChild(savedIframeElement);
-        iframeVisible = true;
-    } else if (!iframeVisible) {
-        createIframe();
-    }
+    });
 }
 
 /**
  * iframe의 가시성 상태를 반환합니다.
  */
 export function isIframeVisible(): boolean {
-    return iframeVisible;
+    return document.getElementById(EXTENSION_IFRAME_ID) !== null;
 }
 
 /**
  * iframe을 가시적인 상태로 설정합니다.
  */
 export function setIframeVisible(visible: boolean): void {
-    iframeVisible = visible;
+    if (visible) {
+        createIframe();
+    } else {
+        removeIframe();
+    }
+
+    chrome.storage.local.set({ iframeInvisible: !visible }, () => {
+        console.log("iframe 상태 저장됨:", !visible ? "숨김" : "보임");
+    });
 }

@@ -1,4 +1,4 @@
-import { SavedSettings, UserSettings } from "../types";
+import { SavedSettings } from "../types";
 import {
     DEFAULT_CURSOR_ENABLED,
     DEFAULT_CURSOR_SIZE,
@@ -9,6 +9,13 @@ import {
     STORAGE_KEYS,
 } from "../constants";
 import { logger } from "@src/utils/logger";
+
+export const DEFAULT_SETTINGS: SavedSettings = {
+    fontSize: DEFAULT_FONT_SIZE,
+    fontWeight: DEFAULT_FONT_WEIGHT,
+    themeMode: DEFAULT_THEME,
+    isCursorEnabled: DEFAULT_CURSOR_ENABLED,
+};
 
 /**
  * 스토리지 관련 서비스
@@ -21,17 +28,19 @@ class StorageService {
      */
     async loadInitialSettings(): Promise<SavedSettings> {
         try {
-            const result = await chrome.storage.sync.get([
+            const result = await chrome.storage.local.get([
                 STORAGE_KEYS.CURSOR_THEME,
                 STORAGE_KEYS.CURSOR_SIZE,
                 STORAGE_KEYS.IS_CURSOR_ENABLED,
-                STORAGE_KEYS.USER_SETTINGS,
+                STORAGE_KEYS.FONT_SIZE,
+                STORAGE_KEYS.FONT_WEIGHT,
+                STORAGE_KEYS.THEME_MODE,
             ]);
 
             this.savedSettings = {
-                userSettings: result[
-                    STORAGE_KEYS.USER_SETTINGS
-                ] as UserSettings,
+                fontSize: result[STORAGE_KEYS.FONT_SIZE] as string,
+                fontWeight: result[STORAGE_KEYS.FONT_WEIGHT] as string,
+                themeMode: result[STORAGE_KEYS.THEME_MODE] as string,
                 isCursorEnabled: result[
                     STORAGE_KEYS.IS_CURSOR_ENABLED
                 ] as boolean,
@@ -40,15 +49,7 @@ class StorageService {
             return this.savedSettings;
         } catch (error) {
             logger.error("초기 설정 로드 중 오류:", error);
-
-            return {
-                userSettings: {
-                    fontSize: DEFAULT_FONT_SIZE,
-                    fontWeight: DEFAULT_FONT_WEIGHT,
-                    mode: `SET_MODE_${DEFAULT_THEME.toUpperCase()}`,
-                },
-                isCursorEnabled: DEFAULT_CURSOR_ENABLED,
-            };
+            return DEFAULT_SETTINGS;
         }
     }
 
@@ -71,24 +72,17 @@ class StorageService {
      */
     async resetAllSettings(): Promise<void> {
         try {
-            await chrome.storage.sync.set({
+            const defaultStorageValues = {
                 [STORAGE_KEYS.THEME_MODE]: DEFAULT_THEME,
                 [STORAGE_KEYS.FONT_SIZE]: DEFAULT_FONT_SIZE,
                 [STORAGE_KEYS.FONT_WEIGHT]: DEFAULT_FONT_WEIGHT,
-
                 [STORAGE_KEYS.CURSOR_THEME]: DEFAULT_CURSOR_THEME,
                 [STORAGE_KEYS.CURSOR_SIZE]: DEFAULT_CURSOR_SIZE,
                 [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
-            });
-
-            this.savedSettings = {
-                userSettings: {
-                    fontSize: DEFAULT_FONT_SIZE,
-                    fontWeight: DEFAULT_FONT_WEIGHT,
-                    mode: `SET_MODE_${DEFAULT_THEME.toUpperCase()}`,
-                },
-                isCursorEnabled: DEFAULT_CURSOR_ENABLED,
             };
+
+            await chrome.storage.local.set(defaultStorageValues);
+            this.savedSettings = DEFAULT_SETTINGS;
 
             logger.debug("모든 설정이 초기화되었습니다.");
         } catch (error) {
@@ -103,28 +97,38 @@ class StorageService {
     handleStorageChanges(changes: {
         [key: string]: chrome.storage.StorageChange;
     }): void {
-        let needsUpdate = false;
-
         if (this.savedSettings === null) {
-            this.savedSettings = {
-                userSettings: {},
-                isCursorEnabled: DEFAULT_CURSOR_ENABLED,
-            };
+            this.savedSettings = DEFAULT_SETTINGS;
         }
 
-        if (changes[STORAGE_KEYS.USER_SETTINGS]) {
-            this.savedSettings.userSettings =
-                changes[STORAGE_KEYS.USER_SETTINGS].newValue;
+        const updatedSettings = { ...this.savedSettings };
+        let needsUpdate = false;
+
+        if (changes[STORAGE_KEYS.FONT_SIZE]) {
+            updatedSettings.fontSize = changes[STORAGE_KEYS.FONT_SIZE].newValue;
+            needsUpdate = true;
+        }
+
+        if (changes[STORAGE_KEYS.FONT_WEIGHT]) {
+            updatedSettings.fontWeight =
+                changes[STORAGE_KEYS.FONT_WEIGHT].newValue;
+            needsUpdate = true;
+        }
+
+        if (changes[STORAGE_KEYS.THEME_MODE]) {
+            updatedSettings.themeMode =
+                changes[STORAGE_KEYS.THEME_MODE].newValue;
             needsUpdate = true;
         }
 
         if (changes[STORAGE_KEYS.IS_CURSOR_ENABLED] !== undefined) {
-            this.savedSettings.isCursorEnabled =
+            updatedSettings.isCursorEnabled =
                 changes[STORAGE_KEYS.IS_CURSOR_ENABLED].newValue;
             needsUpdate = true;
         }
 
         if (needsUpdate) {
+            this.savedSettings = updatedSettings;
             logger.debug("설정이 변경되었습니다:", this.savedSettings);
         }
     }

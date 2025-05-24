@@ -109,7 +109,7 @@ class CursorService {
         this.isCursorEnabled = !this.isCursorEnabled;
 
         try {
-            await chrome.storage.sync.set({
+            await chrome.storage.local.set({
                 isCursorEnabled: this.isCursorEnabled,
             });
 
