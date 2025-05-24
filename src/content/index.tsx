@@ -6,8 +6,9 @@ import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { processImages } from "./imageHandlers/imageProcessor";
-import { MountCartSummaryApp } from "./coupang/CartSummary";
-import { checkCategoryAndRender } from "./coupang/categoryHandlerFood";
+import { MountCartSummaryApp } from "./coupang/cartSummary";
+import { checkCategoryCosmeticAndRender } from "./coupang/categoryHandlerCosmetic";
+import { checkCategoryFoodAndRender } from "./coupang/categoryHandlerFood";
 import { renderCouponComponent } from "./coupang/renderCouponComponent";
 import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
 import { initDomObserver } from "./observers/domObserver";
@@ -60,8 +61,15 @@ if (location.href.includes("cart.coupang.com/cartView.pang")) {
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-        checkCategoryAndRender();
+        checkCategoryFoodAndRender();
     });
 } else {
-    checkCategoryAndRender();
+    checkCategoryFoodAndRender();
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        checkCategoryCosmeticAndRender();
+    });
+} else {
+    checkCategoryCosmeticAndRender();
 }
