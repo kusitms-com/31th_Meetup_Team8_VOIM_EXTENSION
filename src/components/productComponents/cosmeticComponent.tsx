@@ -133,7 +133,7 @@ export const CosmeticComponent = () => {
                 border: "4px solid #8914FF",
                 backgroundColor: "#ffffff",
                 position: "absolute",
-                top: "610px",
+                top: "580px",
                 right: "280px",
                 zIndex: 9999,
                 fontFamily: "KoddiUDOnGothic",

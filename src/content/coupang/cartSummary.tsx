@@ -111,7 +111,7 @@ const CartSummary = () => {
     const itemListStyle = {
         marginBottom: "42px",
         backgroundColor: "#F5F5F5",
-        padding: "18px 24px",
+        padding: "24px 18px",
         borderRadius: "14px",
         fontSize: fontClasses.fontCommon,
     };
