@@ -4,7 +4,6 @@ import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
 import { useTheme } from "@src/contexts/ThemeContext";
-import { CursorTab } from "@src/components/cursorTab";
 import { ShortcutTab } from "@src/components/shortcutTab";
 import ControlMode from "@src/components/modeButton/ControlMode";
 import ControlFont from "@src/components/fontButton/ControlFont";
@@ -40,17 +39,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                     <ControlMode />
                 </div>
             );
-        case "cursor":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="마우스 커서 설정"
-                >
-                    <CursorTab />
-                </div>
-            );
+
         case "font":
             return (
                 <div
@@ -102,7 +91,6 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
 
 const menuItems = [
     { id: "high-contrast", text: "고대비 화면 사용하기" },
-    { id: "cursor", text: "마우스 커서 설정하기" },
     { id: "font", text: "글자 설정하기" },
     { id: "shortcut", text: "단축키 안내 보기" },
     { id: "my-info", text: "내 정보 설정하기" },
@@ -114,14 +102,12 @@ const App = () => {
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
-    const { toggleCursor } = useTheme();
     const { birthYear, gender, loading } = useUserInfo();
 
     useEffect(() => {
         // Check if it's first installation or user info is empty
         chrome.storage.local.get(["isFirstInstall"], (result) => {
             if (result.isFirstInstall === undefined) {
-                // First time installation
                 chrome.storage.local.set({ isFirstInstall: true });
                 setIsOnboarding(true);
                 window.parent.postMessage(
@@ -129,7 +115,6 @@ const App = () => {
                     "*",
                 );
             } else if (!birthYear && !gender && !loading) {
-                // User info is empty, show onboarding
                 setIsOnboarding(true);
                 window.parent.postMessage(
                     { type: "RESIZE_IFRAME", isOpen: true },
@@ -177,8 +162,6 @@ const App = () => {
         const handleMessage = (event: MessageEvent) => {
             if (event.data.type === "TOGGLE_MODAL") {
                 toggleModal();
-            } else if (event.data.type === "TOGGLE_CURSOR") {
-                toggleCursor();
             }
         };
 
@@ -214,9 +197,6 @@ const App = () => {
             switch (event.data.type) {
                 case "TOGGLE_MODAL":
                     toggleModal();
-                    break;
-                case "TOGGLE_CURSOR":
-                    toggleCursor();
                     break;
                 case "HIDE_LOGO":
                     document.getElementById("logo")?.classList.add("hidden");

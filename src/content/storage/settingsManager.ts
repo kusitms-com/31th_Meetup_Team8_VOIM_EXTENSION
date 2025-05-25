@@ -1,13 +1,11 @@
 import { FontStyle } from "../types";
 import { applyFontStyle } from "../styles/fontStyles";
 import { applyModeStyle } from "../styles/modeStyles";
-import { applyCursorStyle, removeCursorStyle } from "../styles/cursorStyles";
 import {
     createIframe,
     removeIframe,
     restoreIframe,
 } from "../iframe/iframeManager";
-import { removeStyleFromIframes } from "../styles/cursorStyles";
 import {
     STORAGE_KEYS,
     DEFAULT_THEME,
@@ -23,7 +21,6 @@ let originalSettings: {
     fontWeight?: string;
     mode?: string;
 } | null = null;
-let contentCursorEnabled = true;
 
 /**
  * 확장 프로그램의 상태를 확인하고 적절히 처리합니다.
@@ -91,13 +88,6 @@ function ensureStylesRemoved(): void {
     if (fontStyle) {
         fontStyle.remove();
     }
-
-    const cursorStyle = document.getElementById("custom-cursor-style");
-    if (cursorStyle) {
-        document.head.removeChild(cursorStyle);
-    }
-
-    removeStyleFromIframes();
 }
 
 /**
@@ -146,13 +136,6 @@ export function removeAllStyles(): void {
                         globalFontStyle.remove();
                     }
 
-                    const cursorStyle = document.getElementById(
-                        "custom-cursor-style",
-                    );
-                    if (cursorStyle) {
-                        document.head.removeChild(cursorStyle);
-                    }
-
                     const fontStyles = document.querySelectorAll(
                         '[style*="font-size"], [style*="font-weight"]',
                     );
@@ -162,7 +145,6 @@ export function removeAllStyles(): void {
                         htmlEl.style.removeProperty("font-weight");
                     });
 
-                    removeStyleFromIframes();
                     removeIframe();
 
                     checkExtensionState();
@@ -244,20 +226,6 @@ export function restoreAllStyles(): void {
                 }, 100);
             },
         );
-
-        chrome.runtime.sendMessage(
-            { type: "GET_CURSOR_SETTINGS" },
-            (response) => {
-                if (
-                    response &&
-                    response.isCursorEnabled &&
-                    response.cursorUrl
-                ) {
-                    applyCursorStyle(response.cursorUrl);
-                    contentCursorEnabled = true;
-                }
-            },
-        );
     });
 }
 
@@ -269,68 +237,18 @@ export function saveSettings(settings: {
     fontSize?: string;
     fontWeight?: string;
     mode?: string;
-    cursorTheme?: string;
-    cursorSize?: string;
-    isCursorEnabled?: boolean;
 }): void {
     const updates: Record<string, any> = {};
     if (settings.fontSize) updates[STORAGE_KEYS.FONT_SIZE] = settings.fontSize;
     if (settings.fontWeight)
         updates[STORAGE_KEYS.FONT_WEIGHT] = settings.fontWeight;
     if (settings.mode) updates[STORAGE_KEYS.THEME_MODE] = settings.mode;
-    if (settings.cursorTheme)
-        updates[STORAGE_KEYS.CURSOR_THEME] = settings.cursorTheme;
-    if (settings.cursorSize)
-        updates[STORAGE_KEYS.CURSOR_SIZE] = settings.cursorSize;
-    if (settings.isCursorEnabled !== undefined)
-        updates[STORAGE_KEYS.IS_CURSOR_ENABLED] = settings.isCursorEnabled;
 
     // 스타일이 변경되면 STYLES_ENABLED를 true로 설정
     updates[STORAGE_KEYS.STYLES_ENABLED] = true;
 
     chrome.storage.local.set(updates, () => {
         console.log("Settings saved:", updates);
-
-        // 커서 설정이 변경된 경우 즉시 적용
-        if (
-            settings.cursorTheme ||
-            settings.cursorSize ||
-            settings.isCursorEnabled !== undefined
-        ) {
-            // 첫 번째 요청
-            chrome.runtime.sendMessage(
-                { type: "GET_CURSOR_SETTINGS" },
-                (response) => {
-                    if (response) {
-                        contentCursorEnabled = response.isCursorEnabled;
-
-                        if (contentCursorEnabled && response.cursorUrl) {
-                            applyCursorStyle(response.cursorUrl);
-                        } else {
-                            removeCursorStyle();
-                        }
-                    }
-                },
-            );
-
-            // 두 번째 요청 (100ms 후)
-            setTimeout(() => {
-                chrome.runtime.sendMessage(
-                    { type: "GET_CURSOR_SETTINGS" },
-                    (response) => {
-                        if (response) {
-                            contentCursorEnabled = response.isCursorEnabled;
-
-                            if (contentCursorEnabled && response.cursorUrl) {
-                                applyCursorStyle(response.cursorUrl);
-                            } else {
-                                removeCursorStyle();
-                            }
-                        }
-                    },
-                );
-            }, 100);
-        }
     });
 }
 
@@ -396,39 +314,6 @@ export function loadAndApplySettings(): void {
 }
 
 /**
- * 커서 설정을 초기화합니다.
- */
-export function initCursorSettings(): void {
-    contentCursorEnabled = true;
-
-    chrome.storage.local.get([STORAGE_KEYS.STYLES_ENABLED], (result) => {
-        const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
-
-        if (!stylesEnabled) {
-            console.log(
-                "스타일이 비활성화 상태입니다. 커서 설정을 적용하지 않습니다.",
-            );
-            return;
-        }
-
-        chrome.runtime.sendMessage(
-            { type: "GET_CURSOR_SETTINGS" },
-            (response) => {
-                if (response) {
-                    contentCursorEnabled = response.isCursorEnabled;
-
-                    if (contentCursorEnabled && response.cursorUrl) {
-                        applyCursorStyle(response.cursorUrl);
-                    } else {
-                        removeCursorStyle();
-                    }
-                }
-            },
-        );
-    });
-}
-
-/**
  * 모든 스타일시트만 제거합니다. iframe은 유지됩니다.
  */
 export function removeAllStyleSheets(): void {
@@ -456,11 +341,6 @@ export function removeAllStyleSheets(): void {
         );
         if (globalFontStyle) {
             globalFontStyle.remove();
-        }
-
-        const cursorStyle = document.getElementById("custom-cursor-style");
-        if (cursorStyle) {
-            document.head.removeChild(cursorStyle);
         }
 
         const fontStyles = document.querySelectorAll(

@@ -1,8 +1,5 @@
 import { SavedSettings } from "../types";
 import {
-    DEFAULT_CURSOR_ENABLED,
-    DEFAULT_CURSOR_SIZE,
-    DEFAULT_CURSOR_THEME,
     DEFAULT_FONT_SIZE,
     DEFAULT_FONT_WEIGHT,
     DEFAULT_THEME,
@@ -14,7 +11,6 @@ export const DEFAULT_SETTINGS: SavedSettings = {
     fontSize: DEFAULT_FONT_SIZE,
     fontWeight: DEFAULT_FONT_WEIGHT,
     themeMode: DEFAULT_THEME,
-    isCursorEnabled: DEFAULT_CURSOR_ENABLED,
 };
 
 /**
@@ -29,9 +25,6 @@ class StorageService {
     async loadInitialSettings(): Promise<SavedSettings> {
         try {
             const result = await chrome.storage.local.get([
-                STORAGE_KEYS.CURSOR_THEME,
-                STORAGE_KEYS.CURSOR_SIZE,
-                STORAGE_KEYS.IS_CURSOR_ENABLED,
                 STORAGE_KEYS.FONT_SIZE,
                 STORAGE_KEYS.FONT_WEIGHT,
                 STORAGE_KEYS.THEME_MODE,
@@ -41,9 +34,6 @@ class StorageService {
                 fontSize: result[STORAGE_KEYS.FONT_SIZE] as string,
                 fontWeight: result[STORAGE_KEYS.FONT_WEIGHT] as string,
                 themeMode: result[STORAGE_KEYS.THEME_MODE] as string,
-                isCursorEnabled: result[
-                    STORAGE_KEYS.IS_CURSOR_ENABLED
-                ] as boolean,
             };
 
             return this.savedSettings;
@@ -76,9 +66,6 @@ class StorageService {
                 [STORAGE_KEYS.THEME_MODE]: DEFAULT_THEME,
                 [STORAGE_KEYS.FONT_SIZE]: DEFAULT_FONT_SIZE,
                 [STORAGE_KEYS.FONT_WEIGHT]: DEFAULT_FONT_WEIGHT,
-                [STORAGE_KEYS.CURSOR_THEME]: DEFAULT_CURSOR_THEME,
-                [STORAGE_KEYS.CURSOR_SIZE]: DEFAULT_CURSOR_SIZE,
-                [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
             };
 
             await chrome.storage.local.set(defaultStorageValues);
@@ -118,12 +105,6 @@ class StorageService {
         if (changes[STORAGE_KEYS.THEME_MODE]) {
             updatedSettings.themeMode =
                 changes[STORAGE_KEYS.THEME_MODE].newValue;
-            needsUpdate = true;
-        }
-
-        if (changes[STORAGE_KEYS.IS_CURSOR_ENABLED] !== undefined) {
-            updatedSettings.isCursorEnabled =
-                changes[STORAGE_KEYS.IS_CURSOR_ENABLED].newValue;
             needsUpdate = true;
         }
 

@@ -1,55 +1,33 @@
-import React, { createContext, useContext, useEffect } from "react";
+import React, { createContext, useContext } from "react";
 import { useSyncedState } from "@src/hooks/useSyncedState";
 import { getFontClasses } from "@src/utils/fontUtils";
-import { applyCursorStyle } from "@src/utils/cursorUtils";
 import {
     STORAGE_KEYS,
     DEFAULT_THEME,
     DEFAULT_FONT_SIZE,
     DEFAULT_FONT_WEIGHT,
-    DEFAULT_CURSOR_THEME,
-    DEFAULT_CURSOR_SIZE,
-    DEFAULT_CURSOR_ENABLED,
 } from "@src/background/constants";
-import { removeAllStyleSheets } from "@src/content/storage/settingsManager";
 
 export type Theme = "light" | "dark";
 export type FontSize = "xs" | "s" | "m" | "l" | "xl";
 export type FontWeight = "regular" | "bold" | "xbold";
-export type CursorTheme =
-    | "white"
-    | "purple"
-    | "yellow"
-    | "mint"
-    | "pink"
-    | "black";
-export type CursorSize = "small" | "medium" | "large";
 
 interface DefaultSettings {
     theme: Theme;
     fontSize: FontSize;
     fontWeight: FontWeight;
-    cursorTheme: CursorTheme;
-    cursorSize: CursorSize;
-    isCursorEnabled: boolean;
 }
 
 const DEFAULT_SETTINGS: DefaultSettings = {
     theme: DEFAULT_THEME,
     fontSize: DEFAULT_FONT_SIZE,
     fontWeight: DEFAULT_FONT_WEIGHT,
-    cursorTheme: DEFAULT_CURSOR_THEME,
-    cursorSize: DEFAULT_CURSOR_SIZE,
-    isCursorEnabled: DEFAULT_CURSOR_ENABLED,
 };
 
 interface ThemeContextValue {
     theme: Theme;
     fontSize: FontSize;
     fontWeight: FontWeight;
-    cursorTheme: CursorTheme;
-    cursorSize: CursorSize;
-    isCursorEnabled: boolean;
     fontClasses: {
         fontHeading: string;
         fontCommon: string;
@@ -58,9 +36,6 @@ interface ThemeContextValue {
     setTheme: (v: Theme) => void;
     setFontSize: (v: FontSize) => void;
     setFontWeight: (v: FontWeight) => void;
-    setCursorTheme: (v: CursorTheme) => void;
-    setCursorSize: (v: CursorSize) => void;
-    toggleCursor: () => void;
     resetSettings: () => void;
 }
 
@@ -83,34 +58,12 @@ export function ThemeContextProvider({
         STORAGE_KEYS.FONT_WEIGHT,
         DEFAULT_SETTINGS.fontWeight,
     );
-    const [cursorTheme, setCursorTheme] = useSyncedState<CursorTheme>(
-        STORAGE_KEYS.CURSOR_THEME,
-        DEFAULT_SETTINGS.cursorTheme,
-    );
-    const [cursorSize, setCursorSize] = useSyncedState<CursorSize>(
-        STORAGE_KEYS.CURSOR_SIZE,
-        DEFAULT_SETTINGS.cursorSize,
-    );
-    const [isCursorEnabled, setIsCursorEnabled] = useSyncedState<boolean>(
-        STORAGE_KEYS.IS_CURSOR_ENABLED,
-        DEFAULT_SETTINGS.isCursorEnabled,
-    );
-
-    useEffect(() => {
-        applyCursorStyle(cursorTheme, cursorSize, isCursorEnabled);
-    }, [cursorTheme, cursorSize, isCursorEnabled]);
-
-    const toggleCursor = () => setIsCursorEnabled(!isCursorEnabled);
 
     const resetSettings = () => {
         setTheme(DEFAULT_SETTINGS.theme);
         setFontSize(DEFAULT_SETTINGS.fontSize);
         setFontWeight(DEFAULT_SETTINGS.fontWeight);
-        setCursorTheme(DEFAULT_SETTINGS.cursorTheme);
-        setCursorSize(DEFAULT_SETTINGS.cursorSize);
-        setIsCursorEnabled(DEFAULT_SETTINGS.isCursorEnabled);
 
-        // 스타일만 제거하고 iframe은 유지
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]?.id) {
                 chrome.tabs.sendMessage(tabs[0].id, {
@@ -128,16 +81,10 @@ export function ThemeContextProvider({
                 theme,
                 fontSize,
                 fontWeight,
-                cursorTheme,
-                cursorSize,
-                isCursorEnabled,
                 fontClasses,
                 setTheme,
                 setFontSize,
                 setFontWeight,
-                setCursorTheme,
-                setCursorSize,
-                toggleCursor,
                 resetSettings,
             }}
         >
