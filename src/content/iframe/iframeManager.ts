@@ -47,6 +47,7 @@ export function createIframe(): void {
         const iframe = document.createElement("iframe");
         iframe.id = EXTENSION_IFRAME_ID;
         iframe.src = chrome.runtime.getURL("iframe.html");
+        iframe.setAttribute("data-voim-root", "true");
 
         iframe.onerror = function (error: Event | string) {
             console.error("Failed to load iframe:", error);
