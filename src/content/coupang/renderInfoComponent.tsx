@@ -23,7 +23,7 @@ export const renderInfoComponent = () => {
             container.style.position = "relative";
             container.style.marginTop = "20px";
             container.style.marginBottom = "20px";
-            container.style.zIndex = "9999";
+            container.style.zIndex = "1";
 
             mainSection.parentNode?.insertBefore(
                 container,

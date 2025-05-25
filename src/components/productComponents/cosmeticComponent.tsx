@@ -112,7 +112,7 @@ export const CosmeticComponent = () => {
                     position: "absolute",
                     top: "610px",
                     right: "280px",
-                    zIndex: 9999,
+                    zIndex: 1,
                     fontFamily: "KoddiUDOnGothic",
                     textAlign: "center",
                     fontSize: "20px",
@@ -135,7 +135,7 @@ export const CosmeticComponent = () => {
                 position: "absolute",
                 top: "580px",
                 right: "280px",
-                zIndex: 9999,
+                zIndex: 1,
                 fontFamily: "KoddiUDOnGothic",
             }}
         >

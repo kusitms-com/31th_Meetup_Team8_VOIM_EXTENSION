@@ -58,7 +58,7 @@ export const renderCouponComponent = () => {
     container.style.position = "absolute";
     container.style.top = "390px";
     container.style.right = "280px";
-    container.style.zIndex = "9999";
+    container.style.zIndex = "1";
     document.body.appendChild(container);
 
     const root = createRoot(container);
