@@ -53,6 +53,5 @@ export const renderInfoComponent = () => {
 
     setTimeout(() => {
         observer.disconnect();
-        console.error("[voim] 상품 상세 섹션을 찾을 수 없습니다.");
     }, 10000);
 };

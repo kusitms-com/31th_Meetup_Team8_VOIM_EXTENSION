@@ -6,7 +6,6 @@ import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { processImages } from "./imageHandlers/imageProcessor";
-import { MountCartSummaryApp } from "./coupang/CartSummary";
 import { checkCategoryCosmeticAndRender } from "./coupang/categoryHandler/categoryHandlerCosmetic";
 import { checkCategoryFoodAndRender } from "./coupang/categoryHandler/categoryHandlerFood";
 import { checkCategoryHealthAndRender } from "./coupang/categoryHandler/categoryHandlerHealth";
@@ -55,9 +54,7 @@ processImages();
 
 if (location.href.includes("cart.coupang.com/cartView.pang")) {
     window.addEventListener("load", () => {
-        setTimeout(() => {
-            MountCartSummaryApp();
-        }, 500);
+        setTimeout(() => {}, 500);
     });
 }
 
