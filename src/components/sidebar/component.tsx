@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "../closeButton/component";
-import { FoodComponent } from "@src/components/productComponents/foodComponent";
-import { CosmeticComponent } from "@src/components/productComponents/cosmeticComponent";
+import { InfoComponent } from "@src/components/productComponents/infoComponent";
+import { ReviewSummaryComponent } from "@src/components/productComponents/reviewSummaryComponent";
+import { observeBreadcrumbFoodAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerFood";
+import { observeBreadcrumbCosmeticAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerCosmetic";
 import { HealthComponent } from "@src/components/productComponents/healthComponent";
 
 interface ModalProps {
@@ -15,13 +17,27 @@ const tabs = [
     { id: "ingredient", label: "성분 안내" },
     { id: "detail", label: "상세 정보" },
     { id: "review", label: "리뷰" },
-];
+] as const;
 
 export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const { theme } = useTheme();
-    const [selectedTab, setSelectedTab] = useState("ingredient");
-
+    const [selectedTab, setSelectedTab] =
+        useState<(typeof tabs)[number]["id"]>("ingredient");
     const isDarkMode = theme === "dark";
+
+    const foodMountRef = useRef<HTMLDivElement>(null);
+    const cosmeticMountRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (isOpen && selectedTab === "ingredient") {
+            if (type === "food" && foodMountRef.current) {
+                observeBreadcrumbFoodAndRender(foodMountRef.current);
+            }
+            if (type === "cosmetic" && cosmeticMountRef.current) {
+                observeBreadcrumbCosmeticAndRender(cosmeticMountRef.current);
+            }
+        }
+    }, [isOpen, selectedTab, type]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target !== e.currentTarget) return;
@@ -29,23 +45,40 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     };
 
     const renderContent = () => {
-        if (selectedTab === "ingredient") {
-            switch (type) {
-                case "food":
-                    return <FoodComponent />;
-                case "cosmetic":
-                    return <CosmeticComponent />;
-                case "health":
-                    return <HealthComponent />;
-                default:
-                    return null;
-            }
-        } else {
-            return (
-                <p className="text-grayscale-500">
-                    아직 구현되지 않은 탭입니다.
-                </p>
-            );
+        switch (selectedTab) {
+            case "ingredient":
+                switch (type) {
+                    case "food":
+                        return <div ref={foodMountRef} className="w-full" />;
+                    case "cosmetic":
+                        return (
+                            <div ref={cosmeticMountRef} className="w-full" />
+                        );
+                    case "health":
+                        return <HealthComponent />;
+                    default:
+                        return null;
+                }
+            case "detail":
+                return <InfoComponent />;
+            case "review":
+                return (
+                    <ReviewSummaryComponent
+                        summary={{
+                            totalCount: 0,
+                            averageRating: 0,
+                            positiveReviews: [],
+                            negativeReviews: [],
+                            keywords: [],
+                        }}
+                    />
+                );
+            default:
+                return (
+                    <p className="text-grayscale-500">
+                        아직 구현되지 않은 탭입니다.
+                    </p>
+                );
         }
     };
 
@@ -94,3 +127,5 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
         </div>
     );
 }
+
+export default Sidebar;

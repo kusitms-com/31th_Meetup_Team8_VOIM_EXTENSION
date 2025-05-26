@@ -113,13 +113,9 @@ export const FoodComponent = () => {
             <div
                 style={{
                     padding: "16px",
-                    borderRadius: "20px",
-                    width: "618px",
-                    border: "4px solid #8914FF",
+                    width: "100%",
+                    border: "none",
                     backgroundColor: "#ffffff",
-                    position: "absolute",
-                    top: "610px",
-                    right: "280px",
                     zIndex: 1,
                     fontFamily: "KoddiUDOnGothic",
                     textAlign: "center",
@@ -136,13 +132,9 @@ export const FoodComponent = () => {
         <div
             style={{
                 padding: "16px",
-                borderRadius: "20px",
-                width: "618px",
-                border: "4px solid #8914FF",
+                width: "100%",
+                border: "none",
                 backgroundColor: "#ffffff",
-                position: "absolute",
-                top: "610px",
-                right: "280px",
                 zIndex: 1,
                 fontFamily: "KoddiUDOnGothic",
             }}
@@ -153,7 +145,6 @@ export const FoodComponent = () => {
 
             <div
                 style={{
-                    borderTop: "1px solid #EAEDF4",
                     margin: "16px 0",
                 }}
             />
@@ -163,10 +154,7 @@ export const FoodComponent = () => {
                     display: "flex",
                     justifyContent: "space-between",
                     marginBottom: "12px",
-                    fontSize: "24px",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    fontFamily: "KoddiUDOnGothic",
+                    ...commonTextStyle,
                 }}
             >
                 <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
@@ -232,6 +220,7 @@ export const FoodComponent = () => {
                     justifyContent: "space-between",
                     marginBottom: "12px",
                     fontWeight: "bold",
+                    ...commonTextStyle,
                 }}
             >
                 <span>알레르기 유발 성분</span>
@@ -242,7 +231,6 @@ export const FoodComponent = () => {
                 <div
                     style={{
                         backgroundColor: "#F5F7FB",
-                        borderRadius: "12px",
                         padding: "16px",
                         marginTop: "12px",
                     }}

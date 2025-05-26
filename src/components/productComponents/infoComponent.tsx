@@ -49,6 +49,11 @@ export const InfoComponent = () => {
                 .replace(/\n/g, "")
                 .trim();
 
+            console.log("[voim] API 요청 파라미터:", {
+                outline,
+                htmlPreview: rawHtml.slice(0, 300) + "...",
+            });
+
             const result = await sendOutlineInfoRequest(outline, rawHtml);
             setInfo(result || "정보가 없습니다.");
         } catch (error) {

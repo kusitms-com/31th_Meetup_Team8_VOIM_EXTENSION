@@ -2,28 +2,11 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { FoodComponent } from "../../../components/productComponents/foodComponent";
 
-export const observeBreadcrumbFoodAndRender = () => {
-    const observer = new MutationObserver(() => {
-        const breadcrumbEl = document.querySelector("#breadcrumb");
-        if (breadcrumbEl) {
-            observer.disconnect();
-            checkCategoryFoodAndRender();
-        }
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-};
-
-export const checkCategoryFoodAndRender = () => {
+export const observeBreadcrumbFoodAndRender = (targetElement: HTMLElement) => {
+    console.log("[voim] 렌더링 함수 호출됨");
     const breadcrumbEl = document.querySelector("#breadcrumb");
-    if (!breadcrumbEl) return;
-
-    const rawText = breadcrumbEl.textContent || "";
+    const rawText = breadcrumbEl?.textContent || "";
     const cleanedText = rawText.replace(/\s+/g, "");
-    console.log("[voim] breadcrumb 내용:", cleanedText);
 
     const containsOnlyFood =
         cleanedText.includes("식품") && !cleanedText.includes("건강식품");
@@ -33,16 +16,10 @@ export const checkCategoryFoodAndRender = () => {
         return;
     }
 
-    if (document.getElementById("voim-food-component")) {
-        console.log("[voim] 이미 FoodComponent 렌더링됨");
-        return;
-    }
+    if (!targetElement) return;
+    if (targetElement.hasChildNodes()) return;
 
-    const container = document.createElement("div");
-    container.id = "voim-food-component";
-    document.body.appendChild(container);
-
-    const root = createRoot(container);
+    const root = createRoot(targetElement);
     root.render(<FoodComponent />);
-    console.log("[voim] FoodComponent 렌더링 완료");
+    console.log("[voim] FoodComponent 사이드바에 렌더링 완료");
 };
