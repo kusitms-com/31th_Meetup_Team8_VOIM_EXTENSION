@@ -116,7 +116,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                             (button) =>
                                 button
                                     .getAttribute("aria-label")
-                                    ?.includes("내 정보 설정하기"),
+                                    ?.includes("서비스 설정하기"),
                         );
                         if (myInfoButton) {
                             (myInfoButton as HTMLElement).focus();

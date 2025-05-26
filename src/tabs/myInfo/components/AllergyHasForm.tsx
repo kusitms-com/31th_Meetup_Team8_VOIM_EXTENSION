@@ -28,7 +28,7 @@ export function AllergyHasForm({ nextStep, onComplete }: AllergyHasFormProps) {
                 '[data-testid="menubar-content"] button',
             );
             const myInfoButton = Array.from(menuButtons).find((button) =>
-                button.getAttribute("aria-label")?.includes("내 정보 설정하기"),
+                button.getAttribute("aria-label")?.includes("서비스 설정하기"),
             );
             if (myInfoButton) {
                 (myInfoButton as HTMLElement).focus();
