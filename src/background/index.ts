@@ -1,18 +1,13 @@
 import { initMessageListeners } from "./listeners/messageListeners";
 import { initStorageListeners } from "./listeners/storageListeners";
-import { initTabListeners } from "./listeners/tabListeners";
 import { logger } from "@src/utils/logger";
 import {
     STORAGE_KEYS,
     DEFAULT_THEME,
     DEFAULT_FONT_SIZE,
     DEFAULT_FONT_WEIGHT,
-    DEFAULT_CURSOR_THEME,
-    DEFAULT_CURSOR_SIZE,
-    DEFAULT_CURSOR_ENABLED,
 } from "./constants";
 import { initCommandListeners } from "./listeners/commandListeners";
-import { cursorService } from "./services/cursorService";
 
 /**
  * 백그라운드 스크립트 초기화
@@ -24,31 +19,8 @@ async function init() {
         initCommandListeners();
         initMessageListeners();
         initStorageListeners();
-        initTabListeners();
 
         logger.debug("모든 리스너가 초기화되었습니다");
-
-        const result = await chrome.storage.local.get([
-            STORAGE_KEYS.CURSOR_THEME,
-            STORAGE_KEYS.CURSOR_SIZE,
-            STORAGE_KEYS.IS_CURSOR_ENABLED,
-        ]);
-
-        if (result[STORAGE_KEYS.CURSOR_THEME]) {
-            cursorService.setCursorTheme(result[STORAGE_KEYS.CURSOR_THEME]);
-        }
-
-        if (result[STORAGE_KEYS.CURSOR_SIZE]) {
-            cursorService.setCursorSize(result[STORAGE_KEYS.CURSOR_SIZE]);
-        }
-
-        if (result[STORAGE_KEYS.IS_CURSOR_ENABLED] !== undefined) {
-            cursorService.setCursorEnabled(
-                result[STORAGE_KEYS.IS_CURSOR_ENABLED],
-            );
-        }
-
-        await cursorService.updateAllTabs();
 
         chrome.commands.getAll().then((commands) => {
             logger.debug("사용 가능한 명령어:", commands);
@@ -66,9 +38,6 @@ chrome.runtime.onInstalled.addListener((details) => {
             [STORAGE_KEYS.THEME_MODE]: DEFAULT_THEME,
             [STORAGE_KEYS.FONT_SIZE]: DEFAULT_FONT_SIZE,
             [STORAGE_KEYS.FONT_WEIGHT]: DEFAULT_FONT_WEIGHT,
-            [STORAGE_KEYS.CURSOR_THEME]: DEFAULT_CURSOR_THEME,
-            [STORAGE_KEYS.CURSOR_SIZE]: DEFAULT_CURSOR_SIZE,
-            [STORAGE_KEYS.IS_CURSOR_ENABLED]: DEFAULT_CURSOR_ENABLED,
         };
         chrome.storage.local.set(defaultSettings, () => {
             logger.debug(

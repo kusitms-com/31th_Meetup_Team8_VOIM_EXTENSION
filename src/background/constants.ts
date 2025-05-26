@@ -4,10 +4,6 @@ export const DEFAULT_THEME = "light";
 export const DEFAULT_FONT_SIZE = "m";
 export const DEFAULT_FONT_WEIGHT = "bold";
 
-export const DEFAULT_CURSOR_THEME = "white";
-export const DEFAULT_CURSOR_SIZE = "medium";
-export const DEFAULT_CURSOR_ENABLED = true;
-
 export const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
 
 export const ALLOWED_FONT_MESSAGES: FontMessageType[] = [
@@ -24,9 +20,6 @@ export const ALLOWED_FONT_MESSAGES: FontMessageType[] = [
 ];
 
 export const STORAGE_KEYS = {
-    CURSOR_THEME: "cursorTheme",
-    CURSOR_SIZE: "cursorSize",
-    IS_CURSOR_ENABLED: "isCursorEnabled",
     THEME_MODE: "themeMode",
     FONT_SIZE: "fontSize",
     FONT_WEIGHT: "fontWeight",
