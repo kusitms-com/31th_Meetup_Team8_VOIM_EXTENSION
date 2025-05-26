@@ -1,6 +1,5 @@
 import { logger } from "@src/utils/logger";
 import { ALLOWED_FONT_MESSAGES } from "../constants";
-import { cursorService } from "../services/cursorService";
 import { settingsService } from "../services/settingsService";
 
 /**
@@ -32,18 +31,6 @@ export function initMessageListeners(): void {
                     sendResponse({ success: false, error: error.message });
                 });
 
-            return true;
-        }
-
-        if (message.type === "GET_CURSOR_SETTINGS") {
-            const cursorUrl = cursorService.isCursorActive()
-                ? cursorService.getCurrentCursorUrl()
-                : null;
-
-            sendResponse({
-                isCursorEnabled: cursorService.isCursorActive(),
-                cursorUrl: cursorUrl,
-            });
             return true;
         }
 
