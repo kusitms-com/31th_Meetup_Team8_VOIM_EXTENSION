@@ -136,6 +136,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_OUTLINE_INFO") {
         const { outline, html } = message.payload;
 
+        console.log("[voim][background] FETCH_OUTLINE_INFO 요청 수신됨", {
+            outline,
+            htmlPreview: html?.slice(0, 300),
+        });
+
         fetch(`https://voim.store/api/v1/products/analysis/${outline}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -343,5 +348,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
 
         return true;
+    }
+});
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "FETCH_VENDOR_HTML") {
+        if (sender.tab?.id) {
+            chrome.tabs.sendMessage(
+                sender.tab.id,
+                { type: "GET_VENDOR_HTML" },
+                (response) => {
+                    sendResponse(response);
+                },
+            );
+            return true;
+        }
     }
 });

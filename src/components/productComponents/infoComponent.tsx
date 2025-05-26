@@ -12,11 +12,10 @@ const OUTLINE_CATEGORIES = [
 ] as const;
 
 export const InfoComponent = () => {
+    console.log("InfoComponent 렌더링됨");
     const [selected, setSelected] = useState<OutlineCategory | null>(null);
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
-
-    if (!window.location.href.includes("coupang.com/vp/products/")) return null;
 
     const commonTextStyle: React.CSSProperties = {
         fontFamily: "KoddiUD OnGothic",
@@ -25,6 +24,26 @@ export const InfoComponent = () => {
         fontWeight: 700,
         lineHeight: "150%",
         textAlign: "center",
+    };
+    const fetchVendorHtml = (): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            chrome.runtime.sendMessage(
+                {
+                    type: "FETCH_VENDOR_HTML",
+                },
+                (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            "HTML 요청 실패:",
+                            chrome.runtime.lastError.message,
+                        );
+                        reject(new Error(chrome.runtime.lastError.message));
+                    } else {
+                        resolve(response?.html ?? "");
+                    }
+                },
+            );
+        });
     };
 
     const handleClick = async (outline: OutlineCategory) => {
@@ -37,27 +56,13 @@ export const InfoComponent = () => {
         setLoading(true);
 
         try {
-            const vendorEl = document.querySelector(".vendor-item");
-            if (!vendorEl) {
-                console.warn("[voim] .vendor-item 요소가 없습니다.");
-                setInfo("상품 정보를 불러올 수 없습니다.");
-                return;
-            }
+            const html = await fetchVendorHtml();
+            console.log("[voim][iframe] 받은 HTML:", html.slice(0, 300));
 
-            const rawHtml = vendorEl.outerHTML
-                .replace(/\sonerror=\"[^\"]*\"/g, "")
-                .replace(/\n/g, "")
-                .trim();
-
-            console.log("[voim] API 요청 파라미터:", {
-                outline,
-                htmlPreview: rawHtml.slice(0, 300) + "...",
-            });
-
-            const result = await sendOutlineInfoRequest(outline, rawHtml);
+            const result = await sendOutlineInfoRequest(outline, html);
             setInfo(result || "정보가 없습니다.");
         } catch (error) {
-            console.error("[voim] INFO API 실패", error);
+            console.error("[voim] INFO 요청 실패:", error);
             setInfo("정보를 불러오지 못했습니다.");
         } finally {
             setLoading(false);
@@ -68,37 +73,14 @@ export const InfoComponent = () => {
         <div
             style={{
                 padding: "24px",
-                border: "4px solid #8914FF",
+                border: "none",
+                width: "100%",
                 borderRadius: "20px",
                 backgroundColor: "#ffffff",
                 fontFamily: "KoddiUDOnGothic",
                 zIndex: 1,
             }}
         >
-            <h2
-                style={{
-                    fontSize: "24px",
-                    fontWeight: 700,
-                    marginBottom: "12px",
-                    fontFamily: "KoddiUDOnGothic",
-                }}
-            >
-                상세정보 요약
-            </h2>
-            <p
-                style={{
-                    color: "#121212",
-                    marginBottom: "16px",
-                    fontSize: "24px",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    fontFamily: "KoddiUDOnGothic",
-                }}
-            >
-                해당 상품의 상세 정보에는 다음과 같은 정보가 담겨 있습니다. 버튼
-                클릭 시, 아래에 클릭한 정보가 표시됩니다.
-            </p>
-
             {OUTLINE_CATEGORIES.map(({ key, label }) => (
                 <div
                     key={key}

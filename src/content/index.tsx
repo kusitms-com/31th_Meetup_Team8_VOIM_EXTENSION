@@ -6,7 +6,7 @@ import { processImages } from "./imageHandlers/imageProcessor";
 // import { checkCategoryFoodAndRender } from "./coupang/categoryHandler/categoryHandlerFood";
 // import { checkCategoryHealthAndRender } from "./coupang/categoryHandler/categoryHandlerHealth";
 import { renderCouponComponent } from "./coupang/renderCouponComponent";
-import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
+// import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
 import { initDomObserver } from "./observers/domObserver";
 import { detectCategoryType } from "./coupang/categoryHandler/detectCategory";
 import { createRoot } from "react-dom/client";
@@ -21,7 +21,7 @@ if (window.self !== window.top) {
         console.log("[voim] iframe 내부에서 App 렌더링");
     }
 }
-renderInfoComponent();
+// renderInfoComponent();
 checkExtensionState();
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -101,3 +101,32 @@ export const observeAndStoreCategoryType = () => {
     console.log("[voim] 카테고리 감지 대기 중...");
 };
 observeAndStoreCategoryType();
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("[voim][content] 받은 메시지:", message);
+
+    if (message.type === "GET_VENDOR_HTML") {
+        let rawHtml = "";
+
+        try {
+            const vendorEl = document.querySelector(".vendor-item");
+            rawHtml =
+                vendorEl?.outerHTML
+                    ?.replace(/\sonerror=\"[^\"]*\"/g, "")
+                    .replace(/\n/g, "")
+                    .trim() ?? "";
+
+            console.log(
+                "[voim][content] .vendor-item 추출됨:",
+                rawHtml.slice(0, 300),
+            );
+            sendResponse({ html: rawHtml });
+        } catch (e) {
+            console.error("[voim][content] vendor 추출 실패:", e);
+            sendResponse({ html: rawHtml });
+        }
+
+        return true;
+    }
+
+    return false;
+});
