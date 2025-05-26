@@ -14,14 +14,7 @@ const ControlMode = () => {
     };
 
     useEffect(() => {
-        // 테마가 변경될 때마다 선택된 모드 업데이트
         setSelectedMode(isDarkMode ? "DARK" : "LIGHT");
-
-        if (isDarkMode) {
-            document.body.style.filter = "invert(1) hue-rotate(180deg)";
-        } else {
-            document.body.style.filter = "none";
-        }
     }, [isDarkMode]);
 
     const handleModeClick = (label: string) => {
@@ -30,15 +23,12 @@ const ControlMode = () => {
 
         const themeMode = value === "DARK" ? "dark" : "light";
         setTheme(themeMode);
-
-        // chrome.storage에 테마 저장
         if (chrome?.storage?.local) {
             chrome.storage.local
                 .set({ [STORAGE_KEYS.THEME_MODE]: `SET_MODE_${value}` })
                 .catch((err) => console.error("테마 모드 저장 오류:", err));
         }
 
-        // chrome.runtime으로 메시지 전송
         chrome.runtime.sendMessage(
             { type: `SET_MODE_${value}` },
             (response) => {

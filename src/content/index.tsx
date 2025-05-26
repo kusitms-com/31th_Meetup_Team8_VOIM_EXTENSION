@@ -2,7 +2,6 @@ import { checkExtensionState } from "./storage/settingsManager";
 import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { processImages } from "./imageHandlers/imageProcessor";
-import { MountCartSummaryApp } from "./coupang/CartSummary";
 import { checkCategoryCosmeticAndRender } from "./coupang/categoryHandler/categoryHandlerCosmetic";
 import { checkCategoryFoodAndRender } from "./coupang/categoryHandler/categoryHandlerFood";
 import { checkCategoryHealthAndRender } from "./coupang/categoryHandler/categoryHandlerHealth";
@@ -22,11 +21,14 @@ document.addEventListener("visibilitychange", () => {
         checkExtensionState();
     }
 });
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        renderCouponComponent();
-    }, 1500);
-});
+
+// window.addEventListener("load", () => {
+//     setTimeout(() => {
+//         renderCouponComponent();
+//     }, 1500);
+// });
+renderCouponComponent();
+
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleStyleMessage(message, sendResponse);
@@ -45,9 +47,7 @@ processImages();
 
 if (location.href.includes("cart.coupang.com/cartView.pang")) {
     window.addEventListener("load", () => {
-        setTimeout(() => {
-            MountCartSummaryApp();
-        }, 500);
+        setTimeout(() => {}, 500);
     });
 }
 
