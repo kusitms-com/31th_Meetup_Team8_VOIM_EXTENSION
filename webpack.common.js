@@ -45,6 +45,13 @@ module.exports = {
                     "postcss-loader",
                 ],
             },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: 'asset/resource',
+                generator: {
+                    filename: '../fonts/[name][ext]'
+                }
+            },
         ],
     },
     // Setup @src path resolution for TypeScript files
@@ -61,6 +68,7 @@ module.exports = {
                 { from: "public/icons", to: "../icons" },
                 { from: "src/iframe/iframe.html", to: "../" },
                 { from: "public/images", to: "../images" },
+                { from: "src/assets/fonts", to: "../fonts" },
             ],
         }),
     ],

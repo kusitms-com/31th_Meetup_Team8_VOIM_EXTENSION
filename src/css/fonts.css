@@ -1,7 +1,10 @@
 @font-face {
-    font-family: "KoddiUDOnGothic-Regular";
-    src: url("https://fastly.jsdelivr.net/gh/projectnoonnu/noonfonts_2105_2@1.0/KoddiUDOnGothic-Regular.woff")
-        format("woff");
+    font-family: "KoddiUDOnGothic-Bold";
+    src:
+        url("../assets/fonts/KoddiUDOnGothic-Bold.woff2") format("woff2"),
+        url("../assets/fonts/KoddiUDOnGothic-Bold.woff") format("woff"),
+        url("../assets/fonts/KoddiUDOnGothic-Bold.eot")
+            format("embedded-opentype");
     font-weight: normal;
     font-style: normal;
 }
