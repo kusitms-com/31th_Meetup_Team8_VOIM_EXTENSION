@@ -345,9 +345,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 });
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.sidePanel.setOptions({
-        path: "sidepanel.html",
-        enabled: true,
-    });
-});
