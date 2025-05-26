@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "../closeButton/component";
+import { FoodComponent } from "@src/components/productComponents/foodComponent";
+import { CosmeticComponent } from "@src/components/productComponents/cosmeticComponent";
+import { HealthComponent } from "@src/components/productComponents/healthComponent";
 
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    children?: React.ReactNode;
+    type: "food" | "cosmetic" | "health";
 }
 
 const tabs = [
@@ -14,24 +17,41 @@ const tabs = [
     { id: "review", label: "리뷰" },
 ];
 
-export function Sidebar({ isOpen, onClose, children }: ModalProps) {
+export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const { theme } = useTheme();
     const [selectedTab, setSelectedTab] = useState("ingredient");
 
     const isDarkMode = theme === "dark";
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        const container = document.querySelector(
-            '[data-testid="menubar-container"]',
-        );
-        if (container && !container.contains(e.target as Node)) {
-            onClose();
+        if (e.target !== e.currentTarget) return;
+        onClose();
+    };
+
+    const renderContent = () => {
+        if (selectedTab === "ingredient") {
+            switch (type) {
+                case "food":
+                    return <FoodComponent />;
+                case "cosmetic":
+                    return <CosmeticComponent />;
+                case "health":
+                    return <HealthComponent />;
+                default:
+                    return null;
+            }
+        } else {
+            return (
+                <p className="text-grayscale-500">
+                    아직 구현되지 않은 탭입니다.
+                </p>
+            );
         }
     };
 
     return (
         <div
-            className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/30 backdrop-blur-[5px] transition-opacity duration-200 ${
+            className={`fixed top-0 left-0 w-full h-full z-[10000] bg-black/30 backdrop-blur-[5px] transition-opacity duration-200 ${
                 isOpen
                     ? "opacity-100 pointer-events-auto"
                     : "opacity-0 pointer-events-none"
@@ -41,8 +61,8 @@ export function Sidebar({ isOpen, onClose, children }: ModalProps) {
         >
             <div
                 className={`${
-                    isDarkMode ? `bg-grayscale-900` : `bg-grayscale-100`
-                } fixed top-[70px] right-[20px] rounded-[30px] w-[460px] p-5 overflow-y-auto shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] font-koddi`}
+                    isDarkMode ? "bg-grayscale-900" : "bg-grayscale-100"
+                } fixed top-0 right-0 w-[50%] h-full p-5 overflow-y-auto shadow-[0_0_4px_rgba(0,0,0,0.25)] font-koddi`}
                 data-testid="menubar-container"
             >
                 <div className="flex justify-between items-center mb-6 font-24-Bold">
@@ -68,7 +88,7 @@ export function Sidebar({ isOpen, onClose, children }: ModalProps) {
                     className="flex flex-col gap-5"
                     data-testid="menubar-content"
                 >
-                    {children}
+                    {renderContent()}
                 </div>
             </div>
         </div>
