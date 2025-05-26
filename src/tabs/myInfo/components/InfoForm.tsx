@@ -3,6 +3,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { BaseFillButton } from "@src/components/baseFillButton/component";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { BaseButton } from "@src/components/baseButton/component";
+import { CheckmarkIcon } from "@src/components/checkmarkIcon";
 
 interface InfoFormProps {
     birthYear: string;
@@ -36,7 +37,10 @@ export function InfoForm({
                     : `bg-grayscale-100 text-grayscale-900`
             }`}
         >
-            <div className="mb-[26px]">
+            <div
+                className={`mb-[26px] flex items-center gap-2 ${fontClasses.fontCaption}`}
+            >
+                <CheckmarkIcon width={30} height={30} />
                 식품 구매에 대한 맞춤 정보 제공을 위해 나이, 성별을
                 입력해주세요.
             </div>
@@ -52,7 +56,7 @@ export function InfoForm({
                     value={birthYear}
                     onChange={(e) => setBirthYear(e.target.value)}
                     className={`
-        w-full rounded-[14px] mb-4 px-6 py-[18px]
+        w-[692px] rounded-[14px] mb-4 px-6 py-[18px]
         ${
             isDarkMode
                 ? "bg-grayscale-800 text-grayscale-100 focus:border-purple-light"
@@ -90,7 +94,7 @@ export function InfoForm({
                 onClick={handleSave}
                 isDisabled={!!error || loading}
             >
-                저장하기
+                다음
             </BaseFillButton>
         </div>
     );
