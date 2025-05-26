@@ -1,12 +1,13 @@
 import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
-import { CheckmarkIcon } from "../checkmarkIcon";
+import { CheckmarkIcon } from "../icons";
 
 interface BaseButtonProps {
     children: React.ReactNode;
     onClick: () => void;
     ariaLabel?: string;
     isSelected?: boolean;
+    nonCheck?: boolean;
 }
 
 export function BaseButton({
@@ -14,6 +15,7 @@ export function BaseButton({
     onClick,
     ariaLabel,
     isSelected = false,
+    nonCheck = false,
 }: BaseButtonProps) {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
@@ -34,7 +36,7 @@ export function BaseButton({
             aria-pressed={isSelected}
         >
             {children}
-            {isSelected && (
+            {isSelected && !nonCheck && (
                 <CheckmarkIcon
                     className="absolute -right-[10px] -top-[10px]"
                     data-testid="checkmark-icon"

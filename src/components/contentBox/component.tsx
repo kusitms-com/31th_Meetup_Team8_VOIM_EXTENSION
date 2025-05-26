@@ -12,7 +12,7 @@ export function ContentBox({ children, ariaLabel }: ContentBoxProps) {
     const isDarkMode = theme === "dark";
     return (
         <div
-            className={`${fontClasses.fontCommon} font-koddi px-[24px] py-[18px] rounded-[14px] flex justify-between gap-[110px]
+            className={`${fontClasses.fontCommon} font-koddi px-[24px] py-[18px] rounded-[14px] flex justify-between gap-[110px] w-full
             ${isDarkMode ? `bg-grayscale-800 text-grayscale-100` : `bg-grayscale-200 text-grayscale-900`}`}
             aria-label={ariaLabel}
         >

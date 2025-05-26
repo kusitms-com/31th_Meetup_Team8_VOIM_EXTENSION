@@ -1,45 +1,33 @@
 import React from "react";
-import type { Dispatch, SetStateAction } from "react";
 import { BaseFillButton } from "@src/components/baseFillButton/component";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { BaseButton } from "@src/components/baseButton/component";
+import { useUserInfo } from "@src/hooks/useUserInfo";
 
 interface InfoFormProps {
-    birthYear: string;
-    setBirthYear: Dispatch<SetStateAction<string>>;
-    gender: "" | "male" | "female";
-    setGender: Dispatch<SetStateAction<"" | "male" | "female">>;
-    error: string;
-    saved: boolean;
-    loading: boolean;
-    handleSave: () => void;
+    nextStep: () => void;
 }
 
-export function InfoForm({
-    birthYear,
-    setBirthYear,
-    gender,
-    setGender,
-    error,
-    saved,
-    loading,
-    handleSave,
-}: InfoFormProps) {
+export function InfoForm({ nextStep }: InfoFormProps) {
     const { fontClasses, theme } = useTheme();
     const isDarkMode = theme === "dark";
+    const {
+        birthYear,
+        setBirthYear,
+        gender,
+        setGender,
+        error,
+        saved,
+        loading,
+        handleSave,
+    } = useUserInfo();
 
+    const handleSaveWithComplete = async () => {
+        await handleSave();
+        nextStep();
+    };
     return (
-        <div
-            className={`font-koddi ${fontClasses.fontCommon} p-[18px] rounded-[20px] shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] ${
-                isDarkMode
-                    ? `bg-grayscale-900 text-grayscale-100`
-                    : `bg-grayscale-100 text-grayscale-900`
-            }`}
-        >
-            <div className="mb-[26px]">
-                식품 구매에 대한 맞춤 정보 제공을 위해 나이, 성별을
-                입력해주세요.
-            </div>
+        <>
             <div className="mb-[26px]">
                 <div className="mb-4">
                     출생연도를 4자리 숫자로 입력해주세요.
@@ -52,7 +40,7 @@ export function InfoForm({
                     value={birthYear}
                     onChange={(e) => setBirthYear(e.target.value)}
                     className={`
-        w-full rounded-[14px] mb-4 px-6 py-[18px]
+        w-[692px] rounded-[14px] mb-4 px-6 py-[18px]
         ${
             isDarkMode
                 ? "bg-grayscale-800 text-grayscale-100 focus:border-purple-light"
@@ -87,11 +75,11 @@ export function InfoForm({
             </div>
 
             <BaseFillButton
-                onClick={handleSave}
+                onClick={handleSaveWithComplete}
                 isDisabled={!!error || loading}
             >
-                저장하기
+                다음
             </BaseFillButton>
-        </div>
+        </>
     );
 }
