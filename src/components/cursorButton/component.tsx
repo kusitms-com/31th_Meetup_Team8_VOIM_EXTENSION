@@ -1,7 +1,7 @@
 import React from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { getExtensionUrl } from "@src/utils/getExtensionUrl";
-import { CheckmarkIcon } from "../checkmarkIcon";
+import { CheckmarkIcon } from "../icons";
 
 interface CursorButtonProps {
     onClick: () => void;

@@ -1,1 +1,0 @@
-export { CheckmarkIcon } from "./component";
