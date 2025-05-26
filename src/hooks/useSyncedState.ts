@@ -21,10 +21,7 @@ export function useSyncedState<T>(
         if (
             key === STORAGE_KEYS.FONT_SIZE ||
             key === STORAGE_KEYS.FONT_WEIGHT ||
-            key === STORAGE_KEYS.THEME_MODE ||
-            key === STORAGE_KEYS.CURSOR_THEME ||
-            key === STORAGE_KEYS.CURSOR_SIZE ||
-            key === STORAGE_KEYS.IS_CURSOR_ENABLED
+            key === STORAGE_KEYS.THEME_MODE
         ) {
             chrome?.storage?.local?.set({
                 [key]: v,

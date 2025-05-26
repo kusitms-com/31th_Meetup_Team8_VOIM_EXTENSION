@@ -1,10 +1,5 @@
-"../utils/logger";
 import { storageService } from "./storageService";
-import { cursorService } from "./cursorService";
 import {
-    DEFAULT_CURSOR_ENABLED,
-    DEFAULT_CURSOR_SIZE,
-    DEFAULT_CURSOR_THEME,
     DEFAULT_FONT_SIZE,
     DEFAULT_FONT_WEIGHT,
     DEFAULT_THEME,
@@ -38,10 +33,6 @@ class SettingsService {
         try {
             await storageService.resetAllSettings();
 
-            cursorService.setCursorTheme(DEFAULT_CURSOR_THEME);
-            cursorService.setCursorSize(DEFAULT_CURSOR_SIZE);
-            cursorService.setCursorEnabled(DEFAULT_CURSOR_ENABLED);
-
             const tabs = await chrome.tabs.query({ active: true });
 
             for (const tab of tabs) {
@@ -53,9 +44,6 @@ class SettingsService {
                                 themeMode: DEFAULT_THEME,
                                 fontSize: DEFAULT_FONT_SIZE,
                                 fontWeight: DEFAULT_FONT_WEIGHT,
-                                cursorTheme: DEFAULT_CURSOR_THEME,
-                                cursorSize: DEFAULT_CURSOR_SIZE,
-                                isCursorEnabled: DEFAULT_CURSOR_ENABLED,
                             },
                         });
                     } catch (e) {
@@ -98,14 +86,6 @@ class SettingsService {
                             type: `SET_MODE_${savedSettings.themeMode.toUpperCase()}`,
                         });
                     }
-
-                    await chrome.tabs.sendMessage(tabId, {
-                        type: "UPDATE_CURSOR",
-                        isCursorEnabled: savedSettings.isCursorEnabled ?? false,
-                        cursorUrl: savedSettings.isCursorEnabled
-                            ? cursorService.getCurrentCursorUrl()
-                            : null,
-                    });
 
                     await chrome.tabs.sendMessage(tabId, {
                         type: "RESTORE_ALL_STYLES",
@@ -154,16 +134,6 @@ class SettingsService {
                     await chrome.tabs
                         .sendMessage(tab.id, {
                             type: "SET_FONT_WEIGHT_BOLD",
-                        })
-                        .catch(() => {});
-
-                    await chrome.tabs
-                        .sendMessage(tab.id, {
-                            type: "UPDATE_CURSOR",
-                            isCursorEnabled: DEFAULT_CURSOR_ENABLED,
-                            cursorUrl: chrome.runtime.getURL(
-                                `cursors/${DEFAULT_CURSOR_THEME}_${DEFAULT_CURSOR_SIZE}.png`,
-                            ),
                         })
                         .catch(() => {});
                 } catch (error) {}
