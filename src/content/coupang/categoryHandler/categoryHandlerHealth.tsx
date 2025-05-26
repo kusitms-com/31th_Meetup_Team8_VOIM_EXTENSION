@@ -31,7 +31,10 @@ export const checkCategoryHealthAndRender = () => {
     const cleanedText = rawText.replace(/\s+/g, "");
     console.log("[voim] breadcrumb 내용:", cleanedText);
 
-    const isFoodCategory = cleanedText.includes("헬스/건강식품");
+    const isFoodCategory =
+        cleanedText.includes("건강") &&
+        !cleanedText.includes("건강가전") &&
+        !cleanedText.includes("건강도서");
     if (!isFoodCategory) {
         console.log("[voim] 헬스 카테고리가 아님");
         return;

@@ -43,6 +43,7 @@ export const HealthComponent = () => {
                 },
                 (res) => {
                     const data = res?.data?.types || [];
+                    console.log("API 응답 데이터:", data);
                     setHealthEffects(data);
                 },
             );
@@ -54,14 +55,17 @@ export const HealthComponent = () => {
             document.querySelector(".prod-image");
 
         if (targetEl) {
+            console.log(" 타겟 요소 찾음:", targetEl);
             fetchData(targetEl);
         } else {
+            console.log("타겟 요소가 없어 MutationObserver 설정 중...");
             const observer = new MutationObserver(() => {
                 const el =
                     document.querySelector(".vendor-item") ||
                     document.querySelector(".product-detail-content") ||
                     document.querySelector(".prod-image");
                 if (el) {
+                    console.log("MutationObserver가 타겟 요소 탐지:", el);
                     observer.disconnect();
                     fetchData(el);
                 }
@@ -72,6 +76,7 @@ export const HealthComponent = () => {
     }, []);
 
     if (!healthEffects) {
+        console.log(" healthEffects 데이터가 아직 없습니다");
         return (
             <div
                 style={{
@@ -96,6 +101,7 @@ export const HealthComponent = () => {
     }
 
     const visibleItems = showAll ? healthEffects : healthEffects.slice(0, 3);
+    console.log("👓 보여질 효능 리스트:", visibleItems);
 
     return (
         <div
@@ -163,7 +169,10 @@ export const HealthComponent = () => {
                     border: "none",
                     cursor: "pointer",
                 }}
-                onClick={() => setShowAll(!showAll)}
+                onClick={() => {
+                    console.log("전체 보기 버튼 클릭:", !showAll);
+                    setShowAll(!showAll);
+                }}
             >
                 {showAll ? "전체 보기 닫기" : "전체 보기"}
             </button>
