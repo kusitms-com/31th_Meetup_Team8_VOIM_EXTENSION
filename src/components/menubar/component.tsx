@@ -40,6 +40,11 @@ export const Menubar: React.FC<ModalProps> = ({
 
             const handleKeyDown = (e: KeyboardEvent) => {
                 if (e.key === "Tab") {
+                    const activeElement = document.activeElement;
+                    const serviceButton = menubarRef.current?.querySelector(
+                        '[aria-label="서비스 설정하기"]',
+                    );
+
                     if (e.shiftKey) {
                         if (
                             document.activeElement === firstFocusableRef.current
@@ -48,7 +53,16 @@ export const Menubar: React.FC<ModalProps> = ({
                             lastFocusableRef.current?.focus();
                         }
                     } else {
-                        if (
+                        if (activeElement === serviceButton) {
+                            e.preventDefault();
+                            const resetButton =
+                                menubarRef.current?.querySelector(
+                                    '[data-testid="reset-button"]',
+                                ) as HTMLElement;
+                            if (resetButton) {
+                                resetButton.focus();
+                            }
+                        } else if (
                             document.activeElement === lastFocusableRef.current
                         ) {
                             e.preventDefault();
@@ -125,7 +139,10 @@ export const Menubar: React.FC<ModalProps> = ({
                 data-testid="menubar-container"
             >
                 <div className="flex justify-between mb-6 font-24-Bold">
-                    <BaseButton onClick={handleResetSettings}>
+                    <BaseButton
+                        onClick={handleResetSettings}
+                        data-testid="reset-button"
+                    >
                         설정 초기화
                     </BaseButton>
 

@@ -7,10 +7,11 @@ interface MenubarButtonProps {
     text: string;
     ariaLabel: string;
     onClick?: () => void;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLButtonElement>) => void;
 }
 
 export const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
-    ({ isSelected, text, onClick, ariaLabel }, ref) => {
+    ({ isSelected, text, onClick, onKeyDown, ariaLabel }, ref) => {
         const { theme, fontClasses } = useTheme();
         const isDarkMode = theme === "dark";
 
@@ -18,6 +19,7 @@ export const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
             <button
                 ref={ref}
                 onClick={onClick}
+                onKeyDown={onKeyDown}
                 className={`${fontClasses.fontHeading} font-koddi flex items-center justify-between rounded-[14px] w-[420px] h-[88px] p-5 
                     ${
                         isSelected

@@ -8,6 +8,7 @@ interface BaseButtonProps {
     ariaLabel?: string;
     isSelected?: boolean;
     nonCheck?: boolean;
+    "data-testid"?: string;
 }
 
 export function BaseButton({
@@ -16,6 +17,7 @@ export function BaseButton({
     ariaLabel,
     isSelected = false,
     nonCheck = false,
+    "data-testid": dataTestId,
 }: BaseButtonProps) {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
@@ -34,6 +36,7 @@ export function BaseButton({
             onClick={onClick}
             aria-label={ariaLabel}
             aria-pressed={isSelected}
+            data-testid={dataTestId}
         >
             {children}
             {isSelected && !nonCheck && (

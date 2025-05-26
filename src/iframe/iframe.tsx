@@ -1,189 +1,30 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
-
+import React, { useEffect, useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-import { useTheme } from "@src/contexts/ThemeContext";
-import { ShortcutTab } from "@src/components/shortcutTab";
-import ControlMode from "@src/components/modeButton/ControlMode";
-import ControlFont from "@src/components/fontButton/ControlFont";
-import { MyInfo } from "@src/tabs/myInfo";
-import ControlService from "@src/components/serviceButton/ControlService";
+import { useUserInfo } from "@src/hooks/useUserInfo";
+import { useModalManagement } from "@src/hooks/useModalManagement";
+import { PanelContent } from "@src/components/panelContent/component";
 import { Onboarding } from "@src/tabs/myInfo/components";
+import { MyInfo } from "@src/tabs/myInfo";
+import { menuItems } from "@src/constants/menuItems";
 
 import "../css/app.css";
-import { useUserInfo } from "@src/hooks/useUserInfo";
-
-interface PanelContentProps {
-    menuId: string | null;
-}
-
-const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
-    const panelRef = useRef<HTMLDivElement>(null);
-    const firstFocusableRef = useRef<HTMLElement | null>(null);
-    const lastFocusableRef = useRef<HTMLElement | null>(null);
-
-    useEffect(() => {
-        if (menuId && panelRef.current) {
-            panelRef.current.focus();
-
-            const focusableElements = panelRef.current.querySelectorAll(
-                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-            );
-
-            if (focusableElements.length > 0) {
-                firstFocusableRef.current = focusableElements[0] as HTMLElement;
-                lastFocusableRef.current = focusableElements[
-                    focusableElements.length - 1
-                ] as HTMLElement;
-
-                firstFocusableRef.current.focus();
-            }
-
-            const handleKeyDown = (e: KeyboardEvent) => {
-                if (e.key === "Tab") {
-                    if (e.shiftKey) {
-                        if (
-                            document.activeElement === firstFocusableRef.current
-                        ) {
-                            e.preventDefault();
-
-                            const menuButtons = document.querySelectorAll(
-                                '[data-testid="menubar-content"] button',
-                            );
-                            const currentMenuButton = Array.from(
-                                menuButtons,
-                            ).find((button) =>
-                                button
-                                    .getAttribute("aria-label")
-                                    ?.includes(menuId || ""),
-                            );
-                            if (currentMenuButton) {
-                                (currentMenuButton as HTMLElement).focus();
-                            }
-                        }
-                    } else {
-                        if (
-                            document.activeElement === lastFocusableRef.current
-                        ) {
-                            e.preventDefault();
-
-                            const menuButtons = document.querySelectorAll(
-                                '[data-testid="menubar-content"] button',
-                            );
-                            const currentIndex = menuItems.findIndex(
-                                (item) => item.id === menuId,
-                            );
-                            if (currentIndex !== -1) {
-                                if (currentIndex < menuItems.length - 1) {
-                                    const nextButton = menuButtons[
-                                        currentIndex + 1
-                                    ] as HTMLElement;
-                                    if (nextButton) {
-                                        nextButton.focus();
-                                    }
-                                } else {
-                                    const firstButton =
-                                        menuButtons[0] as HTMLElement;
-                                    if (firstButton) {
-                                        firstButton.focus();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            };
-
-            panelRef.current.addEventListener("keydown", handleKeyDown);
-            return () => {
-                panelRef.current?.removeEventListener("keydown", handleKeyDown);
-            };
-        }
-    }, [menuId]);
-
-    switch (menuId) {
-        case "high-contrast":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={0}
-                    role="tabpanel"
-                    aria-label="고대비 화면 설정"
-                >
-                    <ControlMode />
-                </div>
-            );
-
-        case "font":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={0}
-                    role="tabpanel"
-                    aria-label="글자 설정"
-                >
-                    <ControlFont />
-                </div>
-            );
-
-        case "shortcut":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={0}
-                    role="tabpanel"
-                    aria-label="단축키 안내 보기"
-                >
-                    <ShortcutTab />
-                </div>
-            );
-
-        case "my-info":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={0}
-                    role="tabpanel"
-                    aria-label="내 정보 설정하기"
-                >
-                    <MyInfo />
-                </div>
-            );
-
-        case "service":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={0}
-                    role="tabpanel"
-                    aria-label="서비스 설정하기"
-                >
-                    <ControlService />
-                </div>
-            );
-
-        default:
-            return null;
-    }
-};
-
-const menuItems = [
-    { id: "high-contrast", text: "고대비 화면 사용하기" },
-    { id: "font", text: "글자 설정하기" },
-    { id: "shortcut", text: "단축키 안내 보기" },
-    { id: "my-info", text: "내 정보 설정하기" },
-    { id: "service", text: "서비스 설정하기" },
-];
 
 const App: React.FC = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
+    const {
+        isModalOpen,
+        setIsModalOpen,
+        selectedMenu,
+        lastSelectedMenuRef,
+        menuButtonRefs,
+        handleMenuClick,
+        toggleModal,
+        setSelectedMenu,
+    } = useModalManagement();
+
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
-    const lastSelectedMenuRef = useRef<string | null>(null);
-    const menuButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
     const { birthYear, gender, loading } = useUserInfo();
 
     useEffect(() => {
@@ -191,7 +32,7 @@ const App: React.FC = () => {
             const btn = menuButtonRefs.current[lastSelectedMenuRef.current];
             btn?.focus();
         }
-    }, [selectedMenu]);
+    }, [selectedMenu, lastSelectedMenuRef]);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -202,36 +43,7 @@ const App: React.FC = () => {
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [selectedMenu]);
-
-    useEffect(() => {
-        if (isModalOpen) {
-            const handleKeyDown = (e: KeyboardEvent) => {
-                if (e.key === "Tab" && !e.shiftKey) {
-                    const menuButtons = document.querySelectorAll(
-                        '[data-testid="menubar-content"] button',
-                    );
-                    const currentButton = document.activeElement;
-                    const currentIndex = Array.from(menuButtons).indexOf(
-                        currentButton as Element,
-                    );
-
-                    if (currentIndex === menuItems.length - 1) {
-                        e.preventDefault();
-                        const resetButton = document.querySelector(
-                            '[data-testid="menubar-container"] button',
-                        ) as HTMLElement;
-                        if (resetButton) {
-                            resetButton.focus();
-                        }
-                    }
-                }
-            };
-
-            document.addEventListener("keydown", handleKeyDown);
-            return () => document.removeEventListener("keydown", handleKeyDown);
-        }
-    }, [isModalOpen]);
+    }, [selectedMenu, setSelectedMenu]);
 
     useEffect(() => {
         chrome.storage.local.get(["isFirstInstall"], (result) => {
@@ -251,76 +63,6 @@ const App: React.FC = () => {
             }
         });
     }, [birthYear, gender, loading]);
-
-    const handleMenuClick = useCallback(
-        (menuId: string) => {
-            if (menuId === selectedMenu) {
-                setSelectedMenu(null);
-            } else {
-                setSelectedMenu(menuId);
-                lastSelectedMenuRef.current = menuId;
-
-                setTimeout(() => {
-                    const panel = document.querySelector('[role="tabpanel"]');
-                    if (panel) {
-                        (panel as HTMLElement).focus();
-                    }
-                }, 0);
-            }
-        },
-        [selectedMenu],
-    );
-
-    const toggleModal = useCallback(() => {
-        setIsModalOpen((prev) => {
-            const newState = !prev;
-
-            if (!newState) {
-                setSelectedMenu(null);
-                setIsOnboarding(false);
-            }
-
-            window.parent.postMessage(
-                { type: "RESIZE_IFRAME", isOpen: newState },
-                "*",
-            );
-
-            return newState;
-        });
-    }, []);
-
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (!event.data || typeof event.data.type !== "string") return;
-
-            switch (event.data.type) {
-                case "TOGGLE_MODAL":
-                    toggleModal();
-                    break;
-                case "HIDE_LOGO":
-                    document.getElementById("logo")?.classList.add("hidden");
-                    chrome.storage.local.set({ "logo-hidden": true });
-                    break;
-                case "SHOW_LOGO":
-                    document.getElementById("logo")?.classList.remove("hidden");
-                    chrome.storage.local.set({ "logo-hidden": false });
-                    break;
-                default:
-                    break;
-            }
-        };
-
-        window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
-    }, [toggleModal]);
-
-    useEffect(() => {
-        chrome.storage.local.get("logo-hidden", (res) => {
-            if (res["logo-hidden"]) {
-                document.getElementById("logo")?.classList.add("hidden");
-            }
-        });
-    }, []);
 
     const handleOnboardingComplete = () => {
         setIsOnboarding(false);
@@ -346,6 +88,29 @@ const App: React.FC = () => {
                 (myInfoButton as HTMLElement).focus();
             }
         }, 0);
+    };
+
+    const handleMenuKeyDown = (
+        e: React.KeyboardEvent<HTMLButtonElement>,
+        id: string,
+    ) => {
+        if (e.key === "Tab" && !e.shiftKey && id === "service") {
+            e.preventDefault();
+            const menubarContainer = document.querySelector(
+                '[data-testid="menubar-container"]',
+            );
+
+            if (menubarContainer) {
+                const resetButton = menubarContainer.querySelector(
+                    '[data-testid="reset-button"]',
+                ) as HTMLButtonElement;
+
+                if (resetButton) {
+                    resetButton.focus();
+                    resetButton.setAttribute("tabIndex", "0");
+                }
+            }
+        }
     };
 
     if (isOnboarding) {
@@ -384,7 +149,8 @@ const App: React.FC = () => {
                         isSelected={selectedMenu === id}
                         text={text}
                         onClick={() => handleMenuClick(id)}
-                        ariaLabel={`${text} 선택`}
+                        onKeyDown={(e) => handleMenuKeyDown(e, id)}
+                        ariaLabel={`${text}`}
                         ref={(el) => (menuButtonRefs.current[id] = el)}
                     />
                 ))}
