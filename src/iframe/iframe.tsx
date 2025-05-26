@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
@@ -20,10 +20,86 @@ interface PanelContentProps {
 
 const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     const panelRef = useRef<HTMLDivElement>(null);
+    const firstFocusableRef = useRef<HTMLElement | null>(null);
+    const lastFocusableRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         if (menuId && panelRef.current) {
             panelRef.current.focus();
+
+            const focusableElements = panelRef.current.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            );
+
+            if (focusableElements.length > 0) {
+                firstFocusableRef.current = focusableElements[0] as HTMLElement;
+                lastFocusableRef.current = focusableElements[
+                    focusableElements.length - 1
+                ] as HTMLElement;
+
+                firstFocusableRef.current.focus();
+            }
+
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Tab") {
+                    if (e.shiftKey) {
+                        if (
+                            document.activeElement === firstFocusableRef.current
+                        ) {
+                            e.preventDefault();
+
+                            const menuButtons = document.querySelectorAll(
+                                '[data-testid="menubar-content"] button',
+                            );
+                            const currentMenuButton = Array.from(
+                                menuButtons,
+                            ).find((button) =>
+                                button
+                                    .getAttribute("aria-label")
+                                    ?.includes(menuId || ""),
+                            );
+                            if (currentMenuButton) {
+                                (currentMenuButton as HTMLElement).focus();
+                            }
+                        }
+                    } else {
+                        if (
+                            document.activeElement === lastFocusableRef.current
+                        ) {
+                            e.preventDefault();
+
+                            const menuButtons = document.querySelectorAll(
+                                '[data-testid="menubar-content"] button',
+                            );
+                            const currentIndex = menuItems.findIndex(
+                                (item) => item.id === menuId,
+                            );
+                            if (currentIndex !== -1) {
+                                if (currentIndex < menuItems.length - 1) {
+                                    const nextButton = menuButtons[
+                                        currentIndex + 1
+                                    ] as HTMLElement;
+                                    if (nextButton) {
+                                        nextButton.focus();
+                                    }
+                                } else {
+                                    const resetButton = document.querySelector(
+                                        '[data-testid="menubar-container"] button',
+                                    ) as HTMLElement;
+                                    if (resetButton) {
+                                        resetButton.focus();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            panelRef.current.addEventListener("keydown", handleKeyDown);
+            return () => {
+                panelRef.current?.removeEventListener("keydown", handleKeyDown);
+            };
         }
     }, [menuId]);
 
@@ -32,7 +108,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             return (
                 <div
                     ref={panelRef}
-                    tabIndex={-1}
+                    tabIndex={0}
                     role="tabpanel"
                     aria-label="고대비 화면 설정"
                 >
@@ -44,46 +120,50 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             return (
                 <div
                     ref={panelRef}
-                    tabIndex={-1}
+                    tabIndex={0}
                     role="tabpanel"
                     aria-label="글자 설정"
                 >
                     <ControlFont />
                 </div>
             );
+
         case "shortcut":
             return (
                 <div
                     ref={panelRef}
-                    tabIndex={-1}
+                    tabIndex={0}
                     role="tabpanel"
                     aria-label="단축키 안내"
                 >
                     <ShortcutTab />
                 </div>
             );
+
         case "my-info":
             return (
                 <div
                     ref={panelRef}
-                    tabIndex={-1}
+                    tabIndex={0}
                     role="tabpanel"
                     aria-label="내 정보 설정"
                 >
                     <MyInfo />
                 </div>
             );
+
         case "service":
             return (
                 <div
                     ref={panelRef}
-                    tabIndex={-1}
+                    tabIndex={0}
                     role="tabpanel"
                     aria-label="서비스 설정"
                 >
                     <ControlService />
                 </div>
             );
+
         default:
             return null;
     }
@@ -97,15 +177,65 @@ const menuItems = [
     { id: "service", text: "서비스 설정하기" },
 ];
 
-const App = () => {
+const App: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
+    const lastSelectedMenuRef = useRef<string | null>(null);
+    const menuButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+    const panelRef = useRef<HTMLDivElement>(null);
+
     const { birthYear, gender, loading } = useUserInfo();
 
     useEffect(() => {
-        // Check if it's first installation or user info is empty
+        if (selectedMenu === null && lastSelectedMenuRef.current) {
+            const btn = menuButtonRefs.current[lastSelectedMenuRef.current];
+            btn?.focus();
+        }
+    }, [selectedMenu]);
+
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape" && selectedMenu !== null) {
+                setSelectedMenu(null);
+            }
+        };
+
+        window.addEventListener("keydown", onKeyDown);
+        return () => window.removeEventListener("keydown", onKeyDown);
+    }, [selectedMenu]);
+
+    useEffect(() => {
+        if (isModalOpen) {
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Tab" && !e.shiftKey) {
+                    const menuButtons = document.querySelectorAll(
+                        '[data-testid="menubar-content"] button',
+                    );
+                    const currentButton = document.activeElement;
+                    const currentIndex = Array.from(menuButtons).indexOf(
+                        currentButton as Element,
+                    );
+
+                    if (currentIndex === menuItems.length - 1) {
+                        e.preventDefault();
+                        const resetButton = document.querySelector(
+                            '[data-testid="menubar-container"] button',
+                        ) as HTMLElement;
+                        if (resetButton) {
+                            resetButton.focus();
+                        }
+                    }
+                }
+            };
+
+            document.addEventListener("keydown", handleKeyDown);
+            return () => document.removeEventListener("keydown", handleKeyDown);
+        }
+    }, [isModalOpen]);
+
+    useEffect(() => {
         chrome.storage.local.get(["isFirstInstall"], (result) => {
             if (result.isFirstInstall === undefined) {
                 chrome.storage.local.set({ isFirstInstall: true });
@@ -124,76 +254,47 @@ const App = () => {
         });
     }, [birthYear, gender, loading]);
 
-    const handleOnboardingComplete = () => {
-        setIsOnboarding(false);
-        setShowUserInfo(true);
-        chrome.storage.local.set({ isFirstInstall: false });
-    };
+    const handleMenuClick = useCallback(
+        (menuId: string) => {
+            if (menuId === selectedMenu) {
+                setSelectedMenu(null);
+            } else {
+                setSelectedMenu(menuId);
+                lastSelectedMenuRef.current = menuId;
 
-    const handleUserInfoComplete = () => {
-        setShowUserInfo(false);
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: false },
-            "*",
-        );
-    };
-
-    const openModal = () => {
-        setIsModalOpen(true);
-        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
-    };
-
-    const toggleModal = () => {
-        const newState = !isModalOpen;
-        setIsModalOpen(newState);
-
-        if (!newState) {
-            setSelectedMenu(null);
-            setIsOnboarding(false);
-        }
-
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: newState },
-            "*",
-        );
-    };
-
-    useEffect(() => {
-        const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
+                setTimeout(() => {
+                    const panel = document.querySelector('[role="tabpanel"]');
+                    if (panel) {
+                        (panel as HTMLElement).focus();
+                    }
+                }, 0);
             }
-        };
+        },
+        [selectedMenu],
+    );
 
-        window.addEventListener("message", handleMessage);
+    const toggleModal = useCallback(() => {
+        setIsModalOpen((prev) => {
+            const newState = !prev;
 
-        return () => {
-            window.removeEventListener("message", handleMessage);
-        };
-    }, [isModalOpen]);
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedMenu(null);
-        setIsOnboarding(false);
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: false },
-            "*",
-        );
-    };
-
-    const handleMenuClick = (menuId: string) => {
-        setSelectedMenu(menuId === selectedMenu ? null : menuId);
-    };
-
-    useEffect(() => {
-        chrome.storage.local.get("logo-hidden", (res) => {
-            if (res["logo-hidden"]) {
-                document.getElementById("logo")?.classList.add("hidden");
+            if (!newState) {
+                setSelectedMenu(null);
+                setIsOnboarding(false);
             }
+
+            window.parent.postMessage(
+                { type: "RESIZE_IFRAME", isOpen: newState },
+                "*",
+            );
+
+            return newState;
         });
+    }, []);
 
+    useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
+            if (!event.data || typeof event.data.type !== "string") return;
+
             switch (event.data.type) {
                 case "TOGGLE_MODAL":
                     toggleModal();
@@ -213,7 +314,29 @@ const App = () => {
 
         window.addEventListener("message", handleMessage);
         return () => window.removeEventListener("message", handleMessage);
-    }, [isModalOpen]);
+    }, [toggleModal]);
+
+    useEffect(() => {
+        chrome.storage.local.get("logo-hidden", (res) => {
+            if (res["logo-hidden"]) {
+                document.getElementById("logo")?.classList.add("hidden");
+            }
+        });
+    }, []);
+
+    const handleOnboardingComplete = () => {
+        setIsOnboarding(false);
+        setShowUserInfo(true);
+        chrome.storage.local.set({ isFirstInstall: false });
+    };
+
+    const handleUserInfoComplete = () => {
+        setShowUserInfo(false);
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: false },
+            "*",
+        );
+    };
 
     if (isOnboarding) {
         return (
@@ -233,18 +356,20 @@ const App = () => {
 
     return (
         <div className="pointer-events-auto">
-            {!isModalOpen && <FloatingButton onClick={openModal} />}
+            {!isModalOpen && <FloatingButton onClick={toggleModal} />}
 
-            <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                {menuItems.map((item) => (
+            <Menubar isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+                {menuItems.map(({ id, text }) => (
                     <MenubarButton
-                        key={item.id}
-                        isSelected={selectedMenu === item.id}
-                        text={item.text}
-                        onClick={() => handleMenuClick(item.id)}
-                        ariaLabel={`${item.text} 선택`}
+                        key={id}
+                        isSelected={selectedMenu === id}
+                        text={text}
+                        onClick={() => handleMenuClick(id)}
+                        ariaLabel={`${text} 선택`}
+                        ref={(el) => (menuButtonRefs.current[id] = el)}
                     />
                 ))}
+
                 <div
                     className={`fixed right-[500px] top-[70px] bg-none overflow-y-auto transition-transform duration-300 z-[10000] ${
                         isModalOpen && selectedMenu !== null ? "flex" : "hidden"

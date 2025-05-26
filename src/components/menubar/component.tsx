@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import { logger } from "@src/utils/logger";
 import { useTheme } from "@src/contexts/ThemeContext";
 
@@ -11,10 +11,64 @@ interface ModalProps {
     children: React.ReactNode;
 }
 
-export function Menubar({ isOpen, onClose, children }: ModalProps) {
+export const Menubar: React.FC<ModalProps> = ({
+    isOpen,
+    onClose,
+    children,
+}) => {
     const { theme, resetSettings } = useTheme();
+    const menubarRef = useRef<HTMLDivElement>(null);
+    const firstFocusableRef = useRef<HTMLElement | null>(null);
+    const lastFocusableRef = useRef<HTMLElement | null>(null);
 
     const isDarkMode = theme === "dark";
+
+    useEffect(() => {
+        if (isOpen && menubarRef.current) {
+            const focusableElements = menubarRef.current.querySelectorAll(
+                'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+            );
+
+            if (focusableElements.length > 0) {
+                firstFocusableRef.current = focusableElements[0] as HTMLElement;
+                lastFocusableRef.current = focusableElements[
+                    focusableElements.length - 1
+                ] as HTMLElement;
+
+                firstFocusableRef.current.focus();
+            }
+
+            const handleKeyDown = (e: KeyboardEvent) => {
+                if (e.key === "Tab") {
+                    if (e.shiftKey) {
+                        if (
+                            document.activeElement === firstFocusableRef.current
+                        ) {
+                            e.preventDefault();
+                            lastFocusableRef.current?.focus();
+                        }
+                    } else {
+                        if (
+                            document.activeElement === lastFocusableRef.current
+                        ) {
+                            e.preventDefault();
+                            firstFocusableRef.current?.focus();
+                        }
+                    }
+                } else if (e.key === "Escape") {
+                    onClose();
+                }
+            };
+
+            menubarRef.current.addEventListener("keydown", handleKeyDown);
+            return () => {
+                menubarRef.current?.removeEventListener(
+                    "keydown",
+                    handleKeyDown,
+                );
+            };
+        }
+    }, [isOpen, onClose]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const container = document.querySelector(
@@ -40,8 +94,11 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
             });
     };
 
+    if (!isOpen) return null;
+
     return (
         <div
+            ref={menubarRef}
             className={`fixed top-0 left-0 w-full h-full flex items-center justify-center z-[10000] bg-black/30 backdrop-blur-[5px] transition-opacity duration-200 ${
                 isOpen
                     ? "opacity-100 pointer-events-auto"
@@ -49,6 +106,9 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
             }`}
             onClick={handleOverlayClick}
             data-testid="menubar-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-label="메뉴바"
         >
             <div
                 className={`${
@@ -73,6 +133,6 @@ export function Menubar({ isOpen, onClose, children }: ModalProps) {
             </div>
         </div>
     );
-}
+};
 
 export default Menubar;

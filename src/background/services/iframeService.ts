@@ -78,7 +78,14 @@ class IframeService {
         const iframe = document.createElement("iframe");
         iframe.id = iframeId;
         iframe.src = chrome.runtime.getURL("iframe.html");
+        iframe.setAttribute("tabindex", "1");
         this.setIframeStyles(iframe);
+
+        iframe.onload = () => {
+            iframe.focus();
+            iframe.contentWindow?.document.getElementById("root")?.focus();
+        };
+
         return iframe;
     }
 
