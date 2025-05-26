@@ -368,7 +368,16 @@ const App: React.FC = () => {
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={toggleModal} />}
 
-            <Menubar isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+            <Menubar
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    window.parent.postMessage(
+                        { type: "RESIZE_IFRAME", isOpen: false },
+                        "*",
+                    );
+                }}
+            >
                 {menuItems.map(({ id, text }) => (
                     <MenubarButton
                         key={id}
