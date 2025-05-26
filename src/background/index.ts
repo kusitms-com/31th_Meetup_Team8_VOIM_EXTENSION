@@ -83,6 +83,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;
         console.log("[voim][background] FETCH_FOOD_DATA 요청 수신됨:", payload);
@@ -94,71 +95,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             },
             body: JSON.stringify(payload),
         })
-            .then((res) => {
-                console.log(
-                    "[voim][background] FOOD API 응답 상태코드:",
-                    res.status,
-                );
-                return res.json();
-            })
+            .then((res) => res.json())
             .then((data) => {
                 logger.debug("FOOD API 응답 성공:", data);
-                console.log("[voim][background] FOOD API 응답 성공:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_RESPONSE",
                         data,
                     });
                 }
-                sendResponse({
-                    status: 200,
-                    data,
-                });
+                sendResponse({ status: 200, data });
             })
             .catch((err) => {
                 console.error(
                     "[voim][background] FOOD API 요청 실패:",
                     err.message,
                 );
-
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "FOOD_DATA_ERROR",
                         error: err.message,
                     });
                 }
-
-                sendResponse({
-                    status: 500,
-                    error: err.message,
-                });
+                sendResponse({ status: 500, error: err.message });
             });
 
         return true;
     }
 
+    // IMAGE ANALYSIS API
     if (message.type === "FETCH_IMAGE_ANALYSIS") {
         const imageUrl = message.payload?.url;
 
         fetch("https://voim.store/api/v1/image-analysis", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ url: imageUrl }),
         })
             .then((res) => res.json())
             .then((data) => {
-                logger.debug("백그라운드 API 응답:", data);
-                logger.debug("보낼 data.data:", data.data);
-
+                logger.debug("이미지 분석 API 응답:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "IMAGE_ANALYSIS_RESPONSE",
                         data: data.data,
                     });
                 }
-
                 sendResponse({
                     type: "IMAGE_ANALYSIS_RESPONSE",
                     data: data.data,
@@ -180,48 +162,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         return true;
     }
+
+    // OUTLINE INFO API
     if (message.type === "FETCH_OUTLINE_INFO") {
         const { outline, html } = message.payload;
-        console.log(
-            "[voim][background] FETCH_OUTLINE_INFO 요청 수신:",
-            outline,
-        );
 
         fetch(`https://voim.store/api/v1/products/analysis/${outline}`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ html }),
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(
-                    "[voim][background] OUTLINE INFO 응답 데이터:",
-                    data,
-                );
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "OUTLINE_INFO_RESPONSE",
                         data: data.data,
                     });
                 }
-
                 sendResponse({
                     type: "OUTLINE_INFO_RESPONSE",
                     data: data.data,
                 });
             })
             .catch((err) => {
-                console.error("[voim][background] OUTLINE INFO 오류:", err);
-
+                console.error("OUTLINE INFO 오류:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "OUTLINE_INFO_ERROR",
                         error: err.message,
                     });
                 }
-
                 sendResponse({
                     type: "OUTLINE_INFO_ERROR",
                     error: err.message,
@@ -231,52 +202,120 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 
+    // COSMETIC API
+    if (message.type === "FETCH_COSMETIC_DATA") {
+        const { productId, html } = message.payload;
+
+        fetch("https://voim.store/api/v1/cosmetic", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, html }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "COSMETIC_DATA_RESPONSE",
+                        data: data.data,
+                    });
+                }
+                sendResponse({
+                    type: "COSMETIC_DATA_RESPONSE",
+                    data: data.data,
+                });
+            })
+            .catch((err) => {
+                console.error("COSMETIC 요청 실패:", err);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "COSMETIC_DATA_ERROR",
+                        error: err.message,
+                    });
+                }
+                sendResponse({
+                    type: "COSMETIC_DATA_ERROR",
+                    error: err.message,
+                });
+            });
+
+        return true;
+    }
+
+    // REVIEW SUMMARY API
     if (message.type === "FETCH_REVIEW_SUMMARY") {
         const { productId, reviewRating, reviews } = message.payload;
-        console.log(
-            "[voim][background] FETCH_REVIEW_SUMMARY 요청 수신:",
-            productId,
-        );
 
         fetch("https://voim.store/api/v1/review/summary", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, reviewRating, reviews }),
         })
             .then((res) => res.json())
             .then((data) => {
-                console.log(
-                    "[voim][background] REVIEW SUMMARY 응답 데이터:",
-                    data,
-                );
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "REVIEW_SUMMARY_RESPONSE",
                         data: data.data,
                     });
                 }
-
                 sendResponse({
                     type: "REVIEW_SUMMARY_RESPONSE",
                     data: data.data,
                 });
             })
             .catch((err) => {
-                console.error("[voim][background] REVIEW SUMMARY 오류:", err);
-
+                console.error("REVIEW SUMMARY 오류:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "REVIEW_SUMMARY_ERROR",
                         error: err.message,
                     });
                 }
-
                 sendResponse({
                     type: "REVIEW_SUMMARY_ERROR",
                     error: err.message,
                 });
+            });
+
+        return true;
+    }
+
+    // HEALTH DATA API
+    if (message.type === "FETCH_HEALTH_DATA") {
+        const { productId, title, html, birthYear, gender, allergies } =
+            message.payload;
+
+        fetch("https://voim.store/api/v1/health-food/keywords", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                productId,
+                title,
+                html,
+                birthYear,
+                gender,
+                allergies,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "HEALTH_DATA_RESPONSE",
+                        data: data.data,
+                    });
+                }
+                sendResponse({ type: "HEALTH_DATA_RESPONSE", data: data.data });
+            })
+            .catch((err) => {
+                console.error("HEALTH 요청 실패:", err);
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "HEALTH_DATA_ERROR",
+                        error: err.message,
+                    });
+                }
+                sendResponse({ type: "HEALTH_DATA_ERROR", error: err.message });
             });
 
         return true;

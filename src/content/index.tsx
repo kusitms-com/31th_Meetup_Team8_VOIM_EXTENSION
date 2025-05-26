@@ -6,8 +6,9 @@ import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
 import { handleCursorMessage } from "./messageHandlers/cursorMessageHandler";
 import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
 import { processImages } from "./imageHandlers/imageProcessor";
-import { MountCartSummaryApp } from "./coupang/cartSummary";
-import { checkCategoryAndRender } from "./coupang/categoryHandlerFood";
+import { checkCategoryCosmeticAndRender } from "./coupang/categoryHandler/categoryHandlerCosmetic";
+import { checkCategoryFoodAndRender } from "./coupang/categoryHandler/categoryHandlerFood";
+import { checkCategoryHealthAndRender } from "./coupang/categoryHandler/categoryHandlerHealth";
 import { renderCouponComponent } from "./coupang/renderCouponComponent";
 import { renderInfoComponent } from "../content/coupang/renderInfoComponent";
 import { initDomObserver } from "./observers/domObserver";
@@ -24,11 +25,12 @@ document.addEventListener("visibilitychange", () => {
         checkExtensionState();
     }
 });
-window.addEventListener("load", () => {
-    setTimeout(() => {
-        renderCouponComponent();
-    }, 1500);
-});
+// window.addEventListener("load", () => {
+//     setTimeout(() => {
+//         renderCouponComponent();
+//     }, 1500);
+// });
+renderCouponComponent();
 initCursorSettings();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -52,16 +54,28 @@ processImages();
 
 if (location.href.includes("cart.coupang.com/cartView.pang")) {
     window.addEventListener("load", () => {
-        setTimeout(() => {
-            MountCartSummaryApp();
-        }, 500);
+        setTimeout(() => {}, 500);
     });
 }
 
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
-        checkCategoryAndRender();
+        checkCategoryFoodAndRender();
     });
 } else {
-    checkCategoryAndRender();
+    checkCategoryFoodAndRender();
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        checkCategoryCosmeticAndRender();
+    });
+} else {
+    checkCategoryCosmeticAndRender();
+}
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => {
+        checkCategoryHealthAndRender();
+    });
+} else {
+    checkCategoryHealthAndRender();
 }
