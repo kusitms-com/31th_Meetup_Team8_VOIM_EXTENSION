@@ -10,9 +10,10 @@ import ControlFont from "@src/components/fontButton/ControlFont";
 import { MyInfo } from "@src/tabs/myInfo";
 import ControlService from "@src/components/serviceButton/ControlService";
 import { Onboarding } from "@src/tabs/myInfo/components";
-
+import { Sidebar } from "@src/components/sidebar";
 import "../css/app.css";
 import { useUserInfo } from "@src/hooks/useUserInfo";
+import { FloatingButtonSide } from "@src/components/floatingButtonSide";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -103,6 +104,7 @@ const App = () => {
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
     const { birthYear, gender, loading } = useUserInfo();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     useEffect(() => {
         // Check if it's first installation or user info is empty
@@ -137,7 +139,13 @@ const App = () => {
             "*",
         );
     };
+    const openSidebar = () => {
+        setIsSidebarOpen(true);
+    };
 
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+    };
     const openModal = () => {
         setIsModalOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
@@ -234,6 +242,7 @@ const App = () => {
     return (
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={openModal} />}
+            {!isModalOpen && <FloatingButtonSide onClick={openSidebar} />}
 
             <Menubar isOpen={isModalOpen} onClose={closeModal}>
                 {menuItems.map((item) => (
@@ -253,6 +262,7 @@ const App = () => {
                     <PanelContent menuId={selectedMenu} />
                 </div>
             </Menubar>
+            <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar}></Sidebar>
         </div>
     );
 };
