@@ -2,12 +2,14 @@
 const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
         background: path.join(__dirname, "src/background/index.ts"),
         content: path.join(__dirname, "src/content/index.tsx"),
+        sidepanel: path.join(__dirname, "src/sidepanel/index.tsx"),
         autoCollectReview: path.join(
             __dirname,
             "src/content/scripts/autoCollectReview.ts",
@@ -62,6 +64,11 @@ module.exports = {
                 { from: "src/iframe/iframe.html", to: "../" },
                 { from: "public/images", to: "../images" },
             ],
+        }),
+        new HtmlWebpackPlugin({
+            template: "src/sidepanel/index.html",
+            filename: "../sidepanel.html",
+            chunks: ["sidepanel"],
         }),
     ],
 };

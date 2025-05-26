@@ -6,6 +6,9 @@
     "background": {
         "service_worker": "js/background.js"
     },
+    "side_panel": {
+        "default_path": "sidepanel.html"
+    },
     "content_scripts": [
         {
             "matches": ["<all_urls>"],
@@ -38,7 +41,7 @@
         "128": "icons/icon-128.png"
     },
     "host_permissions": ["<all_urls>", "https://voim.store/*"],
-    "permissions": ["scripting", "activeTab", "storage", "tabs"],
+    "permissions": ["scripting", "activeTab", "storage", "tabs", "sidePanel"],
     "commands": {
         "toggle_iframe": {
             "suggested_key": {
