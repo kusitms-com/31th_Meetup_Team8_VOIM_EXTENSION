@@ -7,26 +7,39 @@ import { handleStyleToggle } from "./styleCommandHandler";
  * 명령어 리스너 초기화
  */
 export function initCommandListeners(): void {
-    chrome.commands.onCommand.addListener(async (command) => {
-        logger.debug(`Command received: ${command}`);
-        logger.debug(`Command type: ${typeof command}`);
-        logger.debug(`Available commands:`, await chrome.commands.getAll());
+    logger.debug("단축키 명령어 리스너 초기화 시작");
 
-        switch (command) {
-            case "toggle_iframe":
-                logger.debug("Handling toggle_iframe command");
-                await handleIframeToggle();
-                break;
-            case "toggle_modal":
-                logger.debug("Handling toggle-modal command");
-                await handleModalToggle();
-                break;
-            case "toggle_all_features":
-                logger.debug("Handling toggle-all-features command");
-                await handleStyleToggle();
-                break;
-            default:
-                logger.warn(`Unknown command: ${command}`);
+    chrome.commands.onCommand.addListener(async (command) => {
+        try {
+            logger.debug(`단축키 명령어 수신: ${command}`);
+            logger.debug(`명령어 타입: ${typeof command}`);
+
+            const commands = await chrome.commands.getAll();
+            logger.debug("사용 가능한 명령어:", commands);
+
+            switch (command) {
+                case "toggle_iframe":
+                    logger.debug("toggle_iframe 명령어 처리 시작");
+                    await handleIframeToggle();
+                    logger.debug("toggle_iframe 명령어 처리 완료");
+                    break;
+                case "toggle_modal":
+                    logger.debug("toggle_modal 명령어 처리 시작");
+                    await handleModalToggle();
+                    logger.debug("toggle_modal 명령어 처리 완료");
+                    break;
+                case "toggle_all_features":
+                    logger.debug("toggle_all_features 명령어 처리 시작");
+                    await handleStyleToggle();
+                    logger.debug("toggle_all_features 명령어 처리 완료");
+                    break;
+                default:
+                    logger.warn(`알 수 없는 명령어: ${command}`);
+            }
+        } catch (error) {
+            logger.error(`명령어 처리 중 오류 발생: ${error}`);
         }
     });
+
+    logger.debug("단축키 명령어 리스너 초기화 완료");
 }

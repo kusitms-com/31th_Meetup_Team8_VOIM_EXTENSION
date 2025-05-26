@@ -47,7 +47,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
     };
 
     return (
-        <div className="w-[692px] h-[638px] flex-col flex justify-between">
+        <div className="w-[692px] min-h-[638px] max-h-[638px] flex-col flex justify-between overflow-y-auto">
             <div>
                 <div className="mb-8">알러지 선택하기</div>
                 <div className="flex items-center justify-center gap-4 mb-4">
