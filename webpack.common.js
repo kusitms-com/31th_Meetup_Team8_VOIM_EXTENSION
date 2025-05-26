@@ -2,14 +2,12 @@
 const path = require("path");
 const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
         background: path.join(__dirname, "src/background/index.ts"),
         content: path.join(__dirname, "src/content/index.tsx"),
-        sidepanel: path.join(__dirname, "src/sidepanel/index.tsx"),
         autoCollectReview: path.join(
             __dirname,
             "src/content/scripts/autoCollectReview.ts",
@@ -49,10 +47,10 @@ module.exports = {
             },
             {
                 test: /\.(woff|woff2|eot|ttf|otf)$/i,
-                type: 'asset/resource',
+                type: "asset/resource",
                 generator: {
-                    filename: '../fonts/[name][ext]'
-                }
+                    filename: "../fonts/[name][ext]",
+                },
             },
         ],
     },
@@ -72,11 +70,6 @@ module.exports = {
                 { from: "public/images", to: "../images" },
                 { from: "src/assets/fonts", to: "../fonts" },
             ],
-        }),
-        new HtmlWebpackPlugin({
-            template: "src/sidepanel/index.html",
-            filename: "../sidepanel.html",
-            chunks: ["sidepanel"],
         }),
     ],
 };
