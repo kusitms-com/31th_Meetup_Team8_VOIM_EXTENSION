@@ -59,7 +59,9 @@ const ControlMode = () => {
                             onClick={() => handleModeClick(label)}
                             isSelected={value === selectedMode}
                             modeType={value}
-                            aria-label={label.replace("\n", " ")}
+                            aria-label={
+                                "고대비 화면 설정" + label.replace("\n", " ")
+                            }
                         >
                             {label.split("\n").map((line, i) => (
                                 <div key={i}>{line}</div>

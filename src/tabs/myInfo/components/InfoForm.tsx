@@ -62,12 +62,16 @@ export function InfoForm({ nextStep }: InfoFormProps) {
                     <BaseButton
                         onClick={() => setGender("female")}
                         isSelected={gender === "female"}
+                        nonCheck={true}
+                        ariaLabel="여성"
                     >
                         여성
                     </BaseButton>{" "}
                     <BaseButton
                         onClick={() => setGender("male")}
                         isSelected={gender === "male"}
+                        nonCheck={true}
+                        ariaLabel="남성"
                     >
                         남성
                     </BaseButton>

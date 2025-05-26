@@ -40,6 +40,7 @@ export async function handleStyleToggle(): Promise<void> {
                     const iframe = document.createElement("iframe");
                     iframe.id = iframeId;
                     iframe.src = chrome.runtime.getURL("iframe.html");
+                    iframe.setAttribute("tabindex", "1");
 
                     iframe.style.position = "fixed";
                     iframe.style.top = "70px";
@@ -49,6 +50,13 @@ export async function handleStyleToggle(): Promise<void> {
                     iframe.style.border = "none";
                     iframe.style.background = "transparent";
                     iframe.style.zIndex = "2147483647";
+
+                    iframe.onload = () => {
+                        iframe.focus();
+                        iframe.contentWindow?.document
+                            .getElementById("root")
+                            ?.focus();
+                    };
 
                     const handleMessage = function (event: MessageEvent) {
                         if (event.source !== iframe.contentWindow) {

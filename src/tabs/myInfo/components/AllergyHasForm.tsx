@@ -24,13 +24,24 @@ export function AllergyHasForm({ nextStep, onComplete }: AllergyHasFormProps) {
 
     const handleClick = () => {
         if (hasAllergy === false) {
+            const menuButtons = document.querySelectorAll(
+                '[data-testid="menubar-content"] button',
+            );
+            const myInfoButton = Array.from(menuButtons).find((button) =>
+                button.getAttribute("aria-label")?.includes("서비스 설정하기"),
+            );
+            if (myInfoButton) {
+                (myInfoButton as HTMLElement).focus();
+            }
+
             chrome.storage.local.set({ hasAllergy: false }, () => {
-                if (onComplete) onComplete();
+                if (onComplete) {
+                    onComplete();
+                }
             });
         } else if (hasAllergy === true) {
             nextStep();
         }
-        // hasAllergy === null이면 아무 동작 안 함
     };
 
     return (
@@ -41,19 +52,27 @@ export function AllergyHasForm({ nextStep, onComplete }: AllergyHasFormProps) {
                 알러지가 있으신가요?
             </div>
 
-            <div className="mb-[26px]">
+            <div className="mb-[40px]">
                 <div className="flex gap-[20px]">
                     <BaseButton
                         onClick={() => setHasAllergy(false)}
                         isSelected={hasAllergy === false}
+                        nonCheck={true}
+                        ariaLabel="알러지가 없어요"
                     >
-                        알러지가 없어요
+                        <div className="text-center w-[272px]">
+                            알러지가 없어요
+                        </div>
                     </BaseButton>
                     <BaseButton
                         onClick={() => setHasAllergy(true)}
                         isSelected={hasAllergy === true}
+                        nonCheck={true}
+                        ariaLabel="알러지가 있어요"
                     >
-                        알러지가 있어요
+                        <div className="text-center w-[272px]">
+                            알러지가 있어요
+                        </div>
                     </BaseButton>
                 </div>
             </div>

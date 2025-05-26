@@ -8,6 +8,7 @@ interface BaseButtonProps {
     ariaLabel?: string;
     isSelected?: boolean;
     nonCheck?: boolean;
+    "data-testid"?: string;
 }
 
 export function BaseButton({
@@ -16,13 +17,14 @@ export function BaseButton({
     ariaLabel,
     isSelected = false,
     nonCheck = false,
+    "data-testid": dataTestId,
 }: BaseButtonProps) {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     return (
         <button
-            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px]  ${
+            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${
                 isSelected
                     ? isDarkMode
                         ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"
@@ -34,6 +36,7 @@ export function BaseButton({
             onClick={onClick}
             aria-label={ariaLabel}
             aria-pressed={isSelected}
+            data-testid={dataTestId}
         >
             {children}
             {isSelected && !nonCheck && (
