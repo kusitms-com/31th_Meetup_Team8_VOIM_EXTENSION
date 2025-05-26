@@ -83,11 +83,10 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                                         nextButton.focus();
                                     }
                                 } else {
-                                    const resetButton = document.querySelector(
-                                        '[data-testid="menubar-container"] button',
-                                    ) as HTMLElement;
-                                    if (resetButton) {
-                                        resetButton.focus();
+                                    const firstButton =
+                                        menuButtons[0] as HTMLElement;
+                                    if (firstButton) {
+                                        firstButton.focus();
                                     }
                                 }
                             }
@@ -134,7 +133,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                     ref={panelRef}
                     tabIndex={0}
                     role="tabpanel"
-                    aria-label="단축키 안내"
+                    aria-label="단축키 안내 보기"
                 >
                     <ShortcutTab />
                 </div>
@@ -146,7 +145,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                     ref={panelRef}
                     tabIndex={0}
                     role="tabpanel"
-                    aria-label="내 정보 설정"
+                    aria-label="내 정보 설정하기"
                 >
                     <MyInfo />
                 </div>
@@ -158,7 +157,7 @@ const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
                     ref={panelRef}
                     tabIndex={0}
                     role="tabpanel"
-                    aria-label="서비스 설정"
+                    aria-label="서비스 설정하기"
                 >
                     <ControlService />
                 </div>
@@ -184,7 +183,6 @@ const App: React.FC = () => {
     const [showUserInfo, setShowUserInfo] = useState(false);
     const lastSelectedMenuRef = useRef<string | null>(null);
     const menuButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-    const panelRef = useRef<HTMLDivElement>(null);
 
     const { birthYear, gender, loading } = useUserInfo();
 
@@ -336,6 +334,18 @@ const App: React.FC = () => {
             { type: "RESIZE_IFRAME", isOpen: false },
             "*",
         );
+
+        setTimeout(() => {
+            const menuButtons = document.querySelectorAll(
+                '[data-testid="menubar-content"] button',
+            );
+            const myInfoButton = Array.from(menuButtons).find((button) =>
+                button.getAttribute("aria-label")?.includes("내 정보 설정하기"),
+            );
+            if (myInfoButton) {
+                (myInfoButton as HTMLElement).focus();
+            }
+        }, 0);
     };
 
     if (isOnboarding) {

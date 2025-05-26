@@ -56,6 +56,10 @@ export const Menubar: React.FC<ModalProps> = ({
                         }
                     }
                 } else if (e.key === "Escape") {
+                    window.parent.postMessage(
+                        { type: "RESIZE_IFRAME", isOpen: false },
+                        "*",
+                    );
                     onClose();
                 }
             };
@@ -75,6 +79,10 @@ export const Menubar: React.FC<ModalProps> = ({
             '[data-testid="menubar-container"]',
         );
         if (container && !container.contains(e.target as Node)) {
+            window.parent.postMessage(
+                { type: "RESIZE_IFRAME", isOpen: false },
+                "*",
+            );
             onClose();
         }
     };
