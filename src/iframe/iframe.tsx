@@ -46,6 +46,17 @@ const App: React.FC = () => {
     }, [selectedMenu, setSelectedMenu]);
 
     useEffect(() => {
+        const handleMessage = (event: MessageEvent) => {
+            if (event.data.type === "TOGGLE_MODAL") {
+                toggleModal();
+            }
+        };
+
+        window.addEventListener("message", handleMessage);
+        return () => window.removeEventListener("message", handleMessage);
+    }, [toggleModal]);
+
+    useEffect(() => {
         chrome.storage.local.get(["isFirstInstall"], (result) => {
             if (result.isFirstInstall === undefined) {
                 chrome.storage.local.set({ isFirstInstall: true });

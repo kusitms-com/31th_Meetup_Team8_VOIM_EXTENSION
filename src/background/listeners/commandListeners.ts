@@ -13,6 +13,9 @@ export function initCommandListeners(): void {
         try {
             logger.debug(`단축키 명령어 수신: ${command}`);
             logger.debug(`명령어 타입: ${typeof command}`);
+            logger.debug(
+                `현재 활성화된 탭: ${await chrome.tabs.query({ active: true, currentWindow: true })}`,
+            );
 
             const commands = await chrome.commands.getAll();
             logger.debug("사용 가능한 명령어:", commands);
@@ -38,6 +41,7 @@ export function initCommandListeners(): void {
             }
         } catch (error) {
             logger.error(`명령어 처리 중 오류 발생: ${error}`);
+            logger.error(`오류 상세:`, error);
         }
     });
 
