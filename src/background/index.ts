@@ -255,6 +255,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const { productId, title, html, birthYear, gender, allergies } =
             message.payload;
 
+        console.log("[health api] Request payload:", {
+            productId,
+            title,
+            html,
+            birthYear,
+            gender,
+            allergies,
+        });
+
         fetch("https://voim.store/api/v1/health-food/keywords", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -267,8 +276,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 allergies,
             }),
         })
-            .then((res) => res.json())
+            .then((res) => {
+                console.log("[health api] Response status:", res.status);
+                return res.json();
+            })
             .then((data) => {
+                console.log("[health api] Response data:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_RESPONSE",
@@ -278,7 +291,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 sendResponse({ type: "HEALTH_DATA_RESPONSE", data: data.data });
             })
             .catch((err) => {
-                console.error("HEALTH 요청 실패:", err);
+                console.error("[health api] Request failed:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_ERROR",

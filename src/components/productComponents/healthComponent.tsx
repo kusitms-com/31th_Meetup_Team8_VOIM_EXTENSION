@@ -15,20 +15,28 @@ export const HealthComponent = () => {
 
     useEffect(() => {
         const fetchData = async (targetEl: Element) => {
+            console.log("[health api] fetchData 시작");
             const productId =
                 window.location.href.match(/products\/(\d+)/)?.[1];
-            if (!productId) return;
+            console.log("[health api] productId:", productId);
+            if (!productId) {
+                console.log("[health api] productId를 찾을 수 없음");
+                return;
+            }
 
             const { birthYear, gender } = await chrome.storage.local.get([
                 "birthYear",
                 "gender",
             ]);
+            console.log("[health api] 사용자 정보:", { birthYear, gender });
 
             const rawHtml = targetEl.outerHTML
                 .replace(/\sonerror=\"[^\"]*\"/g, "")
                 .replace(/\n/g, "")
                 .trim();
+            console.log("[health api] HTML 추출 완료");
 
+            console.log("[health api] 메시지 전송 시작");
             chrome.runtime.sendMessage(
                 {
                     type: "FETCH_HEALTH_DATA",
@@ -42,8 +50,16 @@ export const HealthComponent = () => {
                     },
                 },
                 (res) => {
-                    const data = res?.data?.types || [];
-                    setHealthEffects(data);
+                    console.log("[health api] 응답 수신:", res);
+                    if (res?.data?.types) {
+                        console.log(
+                            "[health api] 효능 데이터:",
+                            res.data.types,
+                        );
+                        setHealthEffects(res.data.types);
+                    } else {
+                        console.log("[health api] 효능 데이터 없음");
+                    }
                 },
             );
         };
@@ -52,16 +68,20 @@ export const HealthComponent = () => {
             document.querySelector(".vendor-item") ||
             document.querySelector(".product-detail-content") ||
             document.querySelector(".prod-image");
+        console.log("[health api] targetEl 찾음:", targetEl);
 
         if (targetEl) {
+            console.log("[health api] 즉시 fetchData 실행");
             fetchData(targetEl);
         } else {
+            console.log("[health api] MutationObserver 시작");
             const observer = new MutationObserver(() => {
                 const el =
                     document.querySelector(".vendor-item") ||
                     document.querySelector(".product-detail-content") ||
                     document.querySelector(".prod-image");
                 if (el) {
+                    console.log("[health api] targetEl 발견, observer 중지");
                     observer.disconnect();
                     fetchData(el);
                 }

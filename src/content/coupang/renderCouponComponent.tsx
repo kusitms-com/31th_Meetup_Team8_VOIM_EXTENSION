@@ -66,12 +66,12 @@ export const renderCouponComponent = () => {
 
         // 알림 자동 확인 (예: alert 대체)
         await wait(300);
-        const confirmBtn = document.querySelector(
-            "button.confirm, button:contains('확인')",
-        ) as HTMLButtonElement | null;
-        if (confirmBtn) {
-            confirmBtn.click();
-            console.log("[voim] 확인 버튼 자동 클릭");
+        const closeBtn = document.querySelector(
+            ".prod-coupon-download-close",
+        ) as HTMLElement | null;
+        if (closeBtn) {
+            closeBtn.click();
+            console.log("[voim] 닫기 버튼 클릭 완료");
         }
 
         // 레이어 원복
@@ -81,7 +81,6 @@ export const renderCouponComponent = () => {
             console.log("[voim] 쿠폰 자동 다운로드 완료");
             isDownloaded = true;
 
-            // 다운로드 버튼 비활성화
             downloadBtn.disabled = true;
             downloadBtn.style.opacity = "0.5";
             downloadBtn.style.cursor = "not-allowed";
@@ -90,6 +89,12 @@ export const renderCouponComponent = () => {
             downloadBtn.style.filter = "grayscale(100%)";
             console.log("[voim] 쿠폰 다운로드 버튼 비활성화 완료");
         } else {
+            downloadBtn.disabled = true;
+            downloadBtn.style.opacity = "0.5";
+            downloadBtn.style.cursor = "not-allowed";
+            downloadBtn.style.border = "1px solid #999";
+            downloadBtn.style.color = "#999";
+            downloadBtn.style.filter = "grayscale(100%)";
             console.log("[voim] 다운로드 가능한 새 쿠폰이 없음");
         }
 
