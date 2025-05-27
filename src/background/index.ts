@@ -300,6 +300,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         const url = "https://voim.store/api/v1/health-food/keywords";
         const requestBody = {
+        console.log("[health api] Request payload:", {
             productId,
             title,
             html,
@@ -312,7 +313,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             JSON.stringify(requestBody, null, 2),
         );
 
-        fetch(url, {
+        fetch("https://voim.store/api/v1/health-food/keywords", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(requestBody),
@@ -326,6 +327,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     "[voim][background] HEALTH 응답 데이터:",
                     JSON.stringify(data, null, 2),
                 );
+                console.log("[health api] Response status:", res.status);
+                return res.json();
+            })
+            .then((data) => {
+                console.log("[health api] Response data:", data);
                 if (sender.tab?.id) {
                     console.log(
                         "[voim][background] content script로 응답 전송",

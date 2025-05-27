@@ -24,8 +24,6 @@ export async function handleModalToggle(): Promise<void> {
                             const isInvisible = result.iframeInvisible ?? false;
                             const hiddenByAltA =
                                 result.iframeHiddenByAltA ?? false;
-                            const hiddenByAltV =
-                                result.iframeHiddenByAltV ?? false;
 
                             // ALT+A로 숨긴 경우에는 아무 동작 안 함
                             if (hiddenByAltA) {

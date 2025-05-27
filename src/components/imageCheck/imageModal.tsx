@@ -46,9 +46,8 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                 style={{
                     backgroundColor: "#fff",
                     borderRadius: "12px",
-                    padding: "24px",
-                    width: "92%",
-                    maxWidth: "800px",
+                    padding: "40px",
+                    width: "1200px",
                     boxShadow: "0 6px 24px rgba(0, 0, 0, 0.2)",
                     display: "flex",
                     flexDirection: "column",
@@ -66,9 +65,8 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                         src={imageUrl}
                         alt="분석 이미지"
                         style={{
-                            width: "320px",
+                            width: "400px",
                             height: "auto",
-                            borderRadius: "8px",
                             objectFit: "cover",
                             flexShrink: 0,
                         }}
@@ -100,7 +98,7 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                                     style={{
                                         marginTop: "8px",
                                         fontFamily: "KoddiUD OnGothic",
-                                        fontSize: "18px",
+                                        fontSize: "24px",
                                         fontWeight: 600,
                                         color: "#555",
                                     }}
@@ -115,12 +113,12 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                     style={{
                         alignSelf: "flex-end",
                         width: "100%",
-                        marginTop: "24px",
-                        padding: "10px 20px",
+                        marginTop: "40px",
+                        padding: "16px 30px",
                         backgroundColor: "#8914FF",
                         color: "#fff",
                         fontWeight: 600,
-                        fontSize: "14px",
+                        fontSize: "24px",
                         border: "none",
                         borderRadius: "8px",
                         cursor: "pointer",
