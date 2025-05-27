@@ -38,9 +38,6 @@ export const CouponComponent: React.FC<Props> = ({ coupons }) => {
         textAlign: "center",
     };
 
-    const firstCoupon = coupons[0];
-    const remainingCount = coupons.length - 1;
-
     const handleDownload = async () => {
         await downloadAllCoupons();
         setDownloaded(true);
@@ -48,37 +45,17 @@ export const CouponComponent: React.FC<Props> = ({ coupons }) => {
     };
 
     return (
-        <div
-            style={{
-                padding: "16px",
-                borderRadius: "20px",
-                width: "618px",
-                border: "4px solid #8914FF",
-                backgroundColor: "#ffffff",
-            }}
-        >
-            <p style={commonTextStyle}>
-                {status === "downloaded" || downloaded
-                    ? "이미 다운로드한 쿠폰입니다 🎉"
-                    : `${firstCoupon}${
-                          remainingCount > 0
-                              ? ` 외 ${remainingCount}종의 쿠폰이 있습니다.`
-                              : ""
-                      }`}
-            </p>
-
+        <div>
             {status === "downloadable" && !downloaded && (
                 <button
                     onClick={handleDownload}
                     style={{
                         width: "100%",
                         padding: "16px",
-                        borderRadius: "16px",
                         backgroundColor: "#8914FF",
                         color: "white",
                         fontSize: "24px",
                         fontWeight: "bold",
-                        marginTop: "20px",
                         border: "none",
                         cursor: "pointer",
                     }}

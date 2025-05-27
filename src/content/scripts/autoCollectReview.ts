@@ -154,14 +154,13 @@ const initAutoCollectReview = async () => {
         const summary = await sendReviewSummaryRequest(reviewData);
         console.log("[voim] 리뷰 요약 결과:", summary);
 
-        // 결과를 스토리지에 저장
         chrome.storage.local.set(
             {
                 [`review_summary_${reviewData.productId}`]: summary,
             },
             () => {
                 console.log("[voim] 리뷰 요약 데이터 저장 완료");
-                // 컴포넌트 렌더링 (voim-info-component 로드 대기 포함)
+
                 renderReviewSummary(summary);
             },
         );
