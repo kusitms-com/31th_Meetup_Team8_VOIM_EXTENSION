@@ -1,5 +1,3 @@
-import { logger } from "@src/utils/logger";
-
 export async function handleModalToggle(): Promise<void> {
     const tabs = await chrome.tabs.query({
         active: true,
@@ -43,6 +41,7 @@ export async function handleModalToggle(): Promise<void> {
                                 iframe.id = iframeId;
                                 iframe.src =
                                     chrome.runtime.getURL("iframe.html");
+                                iframe.setAttribute("tabindex", "1");
 
                                 iframe.style.position = "fixed";
                                 iframe.style.top = "70px";
@@ -52,6 +51,13 @@ export async function handleModalToggle(): Promise<void> {
                                 iframe.style.border = "none";
                                 iframe.style.background = "transparent";
                                 iframe.style.zIndex = "2147483647";
+
+                                iframe.onload = () => {
+                                    iframe.focus();
+                                    iframe.contentWindow?.document
+                                        .getElementById("root")
+                                        ?.focus();
+                                };
 
                                 const handleMessage = function (
                                     event: MessageEvent,
@@ -102,22 +108,18 @@ export async function handleModalToggle(): Promise<void> {
                         },
                     );
                 } else {
-                    // iframe이 있으면 모달 토글
                     if (iframe.contentWindow) {
-                        // 현재 모달 상태 확인을 위해 메시지 전송
                         iframe.contentWindow.postMessage(
                             { type: "TOGGLE_MODAL" },
                             "*",
                         );
 
-                        // ALT+V로 숨겼던 경우에만 모달 닫을 때 iframe도 제거
                         chrome.storage.local.get(
                             ["iframeHiddenByAltV"],
                             (result) => {
                                 const hiddenByAltV =
                                     result.iframeHiddenByAltV ?? false;
 
-                                // ALT+V로 숨겼던 경우에만 iframe 제거
                                 if (hiddenByAltV) {
                                     iframe.remove();
                                     chrome.storage.local.set(

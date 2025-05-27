@@ -26,6 +26,20 @@ export function AllergyHasForm({ nextStep, onComplete }: AllergyHasFormProps) {
         if (hasAllergy === false) {
             chrome.storage.local.set({ hasAllergy: false }, () => {
                 if (onComplete) onComplete();
+            const menuButtons = document.querySelectorAll(
+                '[data-testid="menubar-content"] button',
+            );
+            const myInfoButton = Array.from(menuButtons).find((button) =>
+                button.getAttribute("aria-label")?.includes("서비스 설정하기"),
+            );
+            if (myInfoButton) {
+                (myInfoButton as HTMLElement).focus();
+            }
+
+            chrome.storage.local.set({ hasAllergy: false }, () => {
+                if (onComplete) {
+                    onComplete();
+                }
             });
         } else if (hasAllergy === true) {
             nextStep();
@@ -42,18 +56,19 @@ export function AllergyHasForm({ nextStep, onComplete }: AllergyHasFormProps) {
             </div>
 
             <div className="mb-[26px]">
+            <div className="mb-[40px]">
                 <div className="flex gap-[20px]">
                     <BaseButton
                         onClick={() => setHasAllergy(false)}
                         isSelected={hasAllergy === false}
                     >
                         알러지가 없어요
-                    </BaseButton>
-                    <BaseButton
-                        onClick={() => setHasAllergy(true)}
-                        isSelected={hasAllergy === true}
+                        nonCheck={true}
+                        ariaLabel="알러지가 없어요"
                     >
-                        알러지가 있어요
+                        <div className="text-center w-[272px]">
+                            알러지가 없어요
+                        </div>
                     </BaseButton>
                 </div>
             </div>

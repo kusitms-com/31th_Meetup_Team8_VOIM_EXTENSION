@@ -8,6 +8,7 @@ import {
     DEFAULT_FONT_WEIGHT,
 } from "./constants";
 import { initCommandListeners } from "./listeners/commandListeners";
+import { handleModalToggle } from "./listeners/modalCommandHandler";
 
 /**
  * 백그라운드 스크립트 초기화
@@ -350,6 +351,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 });
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_VENDOR_HTML") {
         if (sender.tab?.id) {
@@ -362,5 +364,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             );
             return true;
         }
+
+chrome.action.onClicked.addListener(async (tab) => {
+    try {
+        logger.debug("툴바 아이콘 클릭됨");
+        await handleModalToggle();
+    } catch (error) {
+        logger.error("툴바 아이콘 클릭 처리 중 오류 발생:", error);
     }
 });

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { onboardingData } from "@src/assets/onboardingData";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "@src/components/closeButton";
@@ -33,6 +33,17 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const handleClose = () => {
         onComplete();
     };
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === "Escape") {
+                handleClose();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
 
     return (
         <div

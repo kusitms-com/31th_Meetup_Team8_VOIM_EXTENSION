@@ -48,6 +48,7 @@ export function createIframe(): void {
         iframe.id = EXTENSION_IFRAME_ID;
         iframe.src = chrome.runtime.getURL("iframe.html");
         iframe.setAttribute("data-voim-root", "true");
+        iframe.setAttribute("tabindex", "1");
 
         iframe.onerror = function (error: Event | string) {
             console.error("Failed to load iframe:", error);
@@ -64,25 +65,27 @@ export function createIframe(): void {
             z-index: 2147483647;
         `;
 
-        // 기존 리스너 제거
         if (currentListener) {
             window.removeEventListener("message", currentListener);
         }
 
-        // 새 리스너 설정
         currentListener = handleResizeMessageFactory(iframe);
         window.addEventListener("message", currentListener);
 
         document.body.appendChild(iframe);
 
-        // iframeInvisible 값을 false로 설정
+        iframe.onload = () => {
+            iframe.focus();
+
+            iframe.contentWindow?.document.getElementById("root")?.focus();
+        };
+
         chrome.storage.local.set({ iframeInvisible: false }, () => {
             console.log("iframe 보임 상태 저장됨");
         });
     }
 }
 
-// 메시지 핸들러 추가
 window.addEventListener("message", (event) => {
     if (event.data.type === "SET_IFRAME_VISIBLE") {
         setIframeVisible(event.data.visible);
@@ -97,7 +100,6 @@ export function removeIframe(): void {
         EXTENSION_IFRAME_ID,
     ) as HTMLIFrameElement;
     if (iframe) {
-        // 리스너 제거
         if (currentListener) {
             window.removeEventListener("message", currentListener);
             currentListener = null;
@@ -105,7 +107,6 @@ export function removeIframe(): void {
 
         iframe.remove();
 
-        // iframeInvisible 값을 true로 설정
         chrome.storage.local.set({ iframeInvisible: true }, () => {
             console.log("iframe 숨김 상태 저장됨");
         });
