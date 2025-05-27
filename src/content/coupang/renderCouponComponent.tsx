@@ -4,20 +4,35 @@ export const renderCouponComponent = () => {
 
     const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
+    let isDownloaded = false;
+    let isDownloading = false;
+    const clickedUrls = new Set<string>();
+
     const tryDownloadCoupons = async () => {
+        if (isDownloaded || isDownloading) {
+            console.log("[voim] 이미 다운로드가 진행 중이거나 완료되었습니다.");
+            return true;
+        }
+
+        isDownloading = true;
+
         const downloadBtn = document.querySelector(
             ".prod-coupon-download-btn",
-        ) as HTMLButtonElement;
+        ) as HTMLButtonElement | null;
+
         if (!downloadBtn) {
             console.log("[voim] 쿠폰 다운로드 버튼을 찾을 수 없음");
+            isDownloading = false;
             return false;
         }
 
         const couponLayer = document.querySelector(
             ".prod-coupon-download-layer",
-        ) as HTMLElement;
+        ) as HTMLElement | null;
+
         if (!couponLayer) {
             console.log("[voim] 쿠폰 레이어를 찾을 수 없음");
+            isDownloading = false;
             return false;
         }
 
@@ -26,7 +41,6 @@ export const renderCouponComponent = () => {
         const originalDisplay = couponLayer.style.display;
         couponLayer.style.display = "block";
 
-        // 렌더링 대기
         await wait(300);
 
         const couponItems = document.querySelectorAll<HTMLLIElement>(
@@ -34,29 +48,52 @@ export const renderCouponComponent = () => {
         );
         console.log("[voim] 쿠폰 아이템 개수:", couponItems.length);
 
-        if (couponItems.length > 0) {
-            couponItems.forEach((item, index) => {
-                const url = item.getAttribute("data-url");
-                console.log(`[voim] 쿠폰 #${index + 1} URL: ${url}`);
-                item.click(); // 자동 클릭으로 다운로드
-            });
-            console.log("[voim] 쿠폰 자동 다운로드 완료");
-        } else {
-            console.log("[voim] 다운로드 가능한 쿠폰이 없음");
+        let newDownload = false;
+
+        couponItems.forEach((item, index) => {
+            const url = item.getAttribute("data-url");
+            if (!url) return;
+
+            if (!clickedUrls.has(url)) {
+                console.log(`[voim] 쿠폰 #${index + 1} URL 클릭: ${url}`);
+                clickedUrls.add(url);
+                item.click();
+                newDownload = true;
+            } else {
+                console.log(`[voim] 이미 클릭된 쿠폰: ${url}`);
+            }
+        });
+
+        // 알림 자동 확인 (예: alert 대체)
+        await wait(300);
+        const confirmBtn = document.querySelector(
+            "button.confirm, button:contains('확인')",
+        ) as HTMLButtonElement | null;
+        if (confirmBtn) {
+            confirmBtn.click();
+            console.log("[voim] 확인 버튼 자동 클릭");
         }
 
-        // 쿠폰 레이어 원복
+        // 레이어 원복
         couponLayer.style.display = originalDisplay;
 
-        // 다운로드 버튼 비활성화
-        downloadBtn.disabled = true;
-        downloadBtn.style.opacity = "0.5";
-        downloadBtn.style.cursor = "not-allowed";
-        downloadBtn.style.border = "1px solid #999";
-        downloadBtn.style.color = "#999";
-        downloadBtn.style.filter = "grayscale(100%)";
+        if (newDownload) {
+            console.log("[voim] 쿠폰 자동 다운로드 완료");
+            isDownloaded = true;
 
-        console.log("[voim] 쿠폰 다운로드 버튼 비활성화 완료");
+            // 다운로드 버튼 비활성화
+            downloadBtn.disabled = true;
+            downloadBtn.style.opacity = "0.5";
+            downloadBtn.style.cursor = "not-allowed";
+            downloadBtn.style.border = "1px solid #999";
+            downloadBtn.style.color = "#999";
+            downloadBtn.style.filter = "grayscale(100%)";
+            console.log("[voim] 쿠폰 다운로드 버튼 비활성화 완료");
+        } else {
+            console.log("[voim] 다운로드 가능한 새 쿠폰이 없음");
+        }
+
+        isDownloading = false;
         return true;
     };
 
@@ -65,6 +102,14 @@ export const renderCouponComponent = () => {
 
     // DOM 변화 감지
     const observer = new MutationObserver((mutations, obs) => {
+        if (isDownloaded) {
+            console.log(
+                "[voim] 이미 다운로드가 완료되어 MutationObserver를 종료합니다.",
+            );
+            obs.disconnect();
+            return;
+        }
+
         console.log("[voim] DOM 변경 감지:", mutations.length, "개");
 
         tryDownloadCoupons()

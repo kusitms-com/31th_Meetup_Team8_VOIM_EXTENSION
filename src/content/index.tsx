@@ -22,13 +22,7 @@ document.addEventListener("visibilitychange", () => {
     }
 });
 
-// window.addEventListener("load", () => {
-//     setTimeout(() => {
-//         renderCouponComponent();
-//     }, 1500);
-// });
 renderCouponComponent();
-
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleStyleMessage(message, sendResponse);
