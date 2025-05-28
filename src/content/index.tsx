@@ -44,12 +44,6 @@ initDomObserver(() => true);
 
 processImages();
 
-if (location.href.includes("cart.coupang.com/cartView.pang")) {
-    window.addEventListener("load", () => {
-        setTimeout(() => {}, 500);
-    });
-}
-
 export const observeAndStoreCategoryType = () => {
     const isCoupangProductPage =
         /^https:\/\/www\.coupang\.com\/vp\/products\/[0-9]+/.test(
@@ -104,10 +98,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
 });
 
-const isProductDetailPage = () =>
-    window.location.href.includes("coupang.com/vp/products/");
+const isProductDetailPage = () => {
+    return window.location.href.includes("/products/");
+};
 
-const sendMessageToIframe = (isProductPage: boolean) => {
+const isCartPage = () => {
+    return window.location.href.includes("cart.coupang.com/cartView.pang");
+};
+
+const sendMessageToIframe = (isProductPage: boolean, isCart: boolean) => {
     const iframe = document.querySelector(
         "#floating-button-extension-iframe",
     ) as HTMLIFrameElement;
@@ -118,11 +117,19 @@ const sendMessageToIframe = (isProductPage: boolean) => {
                 { type: "PAGE_TYPE", value: isProductPage },
                 "*",
             );
+            iframe.contentWindow?.postMessage(
+                { type: "CART_PAGE", value: isCart },
+                "*",
+            );
         } catch (error) {
             iframe.onload = () => {
                 try {
                     iframe.contentWindow?.postMessage(
                         { type: "PAGE_TYPE", value: isProductPage },
+                        "*",
+                    );
+                    iframe.contentWindow?.postMessage(
+                        { type: "CART_PAGE", value: isCart },
                         "*",
                     );
                 } catch (error) {}
@@ -132,47 +139,16 @@ const sendMessageToIframe = (isProductPage: boolean) => {
 };
 
 const waitForIframeAndSend = () => {
-    const existingIframe = document.querySelector(
-        "#floating-button-extension-iframe",
-    );
-    if (existingIframe) {
-        sendMessageToIframe(isProductDetailPage());
-        return;
-    }
-
-    const observer = new MutationObserver(() => {
-        const iframe = document.querySelector(
-            "#floating-button-extension-iframe",
-        );
-        if (iframe) {
-            sendMessageToIframe(isProductDetailPage());
-            observer.disconnect();
-        }
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["src", "id"],
-    });
-
     setTimeout(() => {
-        observer.disconnect();
-        const iframe = document.querySelector(
-            "#floating-button-extension-iframe",
-        );
-        if (!iframe) {
-            sendMessageToIframe(false);
-        }
-    }, 2000);
+        sendMessageToIframe(isProductDetailPage(), isCartPage());
+    }, 500);
 };
 
 let lastUrl = window.location.href;
 const urlObserver = new MutationObserver(() => {
     if (lastUrl !== window.location.href) {
         lastUrl = window.location.href;
-        if (isProductDetailPage()) {
+        if (isProductDetailPage() || isCartPage()) {
             waitForIframeAndSend();
         }
     }
@@ -180,11 +156,40 @@ const urlObserver = new MutationObserver(() => {
 
 window.addEventListener("message", (event) => {
     if (event.data.type === "REQUEST_PAGE_TYPE") {
-        sendMessageToIframe(isProductDetailPage());
+        sendMessageToIframe(isProductDetailPage(), isCartPage());
     }
 });
 
-if (isProductDetailPage()) {
+if (isProductDetailPage() || isCartPage()) {
     waitForIframeAndSend();
     urlObserver.observe(document, { subtree: true, childList: true });
 }
+
+// 장바구니 데이터 추출 및 전송
+const extractAndSendCartData = () => {
+    if (isCartPage()) {
+        import("./coupang/cartHandler").then(
+            ({ sendCartItemsToBackground }) => {
+                sendCartItemsToBackground();
+            },
+        );
+    }
+};
+
+// DOM 변화 감지하여 장바구니 데이터 업데이트
+const observeCartChanges = () => {
+    if (isCartPage()) {
+        const observer = new MutationObserver(() => {
+            extractAndSendCartData();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+};
+
+// 초기 실행
+extractAndSendCartData();
+observeCartChanges();
