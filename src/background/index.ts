@@ -193,37 +193,58 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_OUTLINE_INFO") {
         const { outline, html } = message.payload;
 
-        fetch(`https://voim.store/api/v1/products/analysis/${outline}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ html }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
+        // 현재 활성화된 탭의 URL에서 productId 추출
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (!activeTab?.url) {
+                sendResponse({
+                    type: "OUTLINE_INFO_ERROR",
+                    error: "상품 페이지를 찾을 수 없습니다.",
+                });
+                return;
+            }
+
+            const productId = activeTab.url.match(/vp\/products\/(\d+)/)?.[1];
+            if (!productId) {
+                sendResponse({
+                    type: "OUTLINE_INFO_ERROR",
+                    error: "상품 ID를 찾을 수 없습니다.",
+                });
+                return;
+            }
+
+            fetch(`https://voim.store/api/v1/product-detail/${outline}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ html, productId }),
+            })
+                .then((res) => res.json())
+                .then((data) => {
+                    if (sender.tab?.id) {
+                        chrome.tabs.sendMessage(sender.tab.id, {
+                            type: "OUTLINE_INFO_RESPONSE",
+                            data: data.data,
+                        });
+                    }
+                    sendResponse({
                         type: "OUTLINE_INFO_RESPONSE",
                         data: data.data,
                     });
-                }
-                sendResponse({
-                    type: "OUTLINE_INFO_RESPONSE",
-                    data: data.data,
-                });
-            })
-            .catch((err) => {
-                console.error("OUTLINE INFO 오류:", err);
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
+                })
+                .catch((err) => {
+                    console.error("OUTLINE INFO 오류:", err);
+                    if (sender.tab?.id) {
+                        chrome.tabs.sendMessage(sender.tab.id, {
+                            type: "OUTLINE_INFO_ERROR",
+                            error: err.message,
+                        });
+                    }
+                    sendResponse({
                         type: "OUTLINE_INFO_ERROR",
                         error: err.message,
                     });
-                }
-                sendResponse({
-                    type: "OUTLINE_INFO_ERROR",
-                    error: err.message,
                 });
-            });
+        });
 
         return true;
     }

@@ -56,9 +56,11 @@ const initAutoCollectReview = async () => {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
-        const starContainer = await waitForElement(
-            ".review-star-search-selector",
+        // 첫 번째 케이스 체크
+        let starContainer = await waitForElement(
+            ".review-star-search-selector, .sdp-review__article__order__star__option",
         );
+
         if (!starContainer) {
             console.error("[voim] 별점 컨테이너 로드 실패");
             return;
@@ -67,7 +69,7 @@ const initAutoCollectReview = async () => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const reviewSections = await waitForElement(
-            ".review-summary-survey-container",
+            ".review-summary-survey-container ,.sdp-review__average__summary",
         );
         if (!reviewSections) {
             console.error("[voim] 리뷰 섹션 로드 실패");
@@ -76,9 +78,9 @@ const initAutoCollectReview = async () => {
 
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
-        const reviewData = collectCoupangReviewData();
+        const reviewData = await collectCoupangReviewData();
         if (!reviewData) {
-            console.error("[voim] 리뷰 데이터 수집 실패");
+            console.error("[voim] 리뷰 데이터를 수집할 수 없습니다.");
             return;
         }
 

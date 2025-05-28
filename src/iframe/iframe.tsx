@@ -234,9 +234,10 @@ const App: React.FC = () => {
             {!isModalOpen && !isSidebarOpen && (
                 <FloatingButton onClick={toggleModal} />
             )}
+
             {!isModalOpen && !isSidebarOpen && (isDetailPage || isCartPage) && (
                 <FloatingButtonSide onClick={openSidebar} />
-            )}
+
 
             <Menubar
                 isOpen={isModalOpen}
