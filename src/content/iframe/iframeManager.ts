@@ -21,7 +21,7 @@ function handleResizeMessageFactory(iframe: HTMLIFrameElement) {
                 iframe.style.right = "0";
             } else {
                 iframe.style.width = "65px";
-                iframe.style.height = "65px";
+                iframe.style.height = "130px";
                 iframe.style.top = "70px";
                 iframe.style.right = "20px";
             }
@@ -34,7 +34,7 @@ function handleResizeMessageFactory(iframe: HTMLIFrameElement) {
  */
 function resetIframeState(iframe: HTMLIFrameElement): void {
     iframe.style.width = "65px";
-    iframe.style.height = "65px";
+    iframe.style.height = "130px";
     iframe.style.top = "70px";
     iframe.style.right = "20px";
 }
@@ -59,7 +59,7 @@ export function createIframe(): void {
             top: 70px;
             right: 20px;
             width: 65px;
-            height: 65px;
+            height: 130px;
             border: none;
             background: transparent;
             z-index: 2147483647;

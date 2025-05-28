@@ -14,7 +14,16 @@ export const sendOutlineInfoRequest = (
                 }
 
                 if (response?.type === "OUTLINE_INFO_RESPONSE") {
-                    resolve(response.data.detail);
+                    const detail = response.data?.detail;
+                    if (typeof detail === "string") {
+                        resolve(detail);
+                    } else {
+                        console.warn(
+                            "[voim] 응답은 왔지만 detail 없음:",
+                            response.data,
+                        );
+                        reject(new Error("서버 응답에 detail이 없습니다."));
+                    }
                 } else if (response?.type === "OUTLINE_INFO_ERROR") {
                     reject(new Error(response.error));
                 } else {

@@ -53,6 +53,29 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("[voim] 백그라운드 메시지 수신:", message);
+
+    if (message.type === "PAGE_TYPE") {
+        // iframe으로 메시지 전달
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (activeTab?.id) {
+                chrome.tabs.sendMessage(
+                    activeTab.id,
+                    {
+                        type: "PAGE_TYPE",
+                        value: message.value,
+                    },
+                    (response) => {
+                        console.log("[voim] iframe 응답:", response);
+                        sendResponse(response);
+                    },
+                );
+            }
+        });
+        return true; // 비동기 응답을 위해 true 반환
+    }
+
     // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;
@@ -137,6 +160,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "FETCH_OUTLINE_INFO") {
         const { outline, html } = message.payload;
 
+        console.log("[voim][background] FETCH_OUTLINE_INFO 요청 수신됨", {
+            outline,
+            htmlPreview: html?.slice(0, 300),
+        });
+
         fetch(`https://voim.store/api/v1/products/analysis/${outline}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -175,27 +203,55 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // COSMETIC API
     if (message.type === "FETCH_COSMETIC_DATA") {
         const { productId, html } = message.payload;
-
         fetch("https://voim.store/api/v1/cosmetic", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, html }),
         })
-            .then((res) => res.json())
+            .then((res) => {
+                console.log(
+                    "[voim][background] 응답 수신 - 상태코드:",
+                    res.status,
+                );
+                return res.json();
+            })
             .then((data) => {
+                console.log(
+                    "[voim][background] 응답 내용 전체:",
+                    JSON.stringify(data, null, 2),
+                );
+
+                const raw = data?.data;
+                if (!raw || typeof raw !== "object") {
+                    console.warn(
+                        "[voim][background] data.data 형식 이상함:",
+                        raw,
+                    );
+                }
+
+                const parsedList = Object.entries(raw || {})
+                    .filter(([_, v]) => v === true)
+                    .map(([k]) => k);
+
+                console.log(
+                    "[voim][background]  true인 항목들만 추출된 리스트:",
+                    parsedList,
+                );
+
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "COSMETIC_DATA_RESPONSE",
-                        data: data.data,
+                        data: raw,
                     });
                 }
+
                 sendResponse({
                     type: "COSMETIC_DATA_RESPONSE",
-                    data: data.data,
+                    data: raw,
                 });
             })
             .catch((err) => {
-                console.error("COSMETIC 요청 실패:", err);
+                console.error("[voim][background]  COSMETIC 요청 실패:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "COSMETIC_DATA_ERROR",
@@ -255,15 +311,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const { productId, title, html, birthYear, gender, allergies } =
             message.payload;
 
-        console.log("[health api] Request payload:", {
-            productId,
-            title,
-            html,
-            birthYear,
-            gender,
-            allergies,
-        });
-
         fetch("https://voim.store/api/v1/health-food/keywords", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -276,12 +323,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 allergies,
             }),
         })
-            .then((res) => {
-                console.log("[health api] Response status:", res.status);
-                return res.json();
-            })
+            .then((res) => res.json())
             .then((data) => {
-                console.log("[health api] Response data:", data);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_RESPONSE",
@@ -291,7 +334,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 sendResponse({ type: "HEALTH_DATA_RESPONSE", data: data.data });
             })
             .catch((err) => {
-                console.error("[health api] Request failed:", err);
+                console.error("HEALTH 요청 실패:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_ERROR",
@@ -302,6 +345,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
 
         return true;
+    }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "FETCH_VENDOR_HTML") {
+        if (sender.tab?.id) {
+            chrome.tabs.sendMessage(
+                sender.tab.id,
+                { type: "GET_VENDOR_HTML" },
+                (response) => {
+                    sendResponse(response);
+                },
+            );
+            return true;
+        }
     }
 });
 

@@ -50,6 +50,9 @@ export const HealthComponent = () => {
                     },
                 },
                 (res) => {
+                    const data = res?.data?.types || [];
+                    console.log("API 응답 데이터:", data);
+                    setHealthEffects(data);
                     console.log("[health api] 응답 수신:", res);
                     if (res?.data?.types) {
                         console.log(
@@ -71,9 +74,10 @@ export const HealthComponent = () => {
         console.log("[health api] targetEl 찾음:", targetEl);
 
         if (targetEl) {
-            console.log("[health api] 즉시 fetchData 실행");
+            console.log(" 타겟 요소 찾음:", targetEl);
             fetchData(targetEl);
         } else {
+            console.log("타겟 요소가 없어 MutationObserver 설정 중...");
             console.log("[health api] MutationObserver 시작");
             const observer = new MutationObserver(() => {
                 const el =
@@ -81,6 +85,7 @@ export const HealthComponent = () => {
                     document.querySelector(".product-detail-content") ||
                     document.querySelector(".prod-image");
                 if (el) {
+                    console.log("MutationObserver가 타겟 요소 탐지:", el);
                     console.log("[health api] targetEl 발견, observer 중지");
                     observer.disconnect();
                     fetchData(el);
@@ -92,6 +97,7 @@ export const HealthComponent = () => {
     }, []);
 
     if (!healthEffects) {
+        console.log(" healthEffects 데이터가 아직 없습니다");
         return (
             <div
                 style={{
@@ -116,6 +122,7 @@ export const HealthComponent = () => {
     }
 
     const visibleItems = showAll ? healthEffects : healthEffects.slice(0, 3);
+    console.log("👓 보여질 효능 리스트:", visibleItems);
 
     return (
         <div
@@ -183,7 +190,10 @@ export const HealthComponent = () => {
                     border: "none",
                     cursor: "pointer",
                 }}
-                onClick={() => setShowAll(!showAll)}
+                onClick={() => {
+                    console.log("전체 보기 버튼 클릭:", !showAll);
+                    setShowAll(!showAll);
+                }}
             >
                 {showAll ? "전체 보기 닫기" : "전체 보기"}
             </button>

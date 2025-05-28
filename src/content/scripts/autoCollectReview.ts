@@ -4,7 +4,7 @@ import {
 } from "../apiSetting/sendReviewSummaryRequest";
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { ReviewSummaryComponent } from "../../components/productComponents/ReviewSummaryComponent";
+// import { ReviewSummaryComponent } from "../../components/productComponents/
 import { ThemeContextProvider } from "../../contexts/ThemeContext";
 
 interface ReviewSummary {
@@ -33,9 +33,9 @@ const renderReviewSummary = (summary: ReviewSummary | undefined) => {
             );
             callback();
         } else if (retries > 0) {
-            console.log(
-                `[voim] voim-info-component 대기 중... 남은 시도 횟수: ${retries}`,
-            );
+            // console.log(
+            //     `[voim] voim-info-component 대기 중... 남은 시도 횟수: ${retries}`,
+            // );
             setTimeout(() => waitForInfoComponent(callback, retries - 1), 500);
         } else {
             console.error(
@@ -65,7 +65,7 @@ const renderReviewSummary = (summary: ReviewSummary | undefined) => {
                 React.createElement(
                     ThemeContextProvider,
                     null,
-                    React.createElement(ReviewSummaryComponent, { summary }),
+                    // React.createElement(ReviewSummaryComponent, { summary }),
                 ),
             );
             console.log("[voim] 리뷰 요약 컴포넌트 렌더링 완료");

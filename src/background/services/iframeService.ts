@@ -19,7 +19,7 @@ const IFRAME_CONSTANTS = {
             top: "70px",
             right: "20px",
             width: "65px",
-            height: "65px",
+            height: "130px",
             border: "none",
             background: "transparent",
             zIndex: "2147483647",

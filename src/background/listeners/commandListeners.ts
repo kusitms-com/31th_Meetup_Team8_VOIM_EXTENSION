@@ -41,7 +41,6 @@ export function initCommandListeners(): void {
             }
         } catch (error) {
             logger.error(`명령어 처리 중 오류 발생: ${error}`);
-            logger.error(`오류 상세:`, error);
         }
     });
 

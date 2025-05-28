@@ -45,7 +45,7 @@ export async function handleModalToggle(): Promise<void> {
                                 iframe.style.top = "70px";
                                 iframe.style.right = "20px";
                                 iframe.style.width = "65px";
-                                iframe.style.height = "65px";
+                                iframe.style.height = "130px";
                                 iframe.style.border = "none";
                                 iframe.style.background = "transparent";
                                 iframe.style.zIndex = "2147483647";
@@ -71,7 +71,7 @@ export async function handleModalToggle(): Promise<void> {
                                             iframe.style.right = "0";
                                         } else {
                                             iframe.style.width = "65px";
-                                            iframe.style.height = "65px";
+                                            iframe.style.height = "130px";
                                             iframe.style.top = "70px";
                                             iframe.style.right = "20px";
                                         }

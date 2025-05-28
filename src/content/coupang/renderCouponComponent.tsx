@@ -115,8 +115,6 @@ export const renderCouponComponent = () => {
             return;
         }
 
-        console.log("[voim] DOM 변경 감지:", mutations.length, "개");
-
         tryDownloadCoupons()
             .then((success) => {
                 if (success) {

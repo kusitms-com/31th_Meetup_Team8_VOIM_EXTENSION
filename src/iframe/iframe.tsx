@@ -2,14 +2,20 @@ import React, { useEffect, useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
+import { useTheme } from "@src/contexts/ThemeContext";
+import { ShortcutTab } from "@src/components/shortcutTab";
+import ControlMode from "@src/components/modeButton/ControlMode";
+import ControlFont from "@src/components/fontButton/ControlFont";
+import { MyInfo } from "@src/tabs/myInfo";
+import ControlService from "@src/components/serviceButton/ControlService";
+import { Onboarding } from "@src/tabs/myInfo/components";
+import { Sidebar } from "@src/components/sidebar";
+import "../css/app.css";
 import { useUserInfo } from "@src/hooks/useUserInfo";
+import { FloatingButtonSide } from "@src/components/floatingButtonSide";
 import { useModalManagement } from "@src/hooks/useModalManagement";
 import { PanelContent } from "@src/components/panelContent/component";
-import { Onboarding } from "@src/tabs/myInfo/components";
-import { MyInfo } from "@src/tabs/myInfo";
 import { menuItems } from "@src/constants/menuItems";
-
-import "../css/app.css";
 
 const App: React.FC = () => {
     const {
@@ -25,7 +31,12 @@ const App: React.FC = () => {
 
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { birthYear, gender, loading } = useUserInfo();
+    const [categoryType, setCategoryType] = useState<
+        "food" | "cosmetic" | "health" | null
+    >(null);
+    const [isDetailPage, setIsDetailPage] = useState(false); // ✅ 상세 페이지 여부
 
     useEffect(() => {
         if (selectedMenu === null && lastSelectedMenuRef.current) {
@@ -33,6 +44,14 @@ const App: React.FC = () => {
             btn?.focus();
         }
     }, [selectedMenu, lastSelectedMenuRef]);
+
+    useEffect(() => {
+        chrome.storage.local.get("voim-category-type", (res) => {
+            if (res["voim-category-type"]) {
+                setCategoryType(res["voim-category-type"]);
+            }
+        });
+    }, []);
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
@@ -47,13 +66,63 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
+            console.log("[voim] 메시지 수신 시도:", event);
+            console.log("[voim] 메시지 데이터:", event.data);
+            console.log("[voim] 메시지 출처:", event.origin);
+
+            if (event.data) {
+                switch (event.data.type) {
+                    case "TOGGLE_MODAL":
+                        console.log("[voim] 모달 토글 메시지 수신");
+                        toggleModal();
+                        break;
+                    case "HIDE_LOGO":
+                        console.log("[voim] 로고 숨김 메시지 수신");
+                        document
+                            .getElementById("logo")
+                            ?.classList.add("hidden");
+                        chrome.storage.local.set({ "logo-hidden": true });
+                        break;
+                    case "SHOW_LOGO":
+                        console.log("[voim] 로고 표시 메시지 수신");
+                        document
+                            .getElementById("logo")
+                            ?.classList.remove("hidden");
+                        chrome.storage.local.set({ "logo-hidden": false });
+                        break;
+                    case "PAGE_TYPE":
+                        console.log(
+                            "[voim] 페이지 타입 메시지 수신:",
+                            event.data.value,
+                        );
+                        setIsDetailPage(Boolean(event.data.value));
+                        break;
+                    default:
+                        console.log(
+                            "[voim] 알 수 없는 메시지 타입:",
+                            event.data.type,
+                        );
+                        break;
+                }
             }
         };
 
+        // 메시지 리스너 등록
         window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
+        console.log("[voim] iframe 메시지 리스너 등록됨");
+
+        // 초기 페이지 타입 요청
+        try {
+            window.parent.postMessage({ type: "REQUEST_PAGE_TYPE" }, "*");
+            console.log("[voim] 초기 페이지 타입 요청 전송");
+        } catch (error) {
+            console.error("[voim] 페이지 타입 요청 실패:", error);
+        }
+
+        return () => {
+            window.removeEventListener("message", handleMessage);
+            console.log("[voim] iframe 메시지 리스너 제거됨");
+        };
     }, [toggleModal]);
 
     useEffect(() => {
@@ -74,6 +143,21 @@ const App: React.FC = () => {
             }
         });
     }, [birthYear, gender, loading]);
+
+    const openSidebar = () => {
+        setIsSidebarOpen(true);
+        setIsModalOpen(true);
+        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
+    };
+
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+        setIsModalOpen(false);
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: false },
+            "*",
+        );
+    };
 
     const handleOnboardingComplete = () => {
         setIsOnboarding(false);
@@ -110,12 +194,10 @@ const App: React.FC = () => {
             const menubarContainer = document.querySelector(
                 '[data-testid="menubar-container"]',
             );
-
             if (menubarContainer) {
                 const resetButton = menubarContainer.querySelector(
                     '[data-testid="reset-button"]',
                 ) as HTMLButtonElement;
-
                 if (resetButton) {
                     resetButton.focus();
                     resetButton.setAttribute("tabIndex", "0");
@@ -143,6 +225,9 @@ const App: React.FC = () => {
     return (
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={toggleModal} />}
+            {!isModalOpen && isDetailPage && (
+                <FloatingButtonSide onClick={openSidebar} />
+            )}
 
             <Menubar
                 isOpen={isModalOpen}
@@ -174,6 +259,12 @@ const App: React.FC = () => {
                     <PanelContent menuId={selectedMenu} />
                 </div>
             </Menubar>
+
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={closeSidebar}
+                type={categoryType}
+            />
         </div>
     );
 };
