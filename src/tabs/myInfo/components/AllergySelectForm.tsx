@@ -98,11 +98,9 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                                     prev.filter((a) => a !== item),
                                 )
                             }
+                            aria-label={`${item} 제거`}
                         >
-                            <div
-                                className="flex gap-5 items-center"
-                                aria-label={`${item} 제거`}
-                            >
+                            <div className="flex gap-5 items-center">
                                 {item}
 
                                 <CloseIcon />
