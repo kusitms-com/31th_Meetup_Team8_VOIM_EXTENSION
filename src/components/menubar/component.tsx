@@ -73,12 +73,6 @@ export function Menubar({
                             firstFocusableRef.current?.focus();
                         }
                     }
-                } else if (e.key === "Escape") {
-                    window.parent.postMessage(
-                        { type: "RESIZE_IFRAME", isOpen: false },
-                        "*",
-                    );
-                    onClose();
                 }
             };
 
@@ -90,7 +84,7 @@ export function Menubar({
                 );
             };
         }
-    }, [isOpen, onClose]);
+    }, [isOpen]);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         const container = document.querySelector(
