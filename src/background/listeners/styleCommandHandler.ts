@@ -8,13 +8,11 @@ export async function handleStyleToggle(): Promise<void> {
     });
 
     if (tabs[0]?.id) {
-        // 현재 스타일 상태 확인
         const currentStyleState = await chrome.storage.local.get([
             "stylesEnabled",
         ]);
         const isStylesEnabled = currentStyleState.stylesEnabled ?? true;
 
-        // settingsService의 상태 동기화
         settingsService.setStylesEnabled(isStylesEnabled);
 
         await chrome.scripting.executeScript({
@@ -24,14 +22,12 @@ export async function handleStyleToggle(): Promise<void> {
                 const existingIframe = document.getElementById(iframeId);
 
                 if (existingIframe) {
-                    // iframe이 있으면 제거
                     existingIframe.remove();
                     chrome.storage.local.set({
                         iframeInvisible: true,
                         iframeHiddenByAltA: true,
                     });
                 } else {
-                    // iframe이 없으면 생성
                     const iframe = document.createElement("iframe");
                     iframe.id = iframeId;
                     iframe.src = chrome.runtime.getURL("iframe.html");
@@ -83,9 +79,7 @@ export async function handleStyleToggle(): Promise<void> {
             },
         });
 
-        // 스타일 상태 토글
         if (isStylesEnabled) {
-            // 스타일이 켜져있으면 끄기
             await chrome.tabs.sendMessage(tabs[0].id, {
                 type: "DISABLE_ALL_STYLES",
             });
@@ -94,7 +88,6 @@ export async function handleStyleToggle(): Promise<void> {
             });
             settingsService.setStylesEnabled(false);
         } else {
-            // 스타일이 꺼져있으면 켜기
             await chrome.tabs.sendMessage(tabs[0].id, {
                 type: "RESTORE_ALL_STYLES",
             });

@@ -98,7 +98,6 @@ const initAutoCollectReview = async () => {
     }
 };
 
-// 페이지 로드 시 실행
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAutoCollectReview);
 } else {
