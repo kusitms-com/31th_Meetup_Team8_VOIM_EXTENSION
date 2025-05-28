@@ -98,11 +98,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return false;
 });
 
-const isProductDetailPage = () =>
-    window.location.href.includes("coupang.com/vp/products/");
+const isProductDetailPage = () => {
+    return window.location.href.includes("/products/");
+};
 
-const isCartPage = () =>
-    window.location.href.includes("cart.coupang.com/cartView.pang");
+const isCartPage = () => {
+    return window.location.href.includes("cart.coupang.com/cartView.pang");
+};
 
 const sendMessageToIframe = (isProductPage: boolean, isCart: boolean) => {
     const iframe = document.querySelector(
@@ -137,40 +139,9 @@ const sendMessageToIframe = (isProductPage: boolean, isCart: boolean) => {
 };
 
 const waitForIframeAndSend = () => {
-    const existingIframe = document.querySelector(
-        "#floating-button-extension-iframe",
-    );
-    if (existingIframe) {
-        sendMessageToIframe(isProductDetailPage(), isCartPage());
-        return;
-    }
-
-    const observer = new MutationObserver(() => {
-        const iframe = document.querySelector(
-            "#floating-button-extension-iframe",
-        );
-        if (iframe) {
-            sendMessageToIframe(isProductDetailPage(), isCartPage());
-            observer.disconnect();
-        }
-    });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ["src", "id"],
-    });
-
     setTimeout(() => {
-        observer.disconnect();
-        const iframe = document.querySelector(
-            "#floating-button-extension-iframe",
-        );
-        if (!iframe) {
-            sendMessageToIframe(false, false);
-        }
-    }, 2000);
+        sendMessageToIframe(isProductDetailPage(), isCartPage());
+    }, 500);
 };
 
 let lastUrl = window.location.href;

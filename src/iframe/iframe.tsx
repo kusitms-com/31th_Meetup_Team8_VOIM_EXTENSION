@@ -275,6 +275,7 @@ const App: React.FC = () => {
                 isOpen={isSidebarOpen}
                 onClose={closeSidebar}
                 type={categoryType}
+                isCartPage={isCartPage}
             />
         </div>
     );
