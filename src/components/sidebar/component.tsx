@@ -19,12 +19,23 @@ const tabs = [
     { id: "review", label: "리뷰" },
 ] as const;
 
+interface ReviewSummary {
+    totalCount: number;
+    averageRating: number;
+    positiveReviews: string[];
+    negativeReviews: string[];
+    keywords: string[];
+}
+
 export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const { theme } = useTheme();
     const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]["id"]>(
         type ? "ingredient" : "detail",
     );
     const isDarkMode = theme === "dark";
+    const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(
+        null,
+    );
 
     useEffect(() => {
         setSelectedTab(type ? "ingredient" : "detail");
@@ -43,6 +54,43 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
             }
         }
     }, [isOpen, selectedTab, type]);
+
+    useEffect(() => {
+        // 리뷰 요약 데이터 수신
+        const handleMessage = (message: any) => {
+            if (message.type === "REVIEW_SUMMARY_RESPONSE") {
+                setReviewSummary(message.data);
+            }
+        };
+
+        chrome.runtime.onMessage.addListener(handleMessage);
+
+        // 현재 탭의 productId 가져오기
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const currentTab = tabs[0];
+            if (currentTab?.url?.includes("/products/")) {
+                const productId =
+                    currentTab.url.match(/\/products\/(\d+)/)?.[1];
+                if (productId) {
+                    // 저장된 리뷰 요약 데이터 확인
+                    chrome.storage.local.get(
+                        [`review_summary_${productId}`],
+                        (result) => {
+                            const savedSummary =
+                                result[`review_summary_${productId}`];
+                            if (savedSummary) {
+                                setReviewSummary(savedSummary);
+                            }
+                        },
+                    );
+                }
+            }
+        });
+
+        return () => {
+            chrome.runtime.onMessage.removeListener(handleMessage);
+        };
+    }, []);
 
     const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (e.target !== e.currentTarget) return;
@@ -70,13 +118,15 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
             case "review":
                 return (
                     <ReviewSummaryComponent
-                        summary={{
-                            totalCount: 0,
-                            averageRating: 0,
-                            positiveReviews: [],
-                            negativeReviews: [],
-                            keywords: [],
-                        }}
+                        summary={
+                            reviewSummary || {
+                                totalCount: 0,
+                                averageRating: 0,
+                                positiveReviews: [],
+                                negativeReviews: [],
+                                keywords: [],
+                            }
+                        }
                     />
                 );
             default:

@@ -34,16 +34,17 @@ export const collectCoupangReviewData =
         try {
             // 별점 데이터 수집
             const starRatingContainer = document.querySelector(
-                ".sdp-review__article__order__star__list",
+                ".review-star-search-selector",
             );
             if (!starRatingContainer) {
                 console.error("[voim] 별점 컨테이너를 찾을 수 없습니다.");
                 return null;
             }
 
+            // 전체 리뷰 수 수집
             const totalCountText =
-                document
-                    .querySelector(".js_reviewArticleCurrentStarAllCount")
+                starRatingContainer
+                    .querySelector(".review-star-search-item-counts")
                     ?.textContent?.trim() || "0";
             const totalCount = parseInt(totalCountText.replace(/,/g, ""));
 
@@ -58,19 +59,15 @@ export const collectCoupangReviewData =
 
             // 별점별 개수 수집
             const starItems = starRatingContainer.querySelectorAll(
-                ".js_reviewArticleStarSelectOption",
+                ".review-star-search-item",
             );
             starItems.forEach((item) => {
                 const ratingText = item
-                    .querySelector(
-                        ".sdp-review__article__order__star__list__item__content",
-                    )
+                    .querySelector(".review-star-search-item-desc")
                     ?.textContent?.trim();
                 const countText =
                     item
-                        .querySelector(
-                            '[class*="js_reviewArticleOptionStarCount"]',
-                        )
+                        .querySelector(".review-star-search-item-counts")
                         ?.textContent?.trim() || "0";
 
                 if (ratingText && ratingText in ratingsMap) {
@@ -91,7 +88,7 @@ export const collectCoupangReviewData =
 
             // 리뷰 섹션 데이터 수집
             const reviewSections = document.querySelectorAll(
-                ".sdp-review__average__summary__section",
+                ".review-summary-survey-section",
             );
             if (!reviewSections.length) {
                 console.error("[voim] 리뷰 섹션을 찾을 수 없습니다.");
@@ -102,26 +99,22 @@ export const collectCoupangReviewData =
 
             reviewSections.forEach((section) => {
                 const categoryTitle = section
-                    .querySelector(
-                        ".sdp-review__average__summary__section__title",
-                    )
+                    .querySelector("h4")
                     ?.textContent?.trim();
                 if (!categoryTitle) return;
 
                 const categoryRatings: { [key: string]: number } = {};
                 const items = section.querySelectorAll(
-                    ".sdp-review__average__summary__section__list__item",
+                    ".review-summary-survey-answers > li",
                 );
 
                 items.forEach((item) => {
                     const answer = item
-                        .querySelector(
-                            ".sdp-review__average__summary__section__list__item__answer",
-                        )
+                        .querySelector(".review-summary-survey-answer-title")
                         ?.textContent?.trim();
                     const percentText = item
                         .querySelector(
-                            ".sdp-review__average__summary__section__list__item__graph__percent",
+                            ".review-summary-survey-answer-percentage",
                         )
                         ?.textContent?.trim();
 
