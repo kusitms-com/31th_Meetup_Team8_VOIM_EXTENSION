@@ -54,7 +54,6 @@ const renderReviewSummary = (summary: ReviewSummary | undefined) => {
             container.style.marginBottom = "20px";
             container.style.zIndex = "1";
 
-            // voim-info-component 바로 뒤에 삽입
             infoComponent.parentNode.insertBefore(
                 container,
                 infoComponent.nextSibling,
@@ -76,11 +75,9 @@ const renderReviewSummary = (summary: ReviewSummary | undefined) => {
         }
     };
 
-    // voim-info-component가 로드될 때까지 기다린 후 삽입
     waitForInfoComponent(insertReviewSummary);
 };
 
-// 특정 요소가 DOM에 나타날 때까지 기다리는 헬퍼 함수
 const waitForElement = (
     selector: string,
     timeout = 10000,
@@ -120,7 +117,6 @@ const initAutoCollectReview = async () => {
     try {
         console.log("[voim] 리뷰 데이터 자동 수집 시작...");
 
-        // 별점 컨테이너가 로드될 때까지 대기
         const starContainer = await waitForElement(
             ".sdp-review__article__order__star__list, .sdp-review__article__order__star__all",
         );
@@ -130,7 +126,6 @@ const initAutoCollectReview = async () => {
         }
         console.log("[voim] 별점 컨테이너 로드 완료");
 
-        // 리뷰 섹션이 로드될 때까지 대기
         const reviewSections = await waitForElement(
             ".sdp-review__average__summary__section",
         );
@@ -139,9 +134,6 @@ const initAutoCollectReview = async () => {
             return;
         }
         console.log("[voim] 리뷰 섹션 로드 완료");
-
-        // 페이지가 완전히 로드될 때까지 대기 (기존 로직 유지)
-        // await new Promise((resolve) => setTimeout(resolve, 2000));
 
         const reviewData = collectCoupangReviewData();
         if (!reviewData) {
@@ -154,14 +146,13 @@ const initAutoCollectReview = async () => {
         const summary = await sendReviewSummaryRequest(reviewData);
         console.log("[voim] 리뷰 요약 결과:", summary);
 
-        // 결과를 스토리지에 저장
         chrome.storage.local.set(
             {
                 [`review_summary_${reviewData.productId}`]: summary,
             },
             () => {
                 console.log("[voim] 리뷰 요약 데이터 저장 완료");
-                // 컴포넌트 렌더링 (voim-info-component 로드 대기 포함)
+
                 renderReviewSummary(summary);
             },
         );
@@ -170,7 +161,6 @@ const initAutoCollectReview = async () => {
     }
 };
 
-// 페이지 로드 시 실행
 if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", initAutoCollectReview);
 } else {
