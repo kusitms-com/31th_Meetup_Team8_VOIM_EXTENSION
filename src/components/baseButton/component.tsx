@@ -8,6 +8,7 @@ interface BaseButtonProps {
     ariaLabel?: string;
     isSelected?: boolean;
     nonCheck?: boolean;
+    isFull?: boolean;
     "data-testid"?: string;
 }
 
@@ -17,6 +18,7 @@ export function BaseButton({
     ariaLabel,
     isSelected = false,
     nonCheck = false,
+    isFull = false,
     "data-testid": dataTestId,
 }: BaseButtonProps) {
     const { theme, fontClasses } = useTheme();
@@ -24,7 +26,7 @@ export function BaseButton({
 
     return (
         <button
-            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${
+            className={`font-koddi ${fontClasses.fontCommon} py-[16px] px-[30px] relative rounded-[14px] ${isFull ? "w-full" : ""} text-center ${
                 isSelected
                     ? isDarkMode
                         ? "bg-grayscale-900 text-grayscale-100 border-4 border-solid border-purple-light"

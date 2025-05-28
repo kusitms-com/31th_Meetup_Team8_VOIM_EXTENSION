@@ -29,22 +29,60 @@ interface ReviewSummaryAPIResponse {
     message?: string;
 }
 
+const waitForElement = (
+    selector: string,
+    timeout = 10000,
+): Promise<Element | null> => {
+    return new Promise((resolve) => {
+        if (document.querySelector(selector)) {
+            return resolve(document.querySelector(selector));
+        }
+
+        const observer = new MutationObserver(() => {
+            if (document.querySelector(selector)) {
+                observer.disconnect();
+                resolve(document.querySelector(selector));
+            }
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+
+        setTimeout(() => {
+            observer.disconnect();
+            resolve(null);
+        }, timeout);
+    });
+};
+
 export const collectCoupangReviewData =
-    (): ReviewSummaryRequestPayload | null => {
+    async (): Promise<ReviewSummaryRequestPayload | null> => {
         try {
-            // 별점 데이터 수집
-            const starRatingContainer = document.querySelector(
+            // 첫 번째 케이스: .review-star-search-selector
+            let starRatingContainer = await waitForElement(
                 ".review-star-search-selector",
             );
+
+            // 두 번째 케이스: .sdp-review__article__order__star__option
+            if (!starRatingContainer) {
+                starRatingContainer = await waitForElement(
+                    ".sdp-review__article__order__star__option",
+                );
+            }
+
             if (!starRatingContainer) {
                 console.error("[voim] 별점 컨테이너를 찾을 수 없습니다.");
                 return null;
             }
 
-            // 전체 리뷰 수 수집
+            // 전체 리뷰 수 수집 (두 가지 케이스 모두 처리)
             const totalCountText =
                 starRatingContainer
-                    .querySelector(".review-star-search-item-counts")
+                    .querySelector(
+                        ".review-star-search-item-counts, .js_reviewArticleOptionStarAllCount",
+                    )
                     ?.textContent?.trim() || "0";
             const totalCount = parseInt(totalCountText.replace(/,/g, ""));
 
@@ -57,17 +95,21 @@ export const collectCoupangReviewData =
                 나쁨: 0,
             };
 
-            // 별점별 개수 수집
+            // 별점별 개수 수집 (두 가지 케이스 모두 처리)
             const starItems = starRatingContainer.querySelectorAll(
-                ".review-star-search-item",
+                ".review-star-search-item, .sdp-review__article__order__star__list__item",
             );
             starItems.forEach((item) => {
                 const ratingText = item
-                    .querySelector(".review-star-search-item-desc")
+                    .querySelector(
+                        ".review-star-search-item-desc, .sdp-review__article__order__star__list__item__content",
+                    )
                     ?.textContent?.trim();
                 const countText =
                     item
-                        .querySelector(".review-star-search-item-counts")
+                        .querySelector(
+                            ".review-star-search-item-counts, .sdp-review__article__order__star__list__item__count",
+                        )
                         ?.textContent?.trim() || "0";
 
                 if (ratingText && ratingText in ratingsMap) {
@@ -88,7 +130,7 @@ export const collectCoupangReviewData =
 
             // 리뷰 섹션 데이터 수집
             const reviewSections = document.querySelectorAll(
-                ".review-summary-survey-section",
+                ".review-summary-survey-section, .sdp-review__average__summary__section",
             );
             if (!reviewSections.length) {
                 console.error("[voim] 리뷰 섹션을 찾을 수 없습니다.");
@@ -99,22 +141,26 @@ export const collectCoupangReviewData =
 
             reviewSections.forEach((section) => {
                 const categoryTitle = section
-                    .querySelector("h4")
+                    .querySelector(
+                        "h4, .sdp-review__average__summary__section__title",
+                    )
                     ?.textContent?.trim();
                 if (!categoryTitle) return;
 
                 const categoryRatings: { [key: string]: number } = {};
                 const items = section.querySelectorAll(
-                    ".review-summary-survey-answers > li",
+                    ".review-summary-survey-answers > li, .sdp-review__average__summary__section__list__item",
                 );
 
                 items.forEach((item) => {
                     const answer = item
-                        .querySelector(".review-summary-survey-answer-title")
+                        .querySelector(
+                            ".review-summary-survey-answer-title, .sdp-review__average__summary__section__list__item__answer",
+                        )
                         ?.textContent?.trim();
                     const percentText = item
                         .querySelector(
-                            ".review-summary-survey-answer-percentage",
+                            ".review-summary-survey-answer-percentage, .sdp-review__average__summary__section__list__item__graph__percent",
                         )
                         ?.textContent?.trim();
 
