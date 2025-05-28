@@ -1,42 +1,190 @@
-const EXTENSION_IFRAME_ID = "floating-button-extension-iframe";
+import { checkExtensionState } from "./storage/settingsManager";
+import { handleStyleMessage } from "./messageHandlers/styleMessageHandler";
+import { handleModalMessage } from "./messageHandlers/modalMessageHandler";
+import { processImages } from "./imageHandlers/imageProcessor";
+import { renderCouponComponent } from "./coupang/renderCouponComponent";
+import { initDomObserver } from "./observers/domObserver";
+import { detectCategoryType } from "./coupang/categoryHandler/detectCategory";
+import { createRoot } from "react-dom/client";
+import App from "../iframe/iframe";
+import React from "react";
 
-if (!document.getElementById(EXTENSION_IFRAME_ID)) {
-    const iframe = document.createElement("iframe");
-    iframe.id = EXTENSION_IFRAME_ID;
-    iframe.src = chrome.runtime.getURL("iframe.html");
+if (window.self !== window.top) {
+    const container = document.getElementById("voim-root");
+    if (container) {
+        const root = createRoot(container);
+        root.render(<App />);
+    }
+}
 
-    iframe.onerror = function (error) {
-        console.error("Failed to load iframe:", error);
-    };
+checkExtensionState();
 
-    iframe.style.cssText = `
-        position: fixed;
-        top: 70px;
-        right: 20px;
-        width: 65px;
-        height: 65px;
-        border: none;
-        background: transparent;
-        z-index: 2147483647;
-    `;
-    window.addEventListener("message", (event) => {
-        if (event.source !== iframe.contentWindow) {
-            return;
-        }
+document.addEventListener("DOMContentLoaded", () => {
+    checkExtensionState();
+});
 
-        if (event.data.type === "RESIZE_IFRAME") {
-            if (event.data.isOpen) {
-                iframe.style.width = "100%";
-                iframe.style.height = "100%";
-                iframe.style.top = "0";
-                iframe.style.right = "0";
-            } else {
-                iframe.style.width = "65px";
-                iframe.style.height = "65px";
-                iframe.style.top = "70px";
-                iframe.style.right = "20px";
-            }
+document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") {
+        checkExtensionState();
+    }
+});
+
+renderCouponComponent();
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    handleStyleMessage(message, sendResponse);
+    return true;
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    return handleModalMessage(message, sendResponse);
+});
+
+initDomObserver(() => true);
+
+processImages();
+
+if (location.href.includes("cart.coupang.com/cartView.pang")) {
+    window.addEventListener("load", () => {
+        setTimeout(() => {}, 500);
+    });
+}
+
+export const observeAndStoreCategoryType = () => {
+    const isCoupangProductPage =
+        /^https:\/\/www\.coupang\.com\/vp\/products\/[0-9]+/.test(
+            location.href,
+        );
+
+    if (!isCoupangProductPage) {
+        chrome.storage.local.set({ "voim-category-type": null });
+        return;
+    }
+
+    const observer = new MutationObserver(() => {
+        const type = detectCategoryType();
+        if (type !== null) {
+            chrome.storage.local.set({ "voim-category-type": type });
+            clearTimeout(timeoutId);
+            observer.disconnect();
         }
     });
-    document.body.appendChild(iframe);
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+
+    const timeoutId = setTimeout(() => {
+        chrome.storage.local.set({ "voim-category-type": null });
+        observer.disconnect();
+    }, 1500);
+};
+
+observeAndStoreCategoryType();
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "GET_VENDOR_HTML") {
+        try {
+            const vendorEl = document.querySelector(".vendor-item");
+            const rawHtml =
+                vendorEl?.outerHTML
+                    ?.replace(/\sonerror=\"[^\"]*\"/g, "")
+                    .replace(/\n/g, "")
+                    .trim() ?? "";
+
+            sendResponse({ html: rawHtml });
+        } catch (e) {
+            sendResponse({ html: "" });
+        }
+
+        return true;
+    }
+
+    return false;
+});
+
+const isProductDetailPage = () =>
+    window.location.href.includes("coupang.com/vp/products/");
+
+const sendMessageToIframe = (isProductPage: boolean) => {
+    const iframe = document.querySelector(
+        "#floating-button-extension-iframe",
+    ) as HTMLIFrameElement;
+
+    if (iframe) {
+        try {
+            iframe.contentWindow?.postMessage(
+                { type: "PAGE_TYPE", value: isProductPage },
+                "*",
+            );
+        } catch (error) {
+            iframe.onload = () => {
+                try {
+                    iframe.contentWindow?.postMessage(
+                        { type: "PAGE_TYPE", value: isProductPage },
+                        "*",
+                    );
+                } catch (error) {}
+            };
+        }
+    }
+};
+
+const waitForIframeAndSend = () => {
+    const existingIframe = document.querySelector(
+        "#floating-button-extension-iframe",
+    );
+    if (existingIframe) {
+        sendMessageToIframe(isProductDetailPage());
+        return;
+    }
+
+    const observer = new MutationObserver(() => {
+        const iframe = document.querySelector(
+            "#floating-button-extension-iframe",
+        );
+        if (iframe) {
+            sendMessageToIframe(isProductDetailPage());
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["src", "id"],
+    });
+
+    setTimeout(() => {
+        observer.disconnect();
+        const iframe = document.querySelector(
+            "#floating-button-extension-iframe",
+        );
+        if (!iframe) {
+            sendMessageToIframe(false);
+        }
+    }, 2000);
+};
+
+let lastUrl = window.location.href;
+const urlObserver = new MutationObserver(() => {
+    if (lastUrl !== window.location.href) {
+        lastUrl = window.location.href;
+        if (isProductDetailPage()) {
+            waitForIframeAndSend();
+        }
+    }
+});
+
+window.addEventListener("message", (event) => {
+    if (event.data.type === "REQUEST_PAGE_TYPE") {
+        sendMessageToIframe(isProductDetailPage());
+    }
+});
+
+if (isProductDetailPage()) {
+    waitForIframeAndSend();
+    urlObserver.observe(document, { subtree: true, childList: true });
 }

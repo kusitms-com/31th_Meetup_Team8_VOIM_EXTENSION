@@ -1,5 +1,6 @@
 dist/*
 storybook-static/*
+coverage
 node_modules/*
 
 npm-debug.log

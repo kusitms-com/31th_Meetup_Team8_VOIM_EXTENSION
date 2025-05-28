@@ -1,21 +1,13 @@
 import "../src/css/app.css";
 import React from "react";
-import { Global, css } from "@emotion/react";
+import { AppThemeContext } from "../src/contexts/ThemeContext.tsx";
 
 const preview = {
     decorators: [
         (StoryFn) => (
-            <>
-                <Global
-                    styles={css`
-                        body {
-                            margin: 0;
-                            padding: 0;
-                        }
-                    `}
-                />
+            <AppThemeContext.Provider>
                 <StoryFn />
-            </>
+            </AppThemeContext.Provider>
         ),
     ],
 };

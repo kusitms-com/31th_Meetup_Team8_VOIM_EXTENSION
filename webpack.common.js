@@ -6,10 +6,13 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 module.exports = {
     plugins: [new ReactRefreshWebpackPlugin()],
     entry: {
-        backgroundPage: path.join(__dirname, "src/backgroundPage.ts"),
-        popup: path.join(__dirname, "src/popup/index.tsx"),
+        background: path.join(__dirname, "src/background/index.ts"),
         content: path.join(__dirname, "src/content/index.tsx"),
-        iframe: path.join(__dirname, "src/content/iframe.tsx"),
+        autoCollectReview: path.join(
+            __dirname,
+            "src/content/scripts/autoCollectReview.ts",
+        ),
+        iframe: path.join(__dirname, "src/iframe/index.tsx"),
     },
     output: {
         path: path.join(__dirname, "dist/js"),
@@ -42,6 +45,13 @@ module.exports = {
                     "postcss-loader",
                 ],
             },
+            {
+                test: /\.(woff|woff2|eot|ttf|otf)$/i,
+                type: "asset/resource",
+                generator: {
+                    filename: "../fonts/[name][ext]",
+                },
+            },
         ],
     },
     // Setup @src path resolution for TypeScript files
@@ -54,11 +64,11 @@ module.exports = {
     plugins: [
         new CopyWebpackPlugin({
             patterns: [
-                { from: "public/popup.html", to: "../" },
                 { from: "public/manifest.json", to: "../" },
                 { from: "public/icons", to: "../icons" },
                 { from: "src/iframe/iframe.html", to: "../" },
                 { from: "public/images", to: "../images" },
+                { from: "src/assets/fonts", to: "../fonts" },
             ],
         }),
     ],
