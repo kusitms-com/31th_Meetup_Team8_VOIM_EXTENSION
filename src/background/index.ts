@@ -302,44 +302,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 
-    // REVIEW SUMMARY API
-    if (message.type === "FETCH_REVIEW_SUMMARY") {
-        const { productId, reviewRating, reviews } = message.payload;
+    // // REVIEW SUMMARY API
+    // if (message.type === "FETCH_REVIEW_SUMMARY") {
+    //     const { productId, reviewRating, reviews } = message.payload;
 
-        fetch("https://voim.store/api/v1/review/summary", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ productId, reviewRating, reviews }),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "REVIEW_SUMMARY_RESPONSE",
-                        data: data.data,
-                    });
-                }
-                sendResponse({
-                    type: "REVIEW_SUMMARY_RESPONSE",
-                    data: data.data,
-                });
-            })
-            .catch((err) => {
-                console.error("REVIEW SUMMARY 오류:", err);
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "REVIEW_SUMMARY_ERROR",
-                        error: err.message,
-                    });
-                }
-                sendResponse({
-                    type: "REVIEW_SUMMARY_ERROR",
-                    error: err.message,
-                });
-            });
+    //     fetch("https://voim.store/api/v1/review/summary", {
+    //         method: "POST",
+    //         headers: { "Content-Type": "application/json" },
+    //         body: JSON.stringify({ productId, reviewRating, reviews }),
+    //     })
+    //         .then((res) => res.json())
+    //         .then((data) => {
+    //             if (sender.tab?.id) {
+    //                 chrome.tabs.sendMessage(sender.tab.id, {
+    //                     type: "REVIEW_SUMMARY_RESPONSE",
+    //                     data: data.data,
+    //                 });
+    //             }
+    //             sendResponse({
+    //                 type: "REVIEW_SUMMARY_RESPONSE",
+    //                 data: data.data,
+    //             });
+    //         })
+    //         .catch((err) => {
+    //             console.error("REVIEW SUMMARY 오류:", err);
+    //             if (sender.tab?.id) {
+    //                 chrome.tabs.sendMessage(sender.tab.id, {
+    //                     type: "REVIEW_SUMMARY_ERROR",
+    //                     error: err.message,
+    //                 });
+    //             }
+    //             sendResponse({
+    //                 type: "REVIEW_SUMMARY_ERROR",
+    //                 error: err.message,
+    //             });
+    //         });
 
-        return true;
-    }
+    //     return true;
+    // }
 
     // HEALTH DATA API
     if (message.type === "FETCH_HEALTH_DATA") {
