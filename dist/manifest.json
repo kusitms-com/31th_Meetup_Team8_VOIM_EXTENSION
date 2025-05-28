@@ -46,7 +46,7 @@
         "128": "icons/icon-128.png"
     },
     "host_permissions": ["<all_urls>", "https://voim.store/*"],
-    "permissions": ["scripting", "activeTab", "storage", "tabs", "sidePanel"],
+    "permissions": ["scripting", "activeTab", "storage", "tabs"],
     "commands": {
         "toggle_iframe": {
             "suggested_key": {
