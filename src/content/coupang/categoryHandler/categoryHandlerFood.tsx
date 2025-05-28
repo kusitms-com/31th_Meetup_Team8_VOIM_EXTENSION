@@ -4,7 +4,7 @@ import { FoodComponent } from "../../../components/productComponents/foodCompone
 
 export const observeBreadcrumbFoodAndRender = (targetElement: HTMLElement) => {
     console.log("[voim] 렌더링 함수 호출됨");
-    const breadcrumbEl = document.querySelector("#breadcrumb");
+    const breadcrumbEl = document.querySelector(".breadcrumb, #breadcrumb");
     const rawText = breadcrumbEl?.textContent || "";
     const cleanedText = rawText.replace(/\s+/g, "");
 
