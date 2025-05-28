@@ -1,5 +1,5 @@
 export const detectCategoryType = (): "food" | "cosmetic" | "health" | null => {
-    const breadcrumbEl = document.querySelector(".breadcrumb");
+    const breadcrumbEl = document.querySelector(".breadcrumb, #breadcrumb");
     if (!breadcrumbEl) {
         console.log("[voim] breadcrumb 요소를 찾을 수 없습니다.");
         return null;
