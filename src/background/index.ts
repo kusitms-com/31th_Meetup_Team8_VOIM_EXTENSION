@@ -53,6 +53,29 @@ chrome.runtime.onInstalled.addListener((details) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log("[voim] 백그라운드 메시지 수신:", message);
+
+    if (message.type === "PAGE_TYPE") {
+        // iframe으로 메시지 전달
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (activeTab?.id) {
+                chrome.tabs.sendMessage(
+                    activeTab.id,
+                    {
+                        type: "PAGE_TYPE",
+                        value: message.value,
+                    },
+                    (response) => {
+                        console.log("[voim] iframe 응답:", response);
+                        sendResponse(response);
+                    },
+                );
+            }
+        });
+        return true; // 비동기 응답을 위해 true 반환
+    }
+
     // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;

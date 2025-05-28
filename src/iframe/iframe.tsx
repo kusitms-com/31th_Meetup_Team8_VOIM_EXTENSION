@@ -36,6 +36,7 @@ const App: React.FC = () => {
     const [categoryType, setCategoryType] = useState<
         "food" | "cosmetic" | "health" | null
     >(null);
+    const [isDetailPage, setIsDetailPage] = useState(false); // ✅ 상세 페이지 여부
 
     useEffect(() => {
         if (selectedMenu === null && lastSelectedMenuRef.current) {
@@ -46,15 +47,8 @@ const App: React.FC = () => {
 
     useEffect(() => {
         chrome.storage.local.get("voim-category-type", (res) => {
-            console.log("[voim] storage 데이터:", res);
             if (res["voim-category-type"]) {
                 setCategoryType(res["voim-category-type"]);
-                console.log(
-                    "[voim] 카테고리 타입 설정됨:",
-                    res["voim-category-type"],
-                );
-            } else {
-                console.log("[voim] 카테고리 타입이 없음");
             }
         });
     }, []);
@@ -72,25 +66,63 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            switch (event.data.type) {
-                case "TOGGLE_MODAL":
-                    toggleModal();
-                    break;
-                case "HIDE_LOGO":
-                    document.getElementById("logo")?.classList.add("hidden");
-                    chrome.storage.local.set({ "logo-hidden": true });
-                    break;
-                case "SHOW_LOGO":
-                    document.getElementById("logo")?.classList.remove("hidden");
-                    chrome.storage.local.set({ "logo-hidden": false });
-                    break;
-                default:
-                    break;
+            console.log("[voim] 메시지 수신 시도:", event);
+            console.log("[voim] 메시지 데이터:", event.data);
+            console.log("[voim] 메시지 출처:", event.origin);
+
+            if (event.data) {
+                switch (event.data.type) {
+                    case "TOGGLE_MODAL":
+                        console.log("[voim] 모달 토글 메시지 수신");
+                        toggleModal();
+                        break;
+                    case "HIDE_LOGO":
+                        console.log("[voim] 로고 숨김 메시지 수신");
+                        document
+                            .getElementById("logo")
+                            ?.classList.add("hidden");
+                        chrome.storage.local.set({ "logo-hidden": true });
+                        break;
+                    case "SHOW_LOGO":
+                        console.log("[voim] 로고 표시 메시지 수신");
+                        document
+                            .getElementById("logo")
+                            ?.classList.remove("hidden");
+                        chrome.storage.local.set({ "logo-hidden": false });
+                        break;
+                    case "PAGE_TYPE":
+                        console.log(
+                            "[voim] 페이지 타입 메시지 수신:",
+                            event.data.value,
+                        );
+                        setIsDetailPage(Boolean(event.data.value));
+                        break;
+                    default:
+                        console.log(
+                            "[voim] 알 수 없는 메시지 타입:",
+                            event.data.type,
+                        );
+                        break;
+                }
             }
         };
 
+        // 메시지 리스너 등록
         window.addEventListener("message", handleMessage);
-        return () => window.removeEventListener("message", handleMessage);
+        console.log("[voim] iframe 메시지 리스너 등록됨");
+
+        // 초기 페이지 타입 요청
+        try {
+            window.parent.postMessage({ type: "REQUEST_PAGE_TYPE" }, "*");
+            console.log("[voim] 초기 페이지 타입 요청 전송");
+        } catch (error) {
+            console.error("[voim] 페이지 타입 요청 실패:", error);
+        }
+
+        return () => {
+            window.removeEventListener("message", handleMessage);
+            console.log("[voim] iframe 메시지 리스너 제거됨");
+        };
     }, [toggleModal]);
 
     useEffect(() => {
@@ -113,15 +145,14 @@ const App: React.FC = () => {
     }, [birthYear, gender, loading]);
 
     const openSidebar = () => {
-        console.log("[voim] 사이드바 열기 시도");
-        console.log("[voim] 현재 카테고리 타입:", categoryType);
         setIsSidebarOpen(true);
+        setIsModalOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
     };
 
     const closeSidebar = () => {
-        console.log("[voim] 사이드바 닫기");
         setIsSidebarOpen(false);
+        setIsModalOpen(false);
         window.parent.postMessage(
             { type: "RESIZE_IFRAME", isOpen: false },
             "*",
@@ -194,7 +225,9 @@ const App: React.FC = () => {
     return (
         <div className="pointer-events-auto">
             {!isModalOpen && <FloatingButton onClick={toggleModal} />}
-            {!isModalOpen && <FloatingButtonSide onClick={openSidebar} />}
+            {!isModalOpen && isDetailPage && (
+                <FloatingButtonSide onClick={openSidebar} />
+            )}
 
             <Menubar
                 isOpen={isModalOpen}
