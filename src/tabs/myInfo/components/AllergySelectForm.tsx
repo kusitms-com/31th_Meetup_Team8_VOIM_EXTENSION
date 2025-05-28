@@ -77,6 +77,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                             onClick={() => toggleAllergy(item)}
                             isSelected={selectedAllergies.includes(item)}
                             nonCheck={true}
+                            aria-label={`${item}`}
                         >
                             {item}
                         </BaseButton>
@@ -97,6 +98,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                                     prev.filter((a) => a !== item),
                                 )
                             }
+                            aria-label={`${item} 제거`}
                         >
                             <div className="flex gap-5 items-center">
                                 {item}

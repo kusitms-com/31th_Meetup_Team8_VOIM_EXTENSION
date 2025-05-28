@@ -55,14 +55,22 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === "Escape" && selectedMenu !== null) {
-                setSelectedMenu(null);
+            if (e.key === "Escape") {
+                if (selectedMenu !== null) {
+                    setSelectedMenu(null);
+                } else {
+                    setIsModalOpen(false);
+                    window.parent.postMessage(
+                        { type: "RESIZE_IFRAME", isOpen: false },
+                        "*",
+                    );
+                }
             }
         };
 
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [selectedMenu, setSelectedMenu]);
+    }, [selectedMenu, setSelectedMenu, setIsModalOpen]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -238,6 +246,8 @@ const App: React.FC = () => {
                         "*",
                     );
                 }}
+                role="menu"
+                aria-label="VOIM 설정 메뉴"
             >
                 {menuItems.map(({ id, text }) => (
                     <MenubarButton

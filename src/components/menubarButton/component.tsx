@@ -33,6 +33,7 @@ export const MenubarButton = forwardRef<HTMLButtonElement, MenubarButtonProps>(
                 role="menuitem"
                 aria-label={ariaLabel}
                 aria-selected={isSelected}
+                aria-expanded={isSelected}
             >
                 {text}
                 {isSelected && <CheckmarkIcon data-testid="checkmark-icon" />}
