@@ -40,6 +40,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
             ref={panelRef}
             tabIndex={isPanelFocused.current ? 0 : -1}
             role="tabpanel"
+            aria-labelledby={`tab-${menuId}`}
             aria-label={`${menuItems.find((item) => item.id === menuId)?.text} 설정`}
         >
             {renderPanelContent()}

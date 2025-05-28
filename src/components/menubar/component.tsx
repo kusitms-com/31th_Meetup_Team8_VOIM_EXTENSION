@@ -9,13 +9,17 @@ interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     children: React.ReactNode;
+    role?: string;
+    "aria-label"?: string;
 }
 
-export const Menubar: React.FC<ModalProps> = ({
+export function Menubar({
     isOpen,
     onClose,
     children,
-}) => {
+    role,
+    "aria-label": ariaLabel,
+}: ModalProps) {
     const { theme, resetSettings } = useTheme();
     const menubarRef = useRef<HTMLDivElement>(null);
     const firstFocusableRef = useRef<HTMLElement | null>(null);
@@ -128,9 +132,9 @@ export const Menubar: React.FC<ModalProps> = ({
             }`}
             onClick={handleOverlayClick}
             data-testid="menubar-overlay"
-            role="dialog"
+            role={role}
             aria-modal="true"
-            aria-label="메뉴바"
+            aria-label={ariaLabel}
         >
             <div
                 className={`${
@@ -158,6 +162,6 @@ export const Menubar: React.FC<ModalProps> = ({
             </div>
         </div>
     );
-};
+}
 
 export default Menubar;

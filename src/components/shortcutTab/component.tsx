@@ -26,17 +26,29 @@ export function ShortcutTab() {
                     aria-label="단축키 목록"
                     tabIndex={0}
                 >
-                    <ContentBox ariaLabel="메뉴 열기 또는 닫기 ALT + O">
-                        <div tabIndex={-1}>메뉴 열기 또는 닫기</div>
-                        <div tabIndex={-1}>ALT + O</div>
+                    <ContentBox ariaLabel="메뉴 열기 또는 닫기 단축키: ALT + O">
+                        <div tabIndex={-1} role="listitem">
+                            메뉴 열기 또는 닫기
+                        </div>
+                        <div tabIndex={-1} role="listitem">
+                            ALT + O
+                        </div>
                     </ContentBox>
-                    <ContentBox ariaLabel="서비스 아이콘 띄우기 또는 끄기 ALT + V">
-                        <div tabIndex={-1}>서비스 아이콘 띄우기 또는 끄기</div>
-                        <div tabIndex={-1}>ALT + V</div>
+                    <ContentBox ariaLabel="서비스 아이콘 띄우기 또는 끄기 단축키: ALT + V">
+                        <div tabIndex={-1} role="listitem">
+                            서비스 아이콘 띄우기 또는 끄기
+                        </div>
+                        <div tabIndex={-1} role="listitem">
+                            ALT + V
+                        </div>
                     </ContentBox>
-                    <ContentBox ariaLabel="서비스 실행하기 또는 종료하기 ALT + A">
-                        <div tabIndex={-1}>서비스 실행하기 또는 종료하기</div>
-                        <div tabIndex={-1}>ALT + A</div>
+                    <ContentBox ariaLabel="서비스 실행하기 또는 종료하기 단축키: ALT + A">
+                        <div tabIndex={-1} role="listitem">
+                            서비스 실행하기 또는 종료하기
+                        </div>
+                        <div tabIndex={-1} role="listitem">
+                            ALT + A
+                        </div>
                     </ContentBox>
                 </div>
             </section>

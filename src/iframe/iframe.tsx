@@ -153,6 +153,8 @@ const App: React.FC = () => {
                         "*",
                     );
                 }}
+                role="menu"
+                aria-label="VOIM 설정 메뉴"
             >
                 {menuItems.map(({ id, text }) => (
                     <MenubarButton
