@@ -10,7 +10,7 @@ import { ReviewSummaryComponent } from "../productComponents/ReviewSummaryCompon
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "food" | "cosmetic" | "health";
+    type: "food" | "cosmetic" | "health" | null;
 }
 
 const tabs = [
@@ -29,7 +29,7 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const cosmeticMountRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (isOpen && selectedTab === "ingredient") {
+        if (isOpen && selectedTab === "ingredient" && type) {
             if (type === "food" && foodMountRef.current) {
                 observeBreadcrumbFoodAndRender(foodMountRef.current);
             }
@@ -47,6 +47,7 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const renderContent = () => {
         switch (selectedTab) {
             case "ingredient":
+                if (!type) return null;
                 switch (type) {
                     case "food":
                         return <div ref={foodMountRef} className="w-full" />;
@@ -100,19 +101,22 @@ export function Sidebar({ isOpen, onClose, type }: ModalProps) {
             >
                 <div className="flex justify-between items-center mb-6 font-24-Bold">
                     <div className="flex gap-6">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setSelectedTab(tab.id)}
-                                className={`font-20-Bold ${
-                                    selectedTab === tab.id
-                                        ? "text-purple-default border-b-2 border-purple-default"
-                                        : "text-grayscale-500"
-                                } pb-1`}
-                            >
-                                {tab.label}
-                            </button>
-                        ))}
+                        {tabs.map((tab) => {
+                            if (!type && tab.id === "ingredient") return null;
+                            return (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setSelectedTab(tab.id)}
+                                    className={`font-20-Bold ${
+                                        selectedTab === tab.id
+                                            ? "text-purple-default border-b-2 border-purple-default"
+                                            : "text-grayscale-500"
+                                    } pb-1`}
+                                >
+                                    {tab.label}
+                                </button>
+                            );
+                        })}
                     </div>
                     <CloseButton onClick={onClose} />
                 </div>

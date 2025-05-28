@@ -79,11 +79,23 @@ if (location.href.includes("cart.coupang.com/cartView.pang")) {
 //     checkCategoryHealthAndRender();
 // }
 export const observeAndStoreCategoryType = () => {
+    const isCoupangProductPage =
+        /^https:\/\/www\.coupang\.com\/vp\/products\/\d+/.test(location.href);
+
+    if (!isCoupangProductPage) {
+        chrome.storage.local.set({ "voim-category-type": null });
+        console.log(
+            "[voim] 쿠팡 상세 페이지가 아님. 카테고리를 null로 저장함.",
+        );
+        return;
+    }
+
     const observer = new MutationObserver(() => {
         const type = detectCategoryType();
-        if (type) {
+        if (type !== null) {
             chrome.storage.local.set({ "voim-category-type": type });
             console.log(`[voim] 감지된 카테고리: ${type}`);
+            clearTimeout(timeoutId); // 타이머 정리
             observer.disconnect();
         }
     });
@@ -93,8 +105,14 @@ export const observeAndStoreCategoryType = () => {
         subtree: true,
     });
 
-    console.log("[voim] 카테고리 감지 대기 중...");
+    const timeoutId = setTimeout(() => {
+        console.log("[voim] 1.5초 내 감지 실패. null로 저장함.");
+        chrome.storage.local.set({ "voim-category-type": null });
+        observer.disconnect();
+    }, 1500);
 };
+
+// 실행
 observeAndStoreCategoryType();
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     console.log("[voim][content] 받은 메시지:", message);

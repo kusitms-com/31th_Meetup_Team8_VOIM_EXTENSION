@@ -227,13 +227,11 @@ const App: React.FC = () => {
                 </div>
             </Menubar>
 
-            {categoryType && (
-                <Sidebar
-                    isOpen={isSidebarOpen}
-                    onClose={closeSidebar}
-                    type={categoryType}
-                />
-            )}
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onClose={closeSidebar}
+                type={categoryType}
+            />
         </div>
     );
 };

@@ -17,7 +17,7 @@ export const detectCategoryType = (): "food" | "cosmetic" | "health" | null => {
     }
 
     if (cleanedText.includes("뷰티")) {
-        console.log("[voim]  감지된 카테고리: cosmetic");
+        console.log("[voim] 감지된 카테고리: cosmetic");
         return "cosmetic";
     }
 
