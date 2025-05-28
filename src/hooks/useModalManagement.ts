@@ -30,6 +30,9 @@ export const useModalManagement = () => {
             if (!newState) {
                 setSelectedMenu(null);
             }
+            if (newState) {
+                window.parent.postMessage({ type: "CLOSE_SIDEBAR" }, "*");
+            }
             window.parent.postMessage(
                 { type: "RESIZE_IFRAME", isOpen: newState },
                 "*",

@@ -2,12 +2,7 @@ import React, { useEffect, useState } from "react";
 import { FloatingButton } from "@src/components/floatingButton";
 import { Menubar } from "@src/components/menubar";
 import { MenubarButton } from "@src/components/menubarButton";
-import { useTheme } from "@src/contexts/ThemeContext";
-import { ShortcutTab } from "@src/components/shortcutTab";
-import ControlMode from "@src/components/modeButton/ControlMode";
-import ControlFont from "@src/components/fontButton/ControlFont";
 import { MyInfo } from "@src/tabs/myInfo";
-import ControlService from "@src/components/serviceButton/ControlService";
 import { Onboarding } from "@src/tabs/myInfo/components";
 import { Sidebar } from "@src/components/sidebar";
 import "../css/app.css";
@@ -36,7 +31,22 @@ const App: React.FC = () => {
     const [categoryType, setCategoryType] = useState<
         "food" | "cosmetic" | "health" | null
     >(null);
-    const [isDetailPage, setIsDetailPage] = useState(false); // ✅ 상세 페이지 여부
+    const [isDetailPage, setIsDetailPage] = useState(false);
+
+    const closeSidebar = () => {
+        setIsSidebarOpen(false);
+        setIsModalOpen(false);
+        window.parent.postMessage(
+            { type: "RESIZE_IFRAME", isOpen: false },
+            "*",
+        );
+    };
+
+    const openSidebar = () => {
+        setIsSidebarOpen(true);
+        setIsModalOpen(false);
+        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
+    };
 
     useEffect(() => {
         if (selectedMenu === null && lastSelectedMenuRef.current) {
@@ -58,7 +68,17 @@ const App: React.FC = () => {
             if (e.key === "Escape") {
                 if (selectedMenu !== null) {
                     setSelectedMenu(null);
-                } else {
+                    return;
+                }
+                if (isSidebarOpen) {
+                    closeSidebar();
+                    window.parent.postMessage(
+                        { type: "RESIZE_IFRAME", isOpen: false },
+                        "*",
+                    );
+                    return;
+                }
+                if (isModalOpen) {
                     setIsModalOpen(false);
                     window.parent.postMessage(
                         { type: "RESIZE_IFRAME", isOpen: false },
@@ -67,10 +87,15 @@ const App: React.FC = () => {
                 }
             }
         };
-
         window.addEventListener("keydown", onKeyDown);
         return () => window.removeEventListener("keydown", onKeyDown);
-    }, [selectedMenu, setSelectedMenu, setIsModalOpen]);
+    }, [
+        selectedMenu,
+        setSelectedMenu,
+        isSidebarOpen,
+        closeSidebar,
+        isModalOpen,
+    ]);
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
@@ -94,6 +119,9 @@ const App: React.FC = () => {
                     case "PAGE_TYPE":
                         setIsDetailPage(Boolean(event.data.value));
                         break;
+                    case "CLOSE_SIDEBAR":
+                        closeSidebar();
+                        break;
                     default:
                         break;
                 }
@@ -113,7 +141,7 @@ const App: React.FC = () => {
         return () => {
             window.removeEventListener("message", handleMessage);
         };
-    }, [toggleModal]);
+    }, [toggleModal, closeSidebar]);
 
     useEffect(() => {
         chrome.storage.local.get(["isFirstInstall"], (result) => {
@@ -133,21 +161,6 @@ const App: React.FC = () => {
             }
         });
     }, [birthYear, gender, loading]);
-
-    const openSidebar = () => {
-        setIsSidebarOpen(true);
-        setIsModalOpen(true);
-        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
-    };
-
-    const closeSidebar = () => {
-        setIsSidebarOpen(false);
-        setIsModalOpen(false);
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: false },
-            "*",
-        );
-    };
 
     const handleOnboardingComplete = () => {
         setIsOnboarding(false);
@@ -214,8 +227,10 @@ const App: React.FC = () => {
 
     return (
         <div className="pointer-events-auto">
-            {!isModalOpen && <FloatingButton onClick={toggleModal} />}
-            {!isModalOpen && isDetailPage && (
+            {!isModalOpen && !isSidebarOpen && (
+                <FloatingButton onClick={toggleModal} />
+            )}
+            {!isModalOpen && !isSidebarOpen && isDetailPage && (
                 <FloatingButtonSide onClick={openSidebar} />
             )}
 
