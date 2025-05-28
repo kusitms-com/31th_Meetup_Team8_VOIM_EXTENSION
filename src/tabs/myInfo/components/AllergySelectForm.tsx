@@ -56,6 +56,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                         aria-label="이전 카테고리"
                     >
                         <LeftArrowIcon />
+                        <span className="sr-only">이전 카테고리</span>
                     </IconButton>
                     <ContentBox>
                         <div className="w-full text-center">
@@ -67,6 +68,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
                         aria-label="다음 카테고리"
                     >
                         <RightArrowIcon />
+                        <span className="sr-only">다음 카테고리</span>
                     </IconButton>
                 </div>
 
