@@ -44,12 +44,6 @@ initDomObserver(() => true);
 
 processImages();
 
-if (location.href.includes("cart.coupang.com/cartView.pang")) {
-    window.addEventListener("load", () => {
-        setTimeout(() => {}, 500);
-    });
-}
-
 export const observeAndStoreCategoryType = () => {
     const isCoupangProductPage =
         /^https:\/\/www\.coupang\.com\/vp\/products\/[0-9]+/.test(
@@ -107,7 +101,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 const isProductDetailPage = () =>
     window.location.href.includes("coupang.com/vp/products/");
 
-const sendMessageToIframe = (isProductPage: boolean) => {
+const isCartPage = () =>
+    window.location.href.includes("cart.coupang.com/cartView.pang");
+
+const sendMessageToIframe = (isProductPage: boolean, isCart: boolean) => {
     const iframe = document.querySelector(
         "#floating-button-extension-iframe",
     ) as HTMLIFrameElement;
@@ -118,11 +115,19 @@ const sendMessageToIframe = (isProductPage: boolean) => {
                 { type: "PAGE_TYPE", value: isProductPage },
                 "*",
             );
+            iframe.contentWindow?.postMessage(
+                { type: "CART_PAGE", value: isCart },
+                "*",
+            );
         } catch (error) {
             iframe.onload = () => {
                 try {
                     iframe.contentWindow?.postMessage(
                         { type: "PAGE_TYPE", value: isProductPage },
+                        "*",
+                    );
+                    iframe.contentWindow?.postMessage(
+                        { type: "CART_PAGE", value: isCart },
                         "*",
                     );
                 } catch (error) {}
@@ -136,7 +141,7 @@ const waitForIframeAndSend = () => {
         "#floating-button-extension-iframe",
     );
     if (existingIframe) {
-        sendMessageToIframe(isProductDetailPage());
+        sendMessageToIframe(isProductDetailPage(), isCartPage());
         return;
     }
 
@@ -145,7 +150,7 @@ const waitForIframeAndSend = () => {
             "#floating-button-extension-iframe",
         );
         if (iframe) {
-            sendMessageToIframe(isProductDetailPage());
+            sendMessageToIframe(isProductDetailPage(), isCartPage());
             observer.disconnect();
         }
     });
@@ -163,7 +168,7 @@ const waitForIframeAndSend = () => {
             "#floating-button-extension-iframe",
         );
         if (!iframe) {
-            sendMessageToIframe(false);
+            sendMessageToIframe(false, false);
         }
     }, 2000);
 };
@@ -172,7 +177,7 @@ let lastUrl = window.location.href;
 const urlObserver = new MutationObserver(() => {
     if (lastUrl !== window.location.href) {
         lastUrl = window.location.href;
-        if (isProductDetailPage()) {
+        if (isProductDetailPage() || isCartPage()) {
             waitForIframeAndSend();
         }
     }
@@ -180,11 +185,11 @@ const urlObserver = new MutationObserver(() => {
 
 window.addEventListener("message", (event) => {
     if (event.data.type === "REQUEST_PAGE_TYPE") {
-        sendMessageToIframe(isProductDetailPage());
+        sendMessageToIframe(isProductDetailPage(), isCartPage());
     }
 });
 
-if (isProductDetailPage()) {
+if (isProductDetailPage() || isCartPage()) {
     waitForIframeAndSend();
     urlObserver.observe(document, { subtree: true, childList: true });
 }

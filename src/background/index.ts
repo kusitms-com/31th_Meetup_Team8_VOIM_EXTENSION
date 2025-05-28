@@ -73,6 +73,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true; // 비동기 응답을 위해 true 반환
     }
 
+    if (message.type === "CART_PAGE") {
+        // iframe으로 메시지 전달
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (activeTab?.id) {
+                chrome.tabs.sendMessage(
+                    activeTab.id,
+                    {
+                        type: "CART_PAGE",
+                        value: message.value,
+                    },
+                    (response) => {
+                        sendResponse(response);
+                    },
+                );
+            }
+        });
+        return true; // 비동기 응답을 위해 true 반환
+    }
+
     // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
         const payload = message.payload;

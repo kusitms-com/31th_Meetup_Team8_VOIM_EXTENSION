@@ -32,6 +32,7 @@ const App: React.FC = () => {
         "food" | "cosmetic" | "health" | null
     >(null);
     const [isDetailPage, setIsDetailPage] = useState(false);
+    const [isCartPage, setIsCartPage] = useState(false);
 
     const closeSidebar = () => {
         setIsSidebarOpen(false);
@@ -118,6 +119,9 @@ const App: React.FC = () => {
                         break;
                     case "PAGE_TYPE":
                         setIsDetailPage(Boolean(event.data.value));
+                        break;
+                    case "CART_PAGE":
+                        setIsCartPage(Boolean(event.data.value));
                         break;
                     case "CLOSE_SIDEBAR":
                         closeSidebar();
@@ -230,7 +234,7 @@ const App: React.FC = () => {
             {!isModalOpen && !isSidebarOpen && (
                 <FloatingButton onClick={toggleModal} />
             )}
-            {!isModalOpen && !isSidebarOpen && isDetailPage && (
+            {!isModalOpen && !isSidebarOpen && (isDetailPage || isCartPage) && (
                 <FloatingButtonSide onClick={openSidebar} />
             )}
 
