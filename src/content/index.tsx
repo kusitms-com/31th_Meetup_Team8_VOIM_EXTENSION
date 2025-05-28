@@ -164,3 +164,32 @@ if (isProductDetailPage() || isCartPage()) {
     waitForIframeAndSend();
     urlObserver.observe(document, { subtree: true, childList: true });
 }
+
+// 장바구니 데이터 추출 및 전송
+const extractAndSendCartData = () => {
+    if (isCartPage()) {
+        import("./coupang/cartHandler").then(
+            ({ sendCartItemsToBackground }) => {
+                sendCartItemsToBackground();
+            },
+        );
+    }
+};
+
+// DOM 변화 감지하여 장바구니 데이터 업데이트
+const observeCartChanges = () => {
+    if (isCartPage()) {
+        const observer = new MutationObserver(() => {
+            extractAndSendCartData();
+        });
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+        });
+    }
+};
+
+// 초기 실행
+extractAndSendCartData();
+observeCartChanges();

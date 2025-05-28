@@ -6,6 +6,7 @@ import { observeBreadcrumbFoodAndRender } from "@src/content/coupang/categoryHan
 import { observeBreadcrumbCosmeticAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerCosmetic";
 import { HealthComponent } from "@src/components/productComponents/healthComponent";
 import { ReviewSummaryComponent } from "../productComponents/ReviewSummaryComponent";
+import CartSummaryComponent from "../productComponents/CartSummaryComponent";
 
 interface ModalProps {
     isOpen: boolean;
@@ -151,7 +152,11 @@ export function Sidebar({
     const renderCartContent = () => {
         switch (selectedTab) {
             case "summary":
-                return <div>장바구니 요약 내용</div>;
+                return (
+                    <div>
+                        <CartSummaryComponent />
+                    </div>
+                );
             case "recommendation":
                 return <div>추천 상품 내용</div>;
             default:
@@ -179,7 +184,7 @@ export function Sidebar({
                 } fixed top-0 right-0 w-[50%] h-full p-5 overflow-y-auto shadow-[0_0_4px_rgba(0,0,0,0.25)] font-koddi`}
                 data-testid="menubar-container"
             >
-                <div className="flex justify-between items-center mb-6 font-24-Bold">
+                <div className="flex items-center justify-between mb-6 font-24-Bold">
                     <div className="flex gap-6">
                         {(isCartPage ? cartTabs : productTabs).map((tab) => {
                             if (!type && tab.id === "ingredient") return null;
