@@ -21,9 +21,14 @@ const tabs = [
 
 export function Sidebar({ isOpen, onClose, type }: ModalProps) {
     const { theme } = useTheme();
-    const [selectedTab, setSelectedTab] =
-        useState<(typeof tabs)[number]["id"]>("ingredient");
+    const [selectedTab, setSelectedTab] = useState<(typeof tabs)[number]["id"]>(
+        type ? "ingredient" : "detail",
+    );
     const isDarkMode = theme === "dark";
+
+    useEffect(() => {
+        setSelectedTab(type ? "ingredient" : "detail");
+    }, [type]);
 
     const foodMountRef = useRef<HTMLDivElement>(null);
     const cosmeticMountRef = useRef<HTMLDivElement>(null);
