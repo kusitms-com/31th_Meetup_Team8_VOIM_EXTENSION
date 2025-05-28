@@ -236,8 +236,11 @@ const App: React.FC = () => {
             )}
 
             {!isModalOpen && !isSidebarOpen && (isDetailPage || isCartPage) && (
-                <FloatingButtonSide onClick={openSidebar} />
-
+                <FloatingButtonSide
+                    onClick={openSidebar}
+                    isDetailPage={isDetailPage}
+                />
+            )}
 
             <Menubar
                 isOpen={isModalOpen}
