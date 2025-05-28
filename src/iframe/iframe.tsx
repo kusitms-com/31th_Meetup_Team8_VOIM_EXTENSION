@@ -13,25 +13,9 @@ import { Sidebar } from "@src/components/sidebar";
 import "../css/app.css";
 import { useUserInfo } from "@src/hooks/useUserInfo";
 import { FloatingButtonSide } from "@src/components/floatingButtonSide";
-
-const menuItems = [
-    { id: "high-contrast", text: "고대비 화면 사용하기" },
-    { id: "font", text: "글자 설정하기" },
-    { id: "shortcut", text: "단축키 안내 보기" },
-    { id: "my-info", text: "내 정보 설정하기" },
-    { id: "service", text: "서비스 설정하기" },
-];
-interface PanelContentProps {
-    menuId: string | null;
-}
-import { useUserInfo } from "@src/hooks/useUserInfo";
 import { useModalManagement } from "@src/hooks/useModalManagement";
 import { PanelContent } from "@src/components/panelContent/component";
-import { Onboarding } from "@src/tabs/myInfo/components";
-import { MyInfo } from "@src/tabs/myInfo";
 import { menuItems } from "@src/constants/menuItems";
-
-import "../css/app.css";
 
 const App: React.FC = () => {
     const {
@@ -47,7 +31,11 @@ const App: React.FC = () => {
 
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { birthYear, gender, loading } = useUserInfo();
+    const [categoryType, setCategoryType] = useState<
+        "food" | "cosmetic" | "health" | null
+    >(null);
 
     useEffect(() => {
         if (selectedMenu === null && lastSelectedMenuRef.current) {
@@ -56,89 +44,21 @@ const App: React.FC = () => {
         }
     }, [selectedMenu, lastSelectedMenuRef]);
 
-    switch (menuId) {
-        case "high-contrast":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="고대비 화면 설정"
-                >
-                    <ControlMode />
-                </div>
-            );
-
-        case "font":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="글자 설정"
-                >
-                    <ControlFont />
-                </div>
-            );
-        case "shortcut":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="단축키 안내"
-                >
-                    <ShortcutTab />
-                </div>
-            );
-        case "my-info":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="내 정보 설정"
-                >
-                    <MyInfo />
-                </div>
-            );
-        case "service":
-            return (
-                <div
-                    ref={panelRef}
-                    tabIndex={-1}
-                    role="tabpanel"
-                    aria-label="서비스 설정"
-                >
-                    <ControlService />
-                </div>
-            );
-        default:
-            return null;
-    }
-};
-const App = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
-    const [isOnboarding, setIsOnboarding] = useState(false);
-    const [showUserInfo, setShowUserInfo] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const { birthYear, gender, loading } = useUserInfo();
-    const [categoryType, setCategoryType] = useState<
-        "food" | "cosmetic" | "health" | null
-    >(null);
-
     useEffect(() => {
         chrome.storage.local.get("voim-category-type", (res) => {
+            console.log("[voim] storage 데이터:", res);
             if (res["voim-category-type"]) {
                 setCategoryType(res["voim-category-type"]);
                 console.log(
-                    "[voim] storage로부터 감지된 카테고리 타입:",
+                    "[voim] 카테고리 타입 설정됨:",
                     res["voim-category-type"],
                 );
+            } else {
+                console.log("[voim] 카테고리 타입이 없음");
             }
         });
     }, []);
+
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape" && selectedMenu !== null) {
@@ -152,8 +72,20 @@ const App = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            if (event.data.type === "TOGGLE_MODAL") {
-                toggleModal();
+            switch (event.data.type) {
+                case "TOGGLE_MODAL":
+                    toggleModal();
+                    break;
+                case "HIDE_LOGO":
+                    document.getElementById("logo")?.classList.add("hidden");
+                    chrome.storage.local.set({ "logo-hidden": true });
+                    break;
+                case "SHOW_LOGO":
+                    document.getElementById("logo")?.classList.remove("hidden");
+                    chrome.storage.local.set({ "logo-hidden": false });
+                    break;
+                default:
+                    break;
             }
         };
 
@@ -180,40 +112,15 @@ const App = () => {
         });
     }, [birthYear, gender, loading]);
 
-    const openModal = () => {
-        setIsModalOpen(true);
-        window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
-    };
-
-    const toggleModal = () => {
-        const newState = !isModalOpen;
-        setIsModalOpen(newState);
-        if (!newState) {
-            setSelectedMenu(null);
-            setIsOnboarding(false);
-        }
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: newState },
-            "*",
-        );
-    };
-
-    const closeModal = () => {
-        setIsModalOpen(false);
-        setSelectedMenu(null);
-        setIsOnboarding(false);
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: false },
-            "*",
-        );
-    };
-
     const openSidebar = () => {
+        console.log("[voim] 사이드바 열기 시도");
+        console.log("[voim] 현재 카테고리 타입:", categoryType);
         setIsSidebarOpen(true);
         window.parent.postMessage({ type: "RESIZE_IFRAME", isOpen: true }, "*");
     };
 
     const closeSidebar = () => {
+        console.log("[voim] 사이드바 닫기");
         setIsSidebarOpen(false);
         window.parent.postMessage(
             { type: "RESIZE_IFRAME", isOpen: false },
@@ -221,23 +128,6 @@ const App = () => {
         );
     };
 
-    const handleOnboardingComplete = () => {
-        setIsOnboarding(false);
-        setShowUserInfo(true);
-        chrome.storage.local.set({ isFirstInstall: false });
-    };
-
-    const handleUserInfoComplete = () => {
-        setShowUserInfo(false);
-        window.parent.postMessage(
-            { type: "RESIZE_IFRAME", isOpen: false },
-            "*",
-        );
-    };
-
-    const handleMenuClick = (menuId: string) => {
-        setSelectedMenu(menuId === selectedMenu ? null : menuId);
-    };
     const handleOnboardingComplete = () => {
         setIsOnboarding(false);
         setShowUserInfo(true);
@@ -273,27 +163,10 @@ const App = () => {
             const menubarContainer = document.querySelector(
                 '[data-testid="menubar-container"]',
             );
-
             if (menubarContainer) {
                 const resetButton = menubarContainer.querySelector(
                     '[data-testid="reset-button"]',
                 ) as HTMLButtonElement;
-
-        const handleMessage = (event: MessageEvent) => {
-            switch (event.data.type) {
-                case "TOGGLE_MODAL":
-                    toggleModal();
-                    break;
-                case "HIDE_LOGO":
-                    document.getElementById("logo")?.classList.add("hidden");
-                    chrome.storage.local.set({ "logo-hidden": true });
-                    break;
-                case "SHOW_LOGO":
-                    document.getElementById("logo")?.classList.remove("hidden");
-                    chrome.storage.local.set({ "logo-hidden": false });
-                    break;
-                default:
-                    break;
                 if (resetButton) {
                     resetButton.focus();
                     resetButton.setAttribute("tabIndex", "0");
@@ -320,12 +193,8 @@ const App = () => {
 
     return (
         <div className="pointer-events-auto">
-            {!isModalOpen && <FloatingButton onClick={openModal} />}
-            {!isModalOpen && <FloatingButtonSide onClick={openSidebar} />}
-
-            <Menubar isOpen={isModalOpen} onClose={closeModal}>
-                {menuItems.map((item) => (
             {!isModalOpen && <FloatingButton onClick={toggleModal} />}
+            {!isModalOpen && <FloatingButtonSide onClick={openSidebar} />}
 
             <Menubar
                 isOpen={isModalOpen}

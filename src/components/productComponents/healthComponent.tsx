@@ -78,8 +78,6 @@ export const HealthComponent = () => {
             fetchData(targetEl);
         } else {
             console.log("타겟 요소가 없어 MutationObserver 설정 중...");
-            fetchData(targetEl);
-        } else {
             console.log("[health api] MutationObserver 시작");
             const observer = new MutationObserver(() => {
                 const el =

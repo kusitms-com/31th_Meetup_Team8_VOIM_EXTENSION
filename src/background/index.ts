@@ -288,54 +288,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const { productId, title, html, birthYear, gender, allergies } =
             message.payload;
 
-        console.log("[voim][background] 🧬 FETCH_HEALTH_DATA 요청 수신됨");
-        console.log("[voim][background] ▶️ payload:", {
-            productId,
-            title,
-            htmlLength: html?.length,
-            birthYear,
-            gender,
-            allergies,
-        });
-
-        const url = "https://voim.store/api/v1/health-food/keywords";
-        const requestBody = {
-        console.log("[health api] Request payload:", {
-            productId,
-            title,
-            html,
-            birthYear,
-            gender,
-            allergies,
-        };
-        console.log(
-            "[voim][background] ▶️ 요청 Body:",
-            JSON.stringify(requestBody, null, 2),
-        );
-
         fetch("https://voim.store/api/v1/health-food/keywords", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(requestBody),
+            body: JSON.stringify({
+                productId,
+                title,
+                html,
+                birthYear,
+                gender,
+                allergies,
+            }),
         })
-            .then((res) => {
-                console.log("[voim][background] 응답 상태 코드:", res.status);
-                return res.json();
-            })
+            .then((res) => res.json())
             .then((data) => {
-                console.log(
-                    "[voim][background] HEALTH 응답 데이터:",
-                    JSON.stringify(data, null, 2),
-                );
-                console.log("[health api] Response status:", res.status);
-                return res.json();
-            })
-            .then((data) => {
-                console.log("[health api] Response data:", data);
                 if (sender.tab?.id) {
-                    console.log(
-                        "[voim][background] content script로 응답 전송",
-                    );
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_RESPONSE",
                         data: data.data,
@@ -344,7 +311,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 sendResponse({ type: "HEALTH_DATA_RESPONSE", data: data.data });
             })
             .catch((err) => {
-                console.error("[voim][background] HEALTH 요청 실패:", err);
+                console.error("HEALTH 요청 실패:", err);
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "HEALTH_DATA_ERROR",
@@ -370,6 +337,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             );
             return true;
         }
+    }
+});
 
 chrome.action.onClicked.addListener(async (tab) => {
     try {

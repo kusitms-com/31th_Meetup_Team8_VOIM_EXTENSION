@@ -21,7 +21,7 @@ if (window.self !== window.top) {
         console.log("[voim] iframe 내부에서 App 렌더링");
     }
 }
-// renderInfoComponent();
+
 checkExtensionState();
 
 document.addEventListener("DOMContentLoaded", () => {

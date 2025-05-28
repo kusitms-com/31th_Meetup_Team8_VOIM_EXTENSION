@@ -2,10 +2,10 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "../closeButton/component";
 import { InfoComponent } from "@src/components/productComponents/infoComponent";
-import { ReviewSummaryComponent } from "@src/components/productComponents/reviewSummaryComponent";
 import { observeBreadcrumbFoodAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerFood";
 import { observeBreadcrumbCosmeticAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerCosmetic";
 import { HealthComponent } from "@src/components/productComponents/healthComponent";
+import { ReviewSummaryComponent } from "../productComponents/ReviewSummaryComponent";
 
 interface ModalProps {
     isOpen: boolean;
