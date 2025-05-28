@@ -31,8 +31,6 @@ export const sendFoodDataRequest = (
                 payload,
             },
             (response: unknown) => {
-                console.log("[voim] 받은 응답 전체:", response);
-
                 if (!response || typeof response !== "object") {
                     return reject(new Error("Invalid response format"));
                 }

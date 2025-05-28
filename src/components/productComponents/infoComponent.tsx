@@ -12,7 +12,6 @@ const OUTLINE_CATEGORIES = [
 ] as const;
 
 export const InfoComponent = () => {
-    console.log("InfoComponent 렌더링됨");
     const [selected, setSelected] = useState<OutlineCategory | null>(null);
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
@@ -57,7 +56,6 @@ export const InfoComponent = () => {
 
         try {
             const html = await fetchVendorHtml();
-            console.log("[voim][iframe] 받은 HTML:", html.slice(0, 300));
 
             const result = await sendOutlineInfoRequest(outline, html);
             setInfo(result || "정보가 없습니다.");

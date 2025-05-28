@@ -43,11 +43,9 @@ export const CosmeticComponent = () => {
     useEffect(() => {
         const fetchData = async (vendorEl: Element) => {
             try {
-                console.log("[voim] fetchData 시작");
                 const productId =
                     window.location.href.match(/products\/(\d+)/)?.[1];
                 if (!productId) {
-                    console.warn("[voim] productId 없음");
                     return;
                 }
 
@@ -57,13 +55,8 @@ export const CosmeticComponent = () => {
                     .trim();
 
                 if (!rawHtml.includes("<img")) {
-                    console.warn("[voim] 전송할 HTML에 <img> 태그 없음");
+                    return;
                 }
-
-                console.log("[voim] 메시지 전송 준비:", {
-                    productId,
-                    html: rawHtml.slice(0, 100) + "...",
-                });
 
                 chrome.runtime.sendMessage(
                     {
@@ -71,14 +64,10 @@ export const CosmeticComponent = () => {
                         payload: { productId, html: rawHtml },
                     },
                     (res) => {
-                        console.log("[voim] 응답 수신:", res);
-
                         const data = res?.data || {};
                         const allList = Object.entries(data)
                             .filter(([_, v]) => v === true)
                             .map(([k]) => INGREDIENT_KO_MAP[k] || k);
-
-                        console.log("[voim] 분석된 성분 리스트:", allList);
 
                         setDangerIngredients(allList.slice(0, 20));
                         setAllergyIngredients(allList.slice(20));
@@ -86,7 +75,6 @@ export const CosmeticComponent = () => {
                     },
                 );
             } catch (e) {
-                console.error("[voim] COSMETIC API 실패:", e);
                 setIsLoading(false);
             }
         };
@@ -94,18 +82,11 @@ export const CosmeticComponent = () => {
         const vendorEl = document.querySelector(".vendor-item");
 
         if (vendorEl) {
-            console.log("[voim] .vendor-item 요소 발견 즉시 fetch 실행");
             fetchData(vendorEl);
         } else {
-            console.log(
-                "[voim] .vendor-item 요소 없어 MutationObserver 대기 시작",
-            );
             const observer = new MutationObserver(() => {
                 const target = document.querySelector(".vendor-item");
                 if (target) {
-                    console.log(
-                        "[voim] MutationObserver로 .vendor-item 탐지됨",
-                    );
                     observer.disconnect();
                     fetchData(target);
                 }
@@ -139,9 +120,6 @@ export const CosmeticComponent = () => {
             </div>
         );
     }
-
-    console.log("[voim] 렌더링 완료 - 주의 성분:", dangerIngredients);
-    console.log("[voim] 렌더링 완료 - 알러지 성분:", allergyIngredients);
 
     return (
         <div
@@ -227,7 +205,6 @@ export const CosmeticComponent = () => {
                     cursor: "pointer",
                 }}
                 onClick={() => {
-                    console.log("[voim] dangerOpen toggle:", !dangerOpen);
                     setDangerOpen(!dangerOpen);
                 }}
             >
@@ -298,7 +275,6 @@ export const CosmeticComponent = () => {
                     cursor: "pointer",
                 }}
                 onClick={() => {
-                    console.log("[voim] allergyOpen toggle:", !allergyOpen);
                     setAllergyOpen(!allergyOpen);
                 }}
             >

@@ -2,10 +2,6 @@ import {
     collectCoupangReviewData,
     sendReviewSummaryRequest,
 } from "../apiSetting/sendReviewSummaryRequest";
-import React from "react";
-import { createRoot } from "react-dom/client";
-// import { ReviewSummaryComponent } from "../../components/productComponents/
-import { ThemeContextProvider } from "../../contexts/ThemeContext";
 
 interface ReviewSummary {
     totalCount: number;
@@ -19,69 +15,10 @@ const isProductDetailPage = (): boolean => {
     return window.location.href.includes("/products/");
 };
 
-const renderReviewSummary = (summary: ReviewSummary | undefined) => {
-    if (!summary) {
-        console.error("[voim] 리뷰 요약 데이터가 없습니다.");
-        return;
-    }
-
-    const waitForInfoComponent = (callback: () => void, retries = 20) => {
-        const infoComponent = document.getElementById("voim-info-component");
-        if (infoComponent) {
-            console.log(
-                "[voim] voim-info-component 찾음. 리뷰 요약 컴포넌트 렌더링 시작.",
-            );
-            callback();
-        } else if (retries > 0) {
-            // console.log(
-            //     `[voim] voim-info-component 대기 중... 남은 시도 횟수: ${retries}`,
-            // );
-            setTimeout(() => waitForInfoComponent(callback, retries - 1), 500);
-        } else {
-            console.error(
-                "[voim] voim-info-component를 찾을 수 없습니다. 리뷰 요약 컴포넌트 렌더링 실패.",
-            );
-        }
-    };
-
-    const insertReviewSummary = () => {
-        const infoComponent = document.getElementById("voim-info-component");
-        if (infoComponent && infoComponent.parentNode) {
-            const container = document.createElement("div");
-            container.id = "voim-review-summary";
-            container.style.position = "relative";
-            container.style.marginTop = "20px";
-            container.style.marginBottom = "20px";
-            container.style.zIndex = "1";
-
-            infoComponent.parentNode.insertBefore(
-                container,
-                infoComponent.nextSibling,
-            );
-
-            const root = createRoot(container);
-            root.render(
-                React.createElement(
-                    ThemeContextProvider,
-                    null,
-                    // React.createElement(ReviewSummaryComponent, { summary }),
-                ),
-            );
-            console.log("[voim] 리뷰 요약 컴포넌트 렌더링 완료");
-        } else {
-            console.error(
-                "[voim] voim-info-component를 찾을 수 없어 리뷰 요약 컴포넌트를 삽입할 수 없습니다.",
-            );
-        }
-    };
-
-    waitForInfoComponent(insertReviewSummary);
-};
-
 const waitForElement = (
     selector: string,
     timeout = 10000,
-    interval = 500,
+    interval = 1000,
 ): Promise<Element | null> => {
     return new Promise((resolve) => {
         const element = document.querySelector(selector);
@@ -112,28 +49,32 @@ const waitForElement = (
 };
 
 const initAutoCollectReview = async () => {
-    if (!isProductDetailPage()) return;
+    if (!isProductDetailPage()) {
+        return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
-        console.log("[voim] 리뷰 데이터 자동 수집 시작...");
-
         const starContainer = await waitForElement(
-            ".sdp-review__article__order__star__list, .sdp-review__article__order__star__all",
+            ".review-star-search-selector",
         );
         if (!starContainer) {
             console.error("[voim] 별점 컨테이너 로드 실패");
             return;
         }
-        console.log("[voim] 별점 컨테이너 로드 완료");
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const reviewSections = await waitForElement(
-            ".sdp-review__average__summary__section",
+            ".review-summary-survey-container",
         );
         if (!reviewSections) {
             console.error("[voim] 리뷰 섹션 로드 실패");
             return;
         }
-        console.log("[voim] 리뷰 섹션 로드 완료");
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const reviewData = collectCoupangReviewData();
         if (!reviewData) {
@@ -141,23 +82,19 @@ const initAutoCollectReview = async () => {
             return;
         }
 
-        console.log("[voim] 수집된 리뷰 데이터:", reviewData);
+        await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const summary = await sendReviewSummaryRequest(reviewData);
-        console.log("[voim] 리뷰 요약 결과:", summary);
 
         chrome.storage.local.set(
             {
                 [`review_summary_${reviewData.productId}`]: summary,
             },
-            () => {
-                console.log("[voim] 리뷰 요약 데이터 저장 완료");
-
-                renderReviewSummary(summary);
-            },
+            () => {},
         );
     } catch (error) {
         console.error("[voim] 리뷰 데이터 자동 수집 중 오류:", error);
+        setTimeout(initAutoCollectReview, 5000);
     }
 };
 

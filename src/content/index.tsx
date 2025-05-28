@@ -14,7 +14,6 @@ if (window.self !== window.top) {
     if (container) {
         const root = createRoot(container);
         root.render(<App />);
-        console.log("[voim] iframe 내부에서 App 렌더링");
     }
 }
 
@@ -59,9 +58,6 @@ export const observeAndStoreCategoryType = () => {
 
     if (!isCoupangProductPage) {
         chrome.storage.local.set({ "voim-category-type": null });
-        console.log(
-            "[voim] 쿠팡 상세 페이지가 아님. 카테고리를 null로 저장함.",
-        );
         return;
     }
 
@@ -69,7 +65,6 @@ export const observeAndStoreCategoryType = () => {
         const type = detectCategoryType();
         if (type !== null) {
             chrome.storage.local.set({ "voim-category-type": type });
-            console.log(`[voim] 감지된 카테고리: ${type}`);
             clearTimeout(timeoutId);
             observer.disconnect();
         }
@@ -81,7 +76,6 @@ export const observeAndStoreCategoryType = () => {
     });
 
     const timeoutId = setTimeout(() => {
-        console.log("[voim] 1.5초 내 감지 실패. null로 저장함.");
         chrome.storage.local.set({ "voim-category-type": null });
         observer.disconnect();
     }, 1500);
@@ -90,8 +84,6 @@ export const observeAndStoreCategoryType = () => {
 observeAndStoreCategoryType();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    console.log("[voim][content] 받은 메시지:", message);
-
     if (message.type === "GET_VENDOR_HTML") {
         try {
             const vendorEl = document.querySelector(".vendor-item");
@@ -101,13 +93,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     .replace(/\n/g, "")
                     .trim() ?? "";
 
-            console.log(
-                "[voim][content] .vendor-item 추출됨:",
-                rawHtml.slice(0, 300),
-            );
             sendResponse({ html: rawHtml });
         } catch (e) {
-            console.error("[voim][content] vendor 추출 실패:", e);
             sendResponse({ html: "" });
         }
 
@@ -131,26 +118,16 @@ const sendMessageToIframe = (isProductPage: boolean) => {
                 { type: "PAGE_TYPE", value: isProductPage },
                 "*",
             );
-            console.log("[voim] iframe으로 메시지 전송 완료:", isProductPage);
         } catch (error) {
-            console.error("[voim] iframe 메시지 전송 실패:", error);
             iframe.onload = () => {
                 try {
                     iframe.contentWindow?.postMessage(
                         { type: "PAGE_TYPE", value: isProductPage },
                         "*",
                     );
-                    console.log("[voim] iframe onload 후 메시지 전송 완료");
-                } catch (error) {
-                    console.error(
-                        "[voim] iframe onload 후에도 메시지 전송 실패:",
-                        error,
-                    );
-                }
+                } catch (error) {}
             };
         }
-    } else {
-        console.log("[voim] iframe을 찾을 수 없음");
     }
 };
 
@@ -195,7 +172,6 @@ let lastUrl = window.location.href;
 const urlObserver = new MutationObserver(() => {
     if (lastUrl !== window.location.href) {
         lastUrl = window.location.href;
-        console.log("[voim] URL 변경 감지:", window.location.href);
         if (isProductDetailPage()) {
             waitForIframeAndSend();
         }

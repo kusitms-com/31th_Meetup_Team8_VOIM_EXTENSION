@@ -74,42 +74,27 @@ const App: React.FC = () => {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            console.log("[voim] 메시지 수신 시도:", event);
-            console.log("[voim] 메시지 데이터:", event.data);
-            console.log("[voim] 메시지 출처:", event.origin);
-
             if (event.data) {
                 switch (event.data.type) {
                     case "TOGGLE_MODAL":
-                        console.log("[voim] 모달 토글 메시지 수신");
                         toggleModal();
                         break;
                     case "HIDE_LOGO":
-                        console.log("[voim] 로고 숨김 메시지 수신");
                         document
                             .getElementById("logo")
                             ?.classList.add("hidden");
                         chrome.storage.local.set({ "logo-hidden": true });
                         break;
                     case "SHOW_LOGO":
-                        console.log("[voim] 로고 표시 메시지 수신");
                         document
                             .getElementById("logo")
                             ?.classList.remove("hidden");
                         chrome.storage.local.set({ "logo-hidden": false });
                         break;
                     case "PAGE_TYPE":
-                        console.log(
-                            "[voim] 페이지 타입 메시지 수신:",
-                            event.data.value,
-                        );
                         setIsDetailPage(Boolean(event.data.value));
                         break;
                     default:
-                        console.log(
-                            "[voim] 알 수 없는 메시지 타입:",
-                            event.data.type,
-                        );
                         break;
                 }
             }
@@ -117,19 +102,16 @@ const App: React.FC = () => {
 
         // 메시지 리스너 등록
         window.addEventListener("message", handleMessage);
-        console.log("[voim] iframe 메시지 리스너 등록됨");
 
         // 초기 페이지 타입 요청
         try {
             window.parent.postMessage({ type: "REQUEST_PAGE_TYPE" }, "*");
-            console.log("[voim] 초기 페이지 타입 요청 전송");
         } catch (error) {
             console.error("[voim] 페이지 타입 요청 실패:", error);
         }
 
         return () => {
             window.removeEventListener("message", handleMessage);
-            console.log("[voim] iframe 메시지 리스너 제거됨");
         };
     }, [toggleModal]);
 

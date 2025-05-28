@@ -23,15 +23,10 @@ export async function handleStyleToggle(): Promise<void> {
 
                 if (existingIframe) {
                     existingIframe.remove();
-                    chrome.storage.local.set(
-                        {
-                            iframeInvisible: true,
-                            iframeHiddenByAltA: true,
-                        },
-                        () => {
-                            console.log("iframe 숨김 상태로 변경됨 (ALT + A)");
-                        },
-                    );
+                    chrome.storage.local.set({
+                        iframeInvisible: true,
+                        iframeHiddenByAltA: true,
+                    });
                 } else {
                     const iframe = document.createElement("iframe");
                     iframe.id = iframeId;
@@ -76,15 +71,10 @@ export async function handleStyleToggle(): Promise<void> {
 
                     window.addEventListener("message", handleMessage);
                     document.body.appendChild(iframe);
-                    chrome.storage.local.set(
-                        {
-                            iframeInvisible: false,
-                            iframeHiddenByAltA: false,
-                        },
-                        () => {
-                            console.log("iframe 보임 상태로 변경됨");
-                        },
-                    );
+                    chrome.storage.local.set({
+                        iframeInvisible: false,
+                        iframeHiddenByAltA: false,
+                    });
                 }
             },
         });

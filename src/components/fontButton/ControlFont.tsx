@@ -75,8 +75,6 @@ const ControlFont = () => {
         chrome.runtime.sendMessage({ type }, (response) => {
             if (chrome.runtime.lastError) {
                 console.error("에러:", chrome.runtime.lastError.message);
-            } else {
-                console.log("응답:", response);
             }
         });
     };

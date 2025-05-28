@@ -100,16 +100,12 @@ class IframeService {
                 styles: typeof IFRAME_CONSTANTS.STYLES,
             ) => {
                 try {
-                    console.log("iframe 토글 시작");
-
                     const existingIframe = document.getElementById(iframeId);
                     if (existingIframe) {
-                        console.log("기존 iframe 제거");
                         existingIframe.remove();
                         return;
                     }
 
-                    console.log("새 iframe 생성");
                     const iframe = document.createElement("iframe");
                     iframe.id = iframeId;
                     iframe.src = chrome.runtime.getURL("iframe.html");
@@ -137,8 +133,6 @@ class IframeService {
                             );
                         }
                     });
-
-                    console.log("iframe 추가 완료");
                 } catch (error) {
                     console.error("iframe 토글 중 오류:", error);
                     throw error;

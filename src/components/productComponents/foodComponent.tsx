@@ -77,7 +77,6 @@ export const FoodComponent = () => {
 
         const vendorEl = document.querySelector(".vendor-item");
         if (vendorEl) {
-            console.log("[voim] .vendor-item DOM에서 바로 발견됨");
             fetchData(vendorEl);
             return;
         }
@@ -85,7 +84,6 @@ export const FoodComponent = () => {
         const observer = new MutationObserver(() => {
             const foundEl = document.querySelector(".vendor-item");
             if (foundEl) {
-                console.log("[voim] .vendor-item 등장 감지됨 (observer)");
                 observer.disconnect();
                 fetchData(foundEl);
             }

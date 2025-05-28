@@ -91,7 +91,6 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                             pointerEvents: "auto",
                         }}
                         onClick={() => {
-                            console.log("분석 버튼 클릭");
                             setShowModal(true);
                         }}
                     />
@@ -108,7 +107,6 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                             pointerEvents: "auto",
                         }}
                         onClick={() => {
-                            console.log("분석 버튼 클릭");
                             setShowModal(true);
                         }}
                     >
