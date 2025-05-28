@@ -18,7 +18,6 @@ export const ImageModal: React.FC<ImageModalProps> = ({
     useEffect(() => {
         sendImageAnalysisRequest(imageUrl)
             .then((res) => {
-                console.log("이미지 분석 응답:", res);
                 setAnalysis(res || "분석 결과가 없습니다.");
             })
             .catch((err) => {

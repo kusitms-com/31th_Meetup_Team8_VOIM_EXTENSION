@@ -33,9 +33,6 @@ export function checkExtensionState(): void {
             const iframeInvisible = result.iframeInvisible ?? false;
             const iframeExists =
                 document.getElementById(EXTENSION_IFRAME_ID) !== null;
-            console.log("현재 스타일 활성화 상태:", stylesEnabled);
-            console.log("현재 iframe 가시성 상태:", !iframeInvisible);
-            console.log("현재 iframe 존재 여부:", iframeExists);
 
             if (stylesEnabled) {
                 loadAndApplySettings();
@@ -110,8 +107,6 @@ export function removeAllStyles(): void {
             chrome.storage.local.set(
                 { [STORAGE_KEYS.STYLES_ENABLED]: false },
                 () => {
-                    console.log("스타일 비활성화 상태 저장됨");
-
                     const elements = document.querySelectorAll("*");
                     elements.forEach((el) => {
                         const htmlEl = el as HTMLElement;
@@ -159,8 +154,6 @@ export function removeAllStyles(): void {
  */
 export function restoreAllStyles(): void {
     chrome.storage.local.set({ [STORAGE_KEYS.STYLES_ENABLED]: true }, () => {
-        console.log("스타일 활성화 상태 저장됨");
-
         chrome.storage.local.get(
             [
                 STORAGE_KEYS.FONT_SIZE,
@@ -168,7 +161,6 @@ export function restoreAllStyles(): void {
                 STORAGE_KEYS.THEME_MODE,
             ],
             (result) => {
-                console.log("Restore Settings Result:", result);
                 const settings = {
                     fontSize:
                         result[STORAGE_KEYS.FONT_SIZE] ??
@@ -247,9 +239,7 @@ export function saveSettings(settings: {
     // 스타일이 변경되면 STYLES_ENABLED를 true로 설정
     updates[STORAGE_KEYS.STYLES_ENABLED] = true;
 
-    chrome.storage.local.set(updates, () => {
-        console.log("Settings saved:", updates);
-    });
+    chrome.storage.local.set(updates);
 }
 
 /**
@@ -266,17 +256,7 @@ export function loadAndApplySettings(): void {
         (result) => {
             const stylesEnabled = result[STORAGE_KEYS.STYLES_ENABLED] ?? true;
 
-            console.log(
-                "Loaded settings:",
-                result,
-                "Styles enabled:",
-                stylesEnabled,
-            );
-
             if (!stylesEnabled) {
-                console.log(
-                    "스타일이 비활성화 상태입니다. 설정을 적용하지 않습니다.",
-                );
                 return;
             }
 
@@ -318,8 +298,6 @@ export function loadAndApplySettings(): void {
  */
 export function removeAllStyleSheets(): void {
     chrome.storage.local.set({ [STORAGE_KEYS.STYLES_ENABLED]: false }, () => {
-        console.log("스타일 비활성화 상태 저장됨");
-
         const elements = document.querySelectorAll("*");
         elements.forEach((el) => {
             const htmlEl = el as HTMLElement;

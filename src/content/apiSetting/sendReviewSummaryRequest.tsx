@@ -172,8 +172,6 @@ export const sendReviewSummaryRequest = (
                 payload,
             },
             (response: unknown) => {
-                console.log("[voim] 리뷰 요약 응답:", response);
-
                 if (!response || typeof response !== "object") {
                     return reject(new Error("Invalid response format"));
                 }

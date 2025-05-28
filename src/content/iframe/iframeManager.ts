@@ -80,9 +80,7 @@ export function createIframe(): void {
             iframe.contentWindow?.document.getElementById("root")?.focus();
         };
 
-        chrome.storage.local.set({ iframeInvisible: false }, () => {
-            console.log("iframe 보임 상태 저장됨");
-        });
+        chrome.storage.local.set({ iframeInvisible: false }, () => {});
     }
 }
 
@@ -107,9 +105,7 @@ export function removeIframe(): void {
 
         iframe.remove();
 
-        chrome.storage.local.set({ iframeInvisible: true }, () => {
-            console.log("iframe 숨김 상태 저장됨");
-        });
+        chrome.storage.local.set({ iframeInvisible: true });
     }
 }
 
@@ -119,7 +115,6 @@ export function removeIframe(): void {
 export function restoreIframe(): void {
     chrome.storage.local.get(["iframeInvisible"], (result) => {
         const isInvisible = result.iframeInvisible ?? false;
-        console.log("현재 iframe 상태:", isInvisible ? "숨김" : "보임");
 
         if (!isInvisible) {
             createIframe();
@@ -144,7 +139,5 @@ export function setIframeVisible(visible: boolean): void {
         removeIframe();
     }
 
-    chrome.storage.local.set({ iframeInvisible: !visible }, () => {
-        console.log("iframe 상태 저장됨:", !visible ? "숨김" : "보임");
-    });
+    chrome.storage.local.set({ iframeInvisible: !visible });
 }

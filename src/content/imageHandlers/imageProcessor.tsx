@@ -23,7 +23,6 @@ export const isIgnorableImage = (img: HTMLImageElement): boolean => {
 };
 
 export const processImages = () => {
-    console.log("[processImages] 실행됨 ");
     const images = document.querySelectorAll("img");
 
     images.forEach((img) => {

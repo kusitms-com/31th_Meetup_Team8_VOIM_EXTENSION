@@ -1,7 +1,5 @@
 // content.ts
 export const renderCouponComponent = () => {
-    console.log("[voim] 쿠폰 자동 다운로드 로직 시작");
-
     const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
     let isDownloaded = false;
@@ -10,7 +8,6 @@ export const renderCouponComponent = () => {
 
     const tryDownloadCoupons = async () => {
         if (isDownloaded || isDownloading) {
-            console.log("[voim] 이미 다운로드가 진행 중이거나 완료되었습니다.");
             return true;
         }
 
@@ -21,7 +18,6 @@ export const renderCouponComponent = () => {
         ) as HTMLButtonElement | null;
 
         if (!downloadBtn) {
-            console.log("[voim] 쿠폰 다운로드 버튼을 찾을 수 없음");
             isDownloading = false;
             return false;
         }
@@ -31,12 +27,9 @@ export const renderCouponComponent = () => {
         ) as HTMLElement | null;
 
         if (!couponLayer) {
-            console.log("[voim] 쿠폰 레이어를 찾을 수 없음");
             isDownloading = false;
             return false;
         }
-
-        console.log("[voim] 쿠폰 레이어 발견:", couponLayer);
 
         const originalDisplay = couponLayer.style.display;
         couponLayer.style.display = "block";
@@ -46,7 +39,6 @@ export const renderCouponComponent = () => {
         const couponItems = document.querySelectorAll<HTMLLIElement>(
             ".prod-coupon-download-content li.prod-coupon-download-item__on",
         );
-        console.log("[voim] 쿠폰 아이템 개수:", couponItems.length);
 
         let newDownload = false;
 
@@ -55,12 +47,9 @@ export const renderCouponComponent = () => {
             if (!url) return;
 
             if (!clickedUrls.has(url)) {
-                console.log(`[voim] 쿠폰 #${index + 1} URL 클릭: ${url}`);
                 clickedUrls.add(url);
                 item.click();
                 newDownload = true;
-            } else {
-                console.log(`[voim] 이미 클릭된 쿠폰: ${url}`);
             }
         });
 
@@ -71,14 +60,12 @@ export const renderCouponComponent = () => {
         ) as HTMLElement | null;
         if (closeBtn) {
             closeBtn.click();
-            console.log("[voim] 닫기 버튼 클릭 완료");
         }
 
         // 레이어 원복
         couponLayer.style.display = originalDisplay;
 
         if (newDownload) {
-            console.log("[voim] 쿠폰 자동 다운로드 완료");
             isDownloaded = true;
 
             downloadBtn.disabled = true;
@@ -87,7 +74,6 @@ export const renderCouponComponent = () => {
             downloadBtn.style.border = "1px solid #999";
             downloadBtn.style.color = "#999";
             downloadBtn.style.filter = "grayscale(100%)";
-            console.log("[voim] 쿠폰 다운로드 버튼 비활성화 완료");
         } else {
             downloadBtn.disabled = true;
             downloadBtn.style.opacity = "0.5";
@@ -95,7 +81,6 @@ export const renderCouponComponent = () => {
             downloadBtn.style.border = "1px solid #999";
             downloadBtn.style.color = "#999";
             downloadBtn.style.filter = "grayscale(100%)";
-            console.log("[voim] 다운로드 가능한 새 쿠폰이 없음");
         }
 
         isDownloading = false;
@@ -108,9 +93,6 @@ export const renderCouponComponent = () => {
     // DOM 변화 감지
     const observer = new MutationObserver((mutations, obs) => {
         if (isDownloaded) {
-            console.log(
-                "[voim] 이미 다운로드가 완료되어 MutationObserver를 종료합니다.",
-            );
             obs.disconnect();
             return;
         }
@@ -118,7 +100,6 @@ export const renderCouponComponent = () => {
         tryDownloadCoupons()
             .then((success) => {
                 if (success) {
-                    console.log("[voim] MutationObserver로 자동 다운로드 성공");
                     obs.disconnect();
                 }
             })
@@ -133,6 +114,5 @@ export const renderCouponComponent = () => {
     // 10초 후 자동 종료
     setTimeout(() => {
         observer.disconnect();
-        console.log("[voim] MutationObserver 종료 (타임아웃)");
     }, 10000);
 };

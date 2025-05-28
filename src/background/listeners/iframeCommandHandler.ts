@@ -13,7 +13,6 @@ export async function handleIframeToggle(): Promise<void> {
                 target: { tabId: tabs[0].id },
                 func: function () {
                     try {
-                        console.log("iframe 토글 직접 실행");
                         const iframeId = "floating-button-extension-iframe";
                         const existingIframe =
                             document.getElementById(iframeId);
@@ -28,17 +27,10 @@ export async function handleIframeToggle(): Promise<void> {
                                 if (existingIframe) {
                                     // iframe이 있으면 제거하고 상태를 true로 설정
                                     existingIframe.remove();
-                                    chrome.storage.local.set(
-                                        {
-                                            iframeInvisible: true,
-                                            iframeHiddenByAltA: false,
-                                        },
-                                        () => {
-                                            console.log(
-                                                "iframe 숨김 상태로 변경됨 (ALT + V)",
-                                            );
-                                        },
-                                    );
+                                    chrome.storage.local.set({
+                                        iframeInvisible: true,
+                                        iframeHiddenByAltA: false,
+                                    });
                                 } else {
                                     // iframe이 없으면 생성하고 상태를 false로 설정
                                     const iframe =
@@ -96,17 +88,10 @@ export async function handleIframeToggle(): Promise<void> {
                                         handleMessage,
                                     );
                                     document.body.appendChild(iframe);
-                                    chrome.storage.local.set(
-                                        {
-                                            iframeInvisible: false,
-                                            iframeHiddenByAltA: false,
-                                        },
-                                        () => {
-                                            console.log(
-                                                "iframe 보임 상태로 변경됨",
-                                            );
-                                        },
-                                    );
+                                    chrome.storage.local.set({
+                                        iframeInvisible: false,
+                                        iframeHiddenByAltA: false,
+                                    });
                                 }
                             },
                         );

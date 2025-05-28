@@ -25,10 +25,6 @@ export const handleStyleMessage = (
             type !== "DISABLE_ALL_STYLES" &&
             type !== "REMOVE_ALL_STYLE_SHEETS"
         ) {
-            console.log(
-                "스타일이 비활성화 상태입니다. 메시지를 처리하지 않습니다:",
-                type,
-            );
             sendResponse({
                 success: false,
                 error: "스타일이 비활성화 상태입니다",

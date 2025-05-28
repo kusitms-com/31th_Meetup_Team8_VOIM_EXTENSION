@@ -25,14 +25,6 @@ export async function handleModalToggle(): Promise<void> {
                             const hiddenByAltA =
                                 result.iframeHiddenByAltA ?? false;
 
-                            // ALT+A로 숨긴 경우에는 아무 동작 안 함
-                            if (hiddenByAltA) {
-                                console.log(
-                                    "ALT + A로 숨겨져 있어서 동작하지 않음",
-                                );
-                                return;
-                            }
-
                             // ALT+V로 숨긴 경우에만 iframe 생성하고 모달 띄우기
                             if (isInvisible) {
                                 iframe = document.createElement("iframe");
@@ -82,18 +74,11 @@ export async function handleModalToggle(): Promise<void> {
                                     handleMessage,
                                 );
                                 document.body.appendChild(iframe);
-                                chrome.storage.local.set(
-                                    {
-                                        iframeInvisible: false,
-                                        iframeHiddenByAltA: false,
-                                        iframeHiddenByAltV: true,
-                                    },
-                                    () => {
-                                        console.log(
-                                            "iframe 보임 상태로 변경됨 (ALT + O)",
-                                        );
-                                    },
-                                );
+                                chrome.storage.local.set({
+                                    iframeInvisible: false,
+                                    iframeHiddenByAltA: false,
+                                    iframeHiddenByAltV: true,
+                                });
                                 iframe.onload = function () {
                                     if (iframe.contentWindow) {
                                         iframe.contentWindow.postMessage(
@@ -120,18 +105,11 @@ export async function handleModalToggle(): Promise<void> {
 
                                 if (hiddenByAltV) {
                                     iframe.remove();
-                                    chrome.storage.local.set(
-                                        {
-                                            iframeInvisible: true,
-                                            iframeHiddenByAltA: false,
-                                            iframeHiddenByAltV: false,
-                                        },
-                                        () => {
-                                            console.log(
-                                                "iframe 숨김 상태로 변경됨 (ALT + O)",
-                                            );
-                                        },
-                                    );
+                                    chrome.storage.local.set({
+                                        iframeInvisible: true,
+                                        iframeHiddenByAltA: false,
+                                        iframeHiddenByAltV: false,
+                                    });
                                 }
                             },
                         );
