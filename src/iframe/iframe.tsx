@@ -11,6 +11,7 @@ import { FloatingButtonSide } from "@src/components/floatingButtonSide";
 import { useModalManagement } from "@src/hooks/useModalManagement";
 import { PanelContent } from "@src/components/panelContent/component";
 import { menuItems } from "@src/constants/menuItems";
+import { useTheme } from "@src/contexts/ThemeContext";
 
 const App: React.FC = () => {
     const {
@@ -23,6 +24,9 @@ const App: React.FC = () => {
         toggleModal,
         setSelectedMenu,
     } = useModalManagement();
+
+    const { theme } = useTheme();
+    const isDarkMode = theme === "dark";
 
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
@@ -132,10 +136,8 @@ const App: React.FC = () => {
             }
         };
 
-        // 메시지 리스너 등록
         window.addEventListener("message", handleMessage);
 
-        // 초기 페이지 타입 요청
         try {
             window.parent.postMessage({ type: "REQUEST_PAGE_TYPE" }, "*");
         } catch (error) {
@@ -254,16 +256,22 @@ const App: React.FC = () => {
                 role="menu"
                 aria-label="VOIM 설정 메뉴"
             >
-                {menuItems.map(({ id, text }) => (
-                    <MenubarButton
-                        key={id}
-                        isSelected={selectedMenu === id}
-                        text={text}
-                        onClick={() => handleMenuClick(id)}
-                        onKeyDown={(e) => handleMenuKeyDown(e, id)}
-                        ariaLabel={`${text}`}
-                        ref={(el) => (menuButtonRefs.current[id] = el)}
-                    />
+                {menuItems.map(({ id, text }, index) => (
+                    <React.Fragment key={id}>
+                        <MenubarButton
+                            isSelected={selectedMenu === id}
+                            text={text}
+                            onClick={() => handleMenuClick(id)}
+                            onKeyDown={(e) => handleMenuKeyDown(e, id)}
+                            ariaLabel={`${text}`}
+                            ref={(el) => (menuButtonRefs.current[id] = el)}
+                        />
+                        {index === 2 && (
+                            <div
+                                className={`w-[420px] h-[2px] ${isDarkMode ? `bg-grayscale-700` : `bg-grayscale-300`}`}
+                            />
+                        )}
+                    </React.Fragment>
                 ))}
 
                 <div
