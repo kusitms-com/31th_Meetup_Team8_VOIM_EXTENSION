@@ -50,6 +50,14 @@ export function ShortcutTab() {
                             ALT + A
                         </div>
                     </ContentBox>
+                    <ContentBox ariaLabel="쿠팡 제품정보 열기 또는 접기 단축키: ALT + I">
+                        <div tabIndex={-1} role="listitem">
+                            쿠팡 제품정보 열기 또는 접기
+                        </div>
+                        <div tabIndex={-1} role="listitem">
+                            ALT + I
+                        </div>
+                    </ContentBox>
                 </div>
             </section>
         </div>

@@ -309,7 +309,10 @@ const App: React.FC = () => {
                         isModalOpen && selectedMenu !== null ? "flex" : "hidden"
                     }`}
                 >
-                    <PanelContent menuId={selectedMenu} />
+                    <PanelContent
+                        menuId={selectedMenu}
+                        setMenuId={setSelectedMenu}
+                    />
                 </div>
             </Menubar>
 

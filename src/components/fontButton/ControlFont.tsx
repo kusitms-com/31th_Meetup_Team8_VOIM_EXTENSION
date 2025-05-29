@@ -7,10 +7,16 @@ import { STORAGE_KEYS } from "../../background/constants";
 type UppercaseFontWeight = "REGULAR" | "BOLD" | "XBOLD";
 type UppercaseFontSize = "XS" | "S" | "M" | "L" | "XL";
 
-const ControlFont = () => {
+interface ControlFontProps {
+    onClose: () => void;
+}
+
+const ControlFont: React.FC<ControlFontProps> = ({ onClose }) => {
     const [selectedWeight, setSelectedWeight] =
         useState<UppercaseFontWeight>("BOLD");
     const [selectedSize, setSelectedSize] = useState<UppercaseFontSize>("S");
+    const [hasChanged, setHasChanged] = useState(false);
+
     const {
         setFontSize,
         setFontWeight,
@@ -63,14 +69,6 @@ const ControlFont = () => {
         }
     }, [fontWeight, fontSize]);
 
-    function isValidFontWeight(value: string): value is UppercaseFontWeight {
-        return ["REGULAR", "BOLD", "XBOLD"].includes(value);
-    }
-
-    function isValidFontSize(value: string): value is UppercaseFontSize {
-        return ["XS", "S", "M", "L", "XL"].includes(value);
-    }
-
     const sendMessage = (type: string) => {
         chrome.runtime.sendMessage({ type }, (response) => {
             if (chrome.runtime.lastError) {
@@ -81,39 +79,35 @@ const ControlFont = () => {
 
     const handleWeightClick = (label: string) => {
         const value = weightMap[label];
+
+        if (value !== selectedWeight) setHasChanged(true);
         setSelectedWeight(value);
 
-        if (chrome?.storage?.local) {
-            chrome.storage.local
-                .set({ [STORAGE_KEYS.FONT_WEIGHT]: toFontWeight(value) })
-                .catch((err) => console.error("폰트 굵기 저장 오류:", err));
-        }
+        chrome.storage?.local
+            .set({ [STORAGE_KEYS.FONT_WEIGHT]: toFontWeight(value) })
+            .catch((err) => console.error("폰트 굵기 저장 오류:", err));
 
         sendMessage(`SET_FONT_WEIGHT_${value}`);
-
-        const fontWeight = toFontWeight(value);
-        setFontWeight(fontWeight);
+        setFontWeight(toFontWeight(value));
     };
 
     const handleSizeClick = (label: string) => {
         const value = sizeMap[label];
+
+        if (value !== selectedSize) setHasChanged(true);
         setSelectedSize(value);
 
-        if (chrome?.storage?.local) {
-            chrome.storage.local
-                .set({ [STORAGE_KEYS.FONT_SIZE]: toFontSize(value) })
-                .catch((err) => console.error("폰트 크기 저장 오류:", err));
-        }
+        chrome.storage?.local
+            .set({ [STORAGE_KEYS.FONT_SIZE]: toFontSize(value) })
+            .catch((err) => console.error("폰트 크기 저장 오류:", err));
 
         sendMessage(`SET_FONT_SIZE_${value}`);
-
-        const fontSize = toFontSize(value);
-        setFontSize(fontSize);
+        setFontSize(toFontSize(value));
     };
 
     return (
         <div
-            className={`inline-flex flex-col items-start p-[18px] rounded-[20px]  ${
+            className={`inline-flex flex-col items-start p-[18px] rounded-[20px] ${
                 isDarkMode
                     ? `bg-grayscale-900 text-grayscale-100`
                     : `bg-grayscale-100 text-grayscale-900`
@@ -153,6 +147,13 @@ const ControlFont = () => {
                     )}
                 </div>
             </div>
+
+            <button
+                onClick={onClose}
+                className="w-full h-[68px] mt-[18px] py-[10px] rounded-[14px] bg-purple-default text-white font-20-Bold"
+            >
+                {hasChanged ? "완료" : "닫기"}
+            </button>
         </div>
     );
 };

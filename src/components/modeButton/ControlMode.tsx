@@ -3,8 +3,13 @@ import { ModeButton } from "./component";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { STORAGE_KEYS } from "../../background/constants";
 
-const ControlMode = () => {
+interface ControlModeProps {
+    onClose: () => void;
+}
+
+const ControlMode: React.FC<ControlModeProps> = ({ onClose }) => {
     const [selectedMode, setSelectedMode] = useState<"LIGHT" | "DARK">("LIGHT");
+    const [hasChanged, setHasChanged] = useState(false);
     const { fontClasses, setTheme, theme } = useTheme();
     const isDarkMode = theme === "dark";
 
@@ -19,15 +24,17 @@ const ControlMode = () => {
 
     const handleModeClick = (label: string) => {
         const value = modeMap[label];
+        if (value !== selectedMode) {
+            setHasChanged(true);
+        }
+
         setSelectedMode(value);
 
         const themeMode = value === "DARK" ? "dark" : "light";
         setTheme(themeMode);
-        if (chrome?.storage?.local) {
-            chrome.storage.local
-                .set({ [STORAGE_KEYS.THEME_MODE]: `SET_MODE_${value}` })
-                .catch((err) => console.error("테마 모드 저장 오류:", err));
-        }
+        chrome.storage?.local
+            .set({ [STORAGE_KEYS.THEME_MODE]: `SET_MODE_${value}` })
+            .catch((err) => console.error("테마 모드 저장 오류:", err));
 
         chrome.runtime.sendMessage(
             { type: `SET_MODE_${value}` },
@@ -58,7 +65,7 @@ const ControlMode = () => {
                             isSelected={value === selectedMode}
                             modeType={value}
                             aria-label={
-                                "고대비 화면 설정" + label.replace("\n", " ")
+                                "고대비 화면 설정 " + label.replace("\n", " ")
                             }
                         >
                             {label.split("\n").map((line, i) => (
@@ -68,6 +75,13 @@ const ControlMode = () => {
                     ))}
                 </div>
             </div>
+
+            <button
+                onClick={onClose}
+                className="w-full h-[68px] mt-[18px] py-[10px] rounded-[14px] bg-purple-default text-white font-20-Bold"
+            >
+                {hasChanged ? "완료" : "닫기"}
+            </button>
         </div>
     );
 };
