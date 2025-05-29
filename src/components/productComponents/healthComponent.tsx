@@ -160,32 +160,39 @@ export const HealthComponent = () => {
                 fontFamily: "KoddiUDOnGothic",
             }}
         >
-            <p style={commonTextStyle}>[건강기능식품] 효능 분석</p>
-            <div style={{ margin: "16px 0" }} />
-            <p style={commonTextStyle24}>
-                총 {healthTypes.length}개 기능성 성분이 감지되었습니다.
+            <p style={commonTextStyle}>
+                해당 제품의 기능성 효능 {healthTypes.length}가지
             </p>
-            <div
-                style={{
-                    backgroundColor: "#F5F7FB",
-                    padding: "16px",
-                    marginTop: "12px",
-                    borderRadius: "12px",
-                }}
-            >
-                {healthTypes.map((item, idx) => (
-                    <div
-                        key={idx}
-                        style={{
-                            ...commonTextStyle24,
-                            marginBottom:
-                                idx < healthTypes.length - 1 ? "12px" : "0",
-                        }}
-                    >
-                        {healthEffectMap[item] || item}
-                    </div>
-                ))}
-            </div>
+            <div style={{ margin: "16px 0" }} />
+            {healthTypes.length > 0 && (
+                <div
+                    style={{
+                        backgroundColor: "transperent",
+                        padding: "16px",
+                        marginTop: "12px",
+                        borderRadius: "12px",
+                    }}
+                >
+                    {healthTypes.map((item, idx) => (
+                        <div
+                            key={idx}
+                            style={{
+                                backgroundColor: "#F5F7FB",
+                                ...commonTextStyle24,
+                                marginBottom:
+                                    idx < healthTypes.length - 1 ? "12px" : "0",
+                                borderBottom:
+                                    idx < healthTypes.length - 1
+                                        ? "1px solid #EAEDF4"
+                                        : "none",
+                                paddingBottom: "12px",
+                            }}
+                        >
+                            {healthEffectMap[item] || item}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

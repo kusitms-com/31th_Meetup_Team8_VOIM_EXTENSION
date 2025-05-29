@@ -220,13 +220,13 @@ export const FoodComponent = () => {
                 <span>하루 기준 섭취량의 40% 넘는 영양성분</span>
                 <span>총 {nutrientAlerts.length}개</span>
             </div>
-            {nutrientOpen && (
+            {nutrientOpen && nutrientAlerts.length > 0 && (
                 <div
                     style={{
                         backgroundColor: "#F5F7FB",
-                        borderRadius: "12px",
                         padding: "16px",
-                        marginBottom: "16px",
+                        marginTop: "12px",
+                        borderRadius: "12px",
                     }}
                 >
                     {nutrientAlerts.map((item, idx) => (
@@ -264,12 +264,13 @@ export const FoodComponent = () => {
                 <span>알레르기 유발 성분</span>
                 <span>총 {allergyTypes.length}개</span>
             </div>
-            {allergyOpen && (
+            {allergyOpen && allergyTypes.length > 0 && (
                 <div
                     style={{
                         backgroundColor: "#F5F7FB",
                         padding: "16px",
                         marginTop: "12px",
+                        borderRadius: "12px",
                     }}
                 >
                     {allergyTypes.map((item, idx) => (
