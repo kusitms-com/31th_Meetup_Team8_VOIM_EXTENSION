@@ -156,24 +156,6 @@ export const HealthComponent = () => {
                     </div>
                 ))}
             </div>
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setShowAll(!showAll);
-                }}
-            >
-                {showAll ? "전체 보기 닫기" : "전체 보기"}
-            </button>
         </div>
     );
 };

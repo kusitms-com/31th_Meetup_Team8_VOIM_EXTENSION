@@ -191,26 +191,6 @@ export const CosmeticComponent = () => {
                 </div>
             )}
 
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    marginBottom: "20px",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setDangerOpen(!dangerOpen);
-                }}
-            >
-                {dangerOpen ? "전체 보기 닫기" : "전체 보기"}
-            </button>
-
             <div
                 style={{
                     display: "flex",
@@ -260,28 +240,6 @@ export const CosmeticComponent = () => {
                     )}
                 </div>
             )}
-
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    marginBottom: "20px",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setAllergyOpen(!allergyOpen);
-                }}
-            >
-                {allergyOpen
-                    ? "전체 보기 닫기"
-                    : "알레르기 유발 성분 전체 보기"}
-            </button>
         </div>
     );
 };
