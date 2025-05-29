@@ -18,22 +18,23 @@ export async function handleIframeToggle(): Promise<void> {
                             iframeId,
                         ) as HTMLIFrameElement;
 
-                        // 현재 iframeInvisible 상태 확인
+                        // 현재 iframeInvisible과 iframeHiddenByAltA 상태 확인
                         chrome.storage.local.get(
                             ["iframeInvisible", "iframeHiddenByAltA"],
                             function (result) {
                                 const isInvisible =
                                     result.iframeInvisible ?? false;
+                                const hiddenByAltA =
+                                    result.iframeHiddenByAltA ?? false;
 
                                 if (existingIframe) {
-                                    // iframe이 있으면 제거하고 상태를 true로 설정
                                     existingIframe.remove();
                                     chrome.storage.local.set({
                                         iframeInvisible: true,
-                                        iframeHiddenByAltA: false,
+                                        iframeHiddenByAltA: true,
                                     });
-                                } else {
-                                    // iframe이 없으면 생성하고 상태를 false로 설정
+                                } else if (!hiddenByAltA) {
+                                    // hiddenByAltA가 false일 때만 iframe 생성
                                     const iframe =
                                         document.createElement("iframe");
                                     iframe.id = iframeId;
