@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { sendHealthDataRequest } from "../../content/apiSetting/sendHealthDataRequest";
+import Loading from "../Loading/component";
 
 const healthEffectMap: Record<string, string> = {
     IMMUNE: "면역기능",
@@ -143,11 +144,25 @@ export const HealthComponent = () => {
             <div
                 style={{
                     padding: "16px",
-                    textAlign: "center",
-                    ...commonTextStyle24,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "320px",
                 }}
             >
-                제품 정보를 분석 중입니다...
+                <div style={{ width: "260px", height: "243px" }}>
+                    <Loading />
+                </div>
+                <div
+                    style={{
+                        marginTop: "12px",
+                        ...commonTextStyle24,
+                        color: "#505156",
+                    }}
+                >
+                    제품 정보를 분석 중입니다.
+                </div>
             </div>
         );
     }
@@ -167,7 +182,7 @@ export const HealthComponent = () => {
             {healthTypes.length > 0 && (
                 <div
                     style={{
-                        backgroundColor: "transperent",
+                        backgroundColor: "#F5F7FB",
                         padding: "16px",
                         marginTop: "12px",
                         borderRadius: "12px",
