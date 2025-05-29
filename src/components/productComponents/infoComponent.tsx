@@ -92,17 +92,24 @@ export const InfoComponent: React.FC<InfoComponentProps> = ({
                                     "불러오는 중..."
                                 ) : (
                                     <ul className="pl-6 space-y-2 list-disc">
-                                        {info.split("\n").map(
-                                            (item, index) =>
-                                                item.trim() && (
-                                                    <li
-                                                        key={index}
-                                                        className="leading-relaxed"
-                                                    >
-                                                        {item.trim()}
-                                                    </li>
-                                                ),
-                                        )}
+                                        {info
+                                            .split("\n")
+                                            .map((item) =>
+                                                item.replace(/^-/, "").trim(),
+                                            )
+                                            .filter(Boolean)
+                                            .map((item, index) => (
+                                                <li
+                                                    key={index}
+                                                    className="leading-relaxed"
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: item.replace(
+                                                            /<strong>(.*?)<\/strong>/g,
+                                                            `<strong style="color: #8914FF;">$1</strong>`,
+                                                        ),
+                                                    }}
+                                                />
+                                            ))}
                                     </ul>
                                 )}
                             </div>
