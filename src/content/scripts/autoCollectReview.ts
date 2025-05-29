@@ -96,7 +96,6 @@ const initAutoCollectReview = async () => {
         );
     } catch (error) {
         console.error("[voim] 리뷰 데이터 자동 수집 중 오류:", error);
-        setTimeout(initAutoCollectReview, 5000);
     }
 };
 

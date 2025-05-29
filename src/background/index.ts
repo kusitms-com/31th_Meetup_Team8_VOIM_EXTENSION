@@ -311,8 +311,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, reviewRating, reviews }),
         })
-            .then((res) => res.json())
+            .then(async (res) => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(
+                        errorData.message ||
+                            `HTTP error! status: ${res.status}`,
+                    );
+                }
+                return res.json();
+            })
             .then((data) => {
+                if (!data.data) {
+                    throw new Error("서버 응답에 데이터가 없습니다.");
+                }
+
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "REVIEW_SUMMARY_RESPONSE",
@@ -325,16 +338,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 });
             })
             .catch((err) => {
-                console.error("REVIEW SUMMARY 오류:", err);
+                console.error("[voim] REVIEW SUMMARY 오류:", err);
+                const errorMessage =
+                    err.message || "리뷰 요약 처리 중 오류가 발생했습니다";
+
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "REVIEW_SUMMARY_ERROR",
-                        error: err.message,
+                        error: errorMessage,
                     });
                 }
                 sendResponse({
                     type: "REVIEW_SUMMARY_ERROR",
-                    error: err.message,
+                    error: errorMessage,
                 });
             });
 

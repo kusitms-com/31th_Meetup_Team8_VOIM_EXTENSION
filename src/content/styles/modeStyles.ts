@@ -19,7 +19,7 @@ export function applyModeStyle(
                 color: #e0e0e0 !important;
             }
 
-            a, p, span, li, td, th, h1, h2, h3, h4, h5, h6, strong, em, div {
+            a, p, span, li, td, th, h1, h2, h3, h4, h5, h6, strong, em {
                 color: #e0e0e0 !important;
                 background-color: transparent !important;
                 border-color: #444 !important;
@@ -40,15 +40,6 @@ export function applyModeStyle(
                 color: #ffffff !important;
                 opacity: 1 !important;
                 visibility: visible !important;
-            }
-
-            form,
-            form *, 
-            form input, 
-            form button {
-                background-color: #1e1e1e !important;
-                color: #ffffff !important;
-                border-color: #444 !important;
             }
 
             [class*="review"],

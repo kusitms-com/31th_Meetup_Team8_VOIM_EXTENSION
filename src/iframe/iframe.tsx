@@ -22,11 +22,13 @@ const App: React.FC = () => {
         handleMenuClick,
         toggleModal,
         setSelectedMenu,
+        toggleSidebar,
+        isSidebarOpen,
+        setIsSidebarOpen,
     } = useModalManagement();
 
     const [isOnboarding, setIsOnboarding] = useState(false);
     const [showUserInfo, setShowUserInfo] = useState(false);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const { birthYear, gender, loading } = useUserInfo();
     const [categoryType, setCategoryType] = useState<
         "food" | "cosmetic" | "health" | null
@@ -105,6 +107,46 @@ const App: React.FC = () => {
                     case "TOGGLE_MODAL":
                         toggleModal();
                         break;
+                    case "TOGGLE_SIDEBAR":
+                        chrome.tabs.query(
+                            { active: true, currentWindow: true },
+                            (tabs) => {
+                                const currentTab = tabs[0];
+                                if (currentTab?.url) {
+                                    const isDetail =
+                                        currentTab.url.includes("/products/");
+                                    const isCart =
+                                        currentTab.url.includes("/cart");
+
+                                    if (!isDetail && !isCart) {
+                                        return;
+                                    }
+
+                                    setIsDetailPage(isDetail);
+                                    setIsCartPage(isCart);
+
+                                    if (isDetail) {
+                                        chrome.storage.local.get(
+                                            "voim-category-type",
+                                            (res) => {
+                                                const categoryType =
+                                                    res["voim-category-type"];
+                                                if (categoryType === null) {
+                                                    return;
+                                                }
+                                                setCategoryType(
+                                                    categoryType || "none",
+                                                );
+                                                toggleSidebar();
+                                            },
+                                        );
+                                    } else {
+                                        toggleSidebar();
+                                    }
+                                }
+                            },
+                        );
+                        break;
                     case "HIDE_LOGO":
                         document
                             .getElementById("logo")
@@ -145,7 +187,7 @@ const App: React.FC = () => {
         return () => {
             window.removeEventListener("message", handleMessage);
         };
-    }, [toggleModal, closeSidebar]);
+    }, [toggleModal, closeSidebar, toggleSidebar]);
 
     useEffect(() => {
         chrome.storage.local.get(["isFirstInstall"], (result) => {

@@ -62,6 +62,13 @@
             },
             "description": "모달 열기/닫기"
         },
+        "toggle_sidebar": {
+            "suggested_key": {
+                "default": "Alt+I",
+                "mac": "Alt+I"
+            },
+            "description": "사이드바 열기/닫기"
+        },
         "toggle_all_features": {
             "suggested_key": {
                 "default": "Alt+A",

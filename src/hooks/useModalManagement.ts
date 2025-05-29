@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from "react";
 
 export const useModalManagement = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [selectedMenu, setSelectedMenu] = useState<string | null>(null);
     const lastSelectedMenuRef = useRef<string | null>(null);
     const menuButtonRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -41,14 +42,32 @@ export const useModalManagement = () => {
         });
     }, []);
 
+    const toggleSidebar = useCallback(() => {
+        setIsSidebarOpen((prev) => {
+            const newState = !prev;
+            if (newState) {
+                setIsModalOpen(false);
+                window.parent.postMessage({ type: "CLOSE_MODAL" }, "*");
+            }
+            window.parent.postMessage(
+                { type: "RESIZE_IFRAME", isOpen: newState },
+                "*",
+            );
+            return newState;
+        });
+    }, [setIsModalOpen]);
+
     return {
         isModalOpen,
         setIsModalOpen,
+        isSidebarOpen,
+        setIsSidebarOpen,
         selectedMenu,
         lastSelectedMenuRef,
         menuButtonRefs,
         handleMenuClick,
         toggleModal,
+        toggleSidebar,
         setSelectedMenu,
     };
 };
