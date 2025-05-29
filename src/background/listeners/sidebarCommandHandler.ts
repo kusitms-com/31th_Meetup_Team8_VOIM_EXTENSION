@@ -1,9 +1,10 @@
-export async function handleModalToggle(): Promise<void> {
+import { logger } from "@src/utils/logger";
+
+export async function handleSidebarToggle(): Promise<void> {
     const tabs = await chrome.tabs.query({
         active: true,
         currentWindow: true,
     });
-
     if (tabs[0]?.id) {
         await chrome.scripting.executeScript({
             target: { tabId: tabs[0].id },
@@ -13,23 +14,20 @@ export async function handleModalToggle(): Promise<void> {
                     iframeId,
                 ) as HTMLIFrameElement;
 
-                // 항상 iframeHiddenByAltA 먼저 검사
-                chrome.storage.local.get(
-                    [
-                        "iframeInvisible",
-                        "iframeHiddenByAltA",
-                        "iframeHiddenByAltV",
-                    ],
-                    (result) => {
-                        const isInvisible = result.iframeInvisible ?? false;
-                        const hiddenByAltA = result.iframeHiddenByAltA ?? false;
-                        const hiddenByAltV = result.iframeHiddenByAltV ?? false;
+                if (!iframe) {
+                    // iframeInvisible 상태 확인
+                    chrome.storage.local.get(
+                        [
+                            "iframeInvisible",
+                            "iframeHiddenByAltA",
+                            "iframeHiddenByAltV",
+                        ],
+                        (result) => {
+                            const isInvisible = result.iframeInvisible ?? false;
+                            const hiddenByAltA =
+                                result.iframeHiddenByAltA ?? false;
 
-                        // ✅ Alt+A로 숨긴 상태면 아무 동작도 하지 않음
-                        if (hiddenByAltA) return;
-
-                        if (!iframe) {
-                            // Alt+V로 숨겨진 상태일 때만 iframe 생성
+                            // ALT+V로 숨긴 경우에만 iframe 생성하고 사이드바 띄우기
                             if (isInvisible) {
                                 iframe = document.createElement("iframe");
                                 iframe.id = iframeId;
@@ -56,9 +54,9 @@ export async function handleModalToggle(): Promise<void> {
                                 const handleMessage = function (
                                     event: MessageEvent,
                                 ) {
-                                    if (event.source !== iframe.contentWindow)
+                                    if (event.source !== iframe.contentWindow) {
                                         return;
-
+                                    }
                                     if (event.data.type === "RESIZE_IFRAME") {
                                         if (event.data.isOpen) {
                                             iframe.style.width = "100%";
@@ -78,29 +76,34 @@ export async function handleModalToggle(): Promise<void> {
                                     handleMessage,
                                 );
                                 document.body.appendChild(iframe);
-
                                 chrome.storage.local.set({
                                     iframeInvisible: false,
                                     iframeHiddenByAltA: false,
                                     iframeHiddenByAltV: true,
                                 });
-
                                 iframe.onload = function () {
                                     if (iframe.contentWindow) {
                                         iframe.contentWindow.postMessage(
-                                            { type: "TOGGLE_MODAL" },
+                                            { type: "TOGGLE_SIDEBAR" },
                                             "*",
                                         );
                                     }
                                 };
                             }
-                        } else {
-                            // iframe이 이미 존재할 때
-                            if (iframe.contentWindow) {
-                                iframe.contentWindow.postMessage(
-                                    { type: "TOGGLE_MODAL" },
-                                    "*",
-                                );
+                        },
+                    );
+                } else {
+                    if (iframe.contentWindow) {
+                        iframe.contentWindow.postMessage(
+                            { type: "TOGGLE_SIDEBAR" },
+                            "*",
+                        );
+
+                        chrome.storage.local.get(
+                            ["iframeHiddenByAltV"],
+                            (result) => {
+                                const hiddenByAltV =
+                                    result.iframeHiddenByAltV ?? false;
 
                                 if (hiddenByAltV) {
                                     iframe.remove();
@@ -110,10 +113,10 @@ export async function handleModalToggle(): Promise<void> {
                                         iframeHiddenByAltV: false,
                                     });
                                 }
-                            }
-                        }
-                    },
-                );
+                            },
+                        );
+                    }
+                }
             },
         });
     }

@@ -1,5 +1,6 @@
 import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
+import Loading from "../Loading/component";
 
 interface ReviewSummary {
     totalCount: number;
@@ -10,14 +11,33 @@ interface ReviewSummary {
 }
 
 interface ReviewSummaryComponentProps {
-    summary: ReviewSummary;
+    summary: ReviewSummary | null;
+    isLoading?: boolean;
 }
 
 export const ReviewSummaryComponent = ({
     summary,
+    isLoading = false,
 }: ReviewSummaryComponentProps) => {
     const { fontClasses, theme } = useTheme();
     const isDarkMode = theme === "dark";
+
+    if (isLoading) {
+        return (
+            <div
+                className={`${fontClasses.fontCommon} ${
+                    isDarkMode ? "text-grayscale-100" : "text-grayscale-900"
+                } flex flex-col items-center justify-center py-10`}
+            >
+                <Loading />
+                리뷰를 불러오는 중입니다. 잠시만 기다려주세요.
+            </div>
+        );
+    }
+
+    if (!summary) {
+        return null;
+    }
 
     return (
         <div

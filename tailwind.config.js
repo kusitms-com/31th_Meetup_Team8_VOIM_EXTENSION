@@ -1,5 +1,6 @@
 module.exports = {
     content: ["./src/**/*.{js,jsx,ts,tsx,html}", "./dist/popup.html"],
+
     theme: {
         extend: {
             colors: {
@@ -38,6 +39,7 @@ module.exports = {
         },
     },
     plugins: [
+
         function ({ addUtilities }) {
             const fontSizes = {
                 16: { px: "16px", rem: "1rem" },

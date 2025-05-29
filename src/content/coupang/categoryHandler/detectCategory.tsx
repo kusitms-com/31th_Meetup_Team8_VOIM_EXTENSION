@@ -1,49 +1,32 @@
-export const detectCategoryType = (): Promise<
-    "food" | "cosmetic" | "health" | null
-> => {
-    console.log("[voim] 카테고리 감지 시작");
+export const detectCategoryType = ():
+    | "food"
+    | "cosmetic"
+    | "health"
+    | "none"
+    | null => {
+    const breadcrumbEl = document.querySelector(".breadcrumb, #breadcrumb");
+    if (!breadcrumbEl) {
+        return null;
+    }
 
-    return new Promise((resolve) => {
-        const detect = () => {
-            const el = document.querySelector(".breadcrumb, #breadcrumb");
-            if (!el) return null;
+    const rawText = breadcrumbEl.textContent || "";
+    const cleanedText = rawText.replace(/\s+/g, "");
 
-            const text = (el.textContent || "").replace(/\s+/g, "");
-            console.log("[voim] breadcrumb 텍스트:", text);
+    if (cleanedText.includes("식품") && !cleanedText.includes("건강식품")) {
+        return "food";
+    }
 
-            if (text.includes("식품") && !text.includes("건강식품"))
-                return "food";
-            if (text.includes("뷰티")) return "cosmetic";
-            if (
-                text.includes("건강") &&
-                !text.includes("건강가전") &&
-                !text.includes("건강도서")
-            )
-                return "health";
-            return null;
-        };
+    if (cleanedText.includes("뷰티")) {
+        return "cosmetic";
+    }
 
-        const result = detect();
-        if (result) {
-            resolve(result);
-            return;
-        }
+    if (
+        cleanedText.includes("건강") &&
+        !cleanedText.includes("건강가전") &&
+        !cleanedText.includes("건강도서")
+    ) {
+        return "health";
+    }
 
-        const observer = new MutationObserver(() => {
-            const found = detect();
-            if (found) {
-                console.log("[voim] MutationObserver 통해 감지됨:", found);
-                observer.disconnect();
-                resolve(found);
-            }
-        });
-
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        setTimeout(() => {
-            console.warn("[voim] 카테고리 감지 실패 (타임아웃)");
-            observer.disconnect();
-            resolve(null);
-        }, 3000);
-    });
+    return "none";
 };

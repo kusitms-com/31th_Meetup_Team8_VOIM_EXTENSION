@@ -93,19 +93,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true; // 비동기 응답을 위해 true 반환
     }
 
-    if (message.type === "CART_ITEMS_UPDATE") {
+    if (message.type === "CART_ITEMS_UPDATED") {
         // 장바구니 아이템 정보를 저장
         chrome.storage.local.set({ cartItems: message.data }, () => {
-            // 모든 탭에 업데이트된 장바구니 정보 전달
-            chrome.tabs.query({}, (tabs) => {
-                tabs.forEach((tab) => {
-                    if (tab.id) {
-                        chrome.tabs.sendMessage(tab.id, {
+            // 현재 활성화된 탭에만 업데이트된 장바구니 정보 전달
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                const activeTab = tabs[0];
+                if (activeTab?.id) {
+                    chrome.tabs
+                        .sendMessage(activeTab.id, {
                             type: "CART_ITEMS_UPDATED",
                             data: message.data,
+                        })
+                        .catch(() => {
+                            // 메시지 전송 실패 시 무시
                         });
-                    }
-                });
+                }
             });
         });
     }
@@ -327,43 +330,59 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     // // REVIEW SUMMARY API
-    // if (message.type === "FETCH_REVIEW_SUMMARY") {
-    //     const { productId, reviewRating, reviews } = message.payload;
+    if (message.type === "FETCH_REVIEW_SUMMARY") {
+        const { productId, reviewRating, reviews } = message.payload;
 
-    //     fetch("https://voim.store/api/v1/review/summary", {
-    //         method: "POST",
-    //         headers: { "Content-Type": "application/json" },
-    //         body: JSON.stringify({ productId, reviewRating, reviews }),
-    //     })
-    //         .then((res) => res.json())
-    //         .then((data) => {
-    //             if (sender.tab?.id) {
-    //                 chrome.tabs.sendMessage(sender.tab.id, {
-    //                     type: "REVIEW_SUMMARY_RESPONSE",
-    //                     data: data.data,
-    //                 });
-    //             }
-    //             sendResponse({
-    //                 type: "REVIEW_SUMMARY_RESPONSE",
-    //                 data: data.data,
-    //             });
-    //         })
-    //         .catch((err) => {
-    //             console.error("REVIEW SUMMARY 오류:", err);
-    //             if (sender.tab?.id) {
-    //                 chrome.tabs.sendMessage(sender.tab.id, {
-    //                     type: "REVIEW_SUMMARY_ERROR",
-    //                     error: err.message,
-    //                 });
-    //             }
-    //             sendResponse({
-    //                 type: "REVIEW_SUMMARY_ERROR",
-    //                 error: err.message,
-    //             });
-    //         });
+        fetch("https://voim.store/api/v1/review/summary", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ productId, reviewRating, reviews }),
+        })
+            .then(async (res) => {
+                if (!res.ok) {
+                    const errorData = await res.json().catch(() => ({}));
+                    throw new Error(
+                        errorData.message ||
+                            `HTTP error! status: ${res.status}`,
+                    );
+                }
+                return res.json();
+            })
+            .then((data) => {
+                if (!data.data) {
+                    throw new Error("서버 응답에 데이터가 없습니다.");
+                }
 
-    //     return true;
-    // }
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "REVIEW_SUMMARY_RESPONSE",
+                        data: data.data,
+                    });
+                }
+                sendResponse({
+                    type: "REVIEW_SUMMARY_RESPONSE",
+                    data: data.data,
+                });
+            })
+            .catch((err) => {
+                console.error("[voim] REVIEW SUMMARY 오류:", err);
+                const errorMessage =
+                    err.message || "리뷰 요약 처리 중 오류가 발생했습니다";
+
+                if (sender.tab?.id) {
+                    chrome.tabs.sendMessage(sender.tab.id, {
+                        type: "REVIEW_SUMMARY_ERROR",
+                        error: errorMessage,
+                    });
+                }
+                sendResponse({
+                    type: "REVIEW_SUMMARY_ERROR",
+                    error: errorMessage,
+                });
+            });
+
+        return true;
+    }
 
     // HEALTH DATA API
     if (message.type === "FETCH_HEALTH_DATA") {

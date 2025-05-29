@@ -11,7 +11,7 @@ import { CosmeticComponent } from "../productComponents/cosmeticComponent";
 interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
-    type: "food" | "cosmetic" | "health" | null;
+    type: "food" | "cosmetic" | "health" | "none" | null;
     isCartPage?: boolean;
 }
 
@@ -39,7 +39,11 @@ export function Sidebar({
 }: ModalProps) {
     const { theme } = useTheme();
     const [selectedTab, setSelectedTab] = useState<string>(
-        isCartPage ? "summary" : type ? "ingredient" : "detail",
+        isCartPage
+            ? "summary"
+            : type && type !== "none"
+              ? "ingredient"
+              : "detail",
     );
     const isDarkMode = theme === "dark";
     const [reviewSummary, setReviewSummary] = useState<ReviewSummary | null>(
@@ -47,7 +51,13 @@ export function Sidebar({
     );
 
     useEffect(() => {
-        setSelectedTab(isCartPage ? "summary" : type ? "ingredient" : "detail");
+        setSelectedTab(
+            isCartPage
+                ? "summary"
+                : type && type !== "none"
+                  ? "ingredient"
+                  : "detail",
+        );
     }, [type, isCartPage]);
     useEffect(() => {
         if (!isCartPage) {
@@ -96,7 +106,7 @@ export function Sidebar({
     const renderProductContent = () => {
         switch (selectedTab) {
             case "ingredient":
-                if (!type) return null;
+                if (!type || type === "none") return null;
                 switch (type) {
                     case "food":
                         return <FoodComponent />;
@@ -121,6 +131,7 @@ export function Sidebar({
                                 keywords: [],
                             }
                         }
+                        isLoading={!reviewSummary}
                     />
                 );
             default:
@@ -170,7 +181,11 @@ export function Sidebar({
                 <div className="flex items-center justify-between mb-6 font-24-Bold">
                     <div className="flex gap-6">
                         {(isCartPage ? cartTabs : productTabs).map((tab) => {
-                            if (!type && tab.id === "ingredient") return null;
+                            if (
+                                (!type || type === "none") &&
+                                tab.id === "ingredient"
+                            )
+                                return null;
                             return (
                                 <button
                                     key={tab.id}

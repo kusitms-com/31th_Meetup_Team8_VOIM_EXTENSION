@@ -8,19 +8,28 @@ interface CartItem {
 
 export const extractCartItems = (): CartItem[] => {
     const cartItems: CartItem[] = [];
-    const cartItemElements = document.querySelectorAll(".cart-deal-item");
+    const cartItemElements = document.querySelectorAll(
+        ".cart-deal-item, [data-sentry-component='ProductUnit']",
+    );
 
     cartItemElements.forEach((item) => {
-        const nameElement = item.querySelector(".product-name");
-        const quantityInput = item.querySelector(
-            ".quantity-input",
-        ) as HTMLInputElement;
-        const priceElement = item.querySelector(".unit-total-sale-price");
-        const originalPriceElement = item.querySelector(".anchor-price");
-        const discountRateElement = item.querySelector(".discount-rate span");
+        const nameElement =
+            item.querySelector("#name") || item.querySelector(".product-name");
+        const quantityInput = (item.querySelector(".cart-quantity-input") ||
+            item.querySelector(".quantity-input")) as HTMLInputElement;
+        const priceElement =
+            item.querySelector("[data-id='sale-price-ccid']") ||
+            item.querySelector(".unit-total-sale-price");
+        const originalPriceElement =
+            item.querySelector("[data-id='anchor-price']") ||
+            item.querySelector(".anchor-price");
+        const discountRateElement =
+            item.querySelector("[data-id='discount-rate-gte10']") ||
+            item.querySelector(".discount-rate span");
 
         if (nameElement && quantityInput && priceElement) {
-            const name = nameElement.textContent?.trim() || "";
+            const name =
+                nameElement.textContent?.trim().replace(/삭제$/, "") || "";
             const quantity = parseInt(quantityInput.value) || 1;
             const price = parseInt(
                 priceElement.textContent?.replace(/[^0-9]/g, "") || "0",
@@ -48,8 +57,9 @@ export const extractCartItems = (): CartItem[] => {
 
 export const sendCartItemsToBackground = () => {
     const cartItems = extractCartItems();
+    console.log("[CartHandler] 추출된 장바구니 아이템:", cartItems);
     chrome.runtime.sendMessage({
-        type: "CART_ITEMS_UPDATE",
+        type: "CART_ITEMS_UPDATED",
         data: cartItems,
     });
 };

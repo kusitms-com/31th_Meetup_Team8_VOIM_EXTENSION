@@ -51,7 +51,7 @@ export const observeAndStoreCategoryType = async () => {
         );
 
     if (!isCoupangProductPage) {
-        chrome.storage.local.set({ "voim-category-type": null });
+        chrome.storage.local.set({ "voim-category-type": "none" });
         return;
     }
 
@@ -68,6 +68,24 @@ export const observeAndStoreCategoryType = async () => {
             console.log("[voim] 카테고리 저장 성공:", category);
         }
     });
+    const observer = new MutationObserver(() => {
+        const type = detectCategoryType();
+        if (type !== "none") {
+            chrome.storage.local.set({ "voim-category-type": type });
+            clearTimeout(timeoutId);
+            observer.disconnect();
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true,
+    });
+
+    const timeoutId = setTimeout(() => {
+        chrome.storage.local.set({ "voim-category-type": "none" });
+        observer.disconnect();
+    }, 1500);
 };
 observeAndStoreCategoryType();
 

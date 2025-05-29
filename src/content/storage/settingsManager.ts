@@ -76,7 +76,7 @@ function iframeVisible(): boolean {
  * 모든 스타일이 제거되었는지 확인하고 제거합니다.
  */
 function ensureStylesRemoved(): void {
-    const modeStyle = document.getElementById("webeye-mode-style");
+    const modeStyle = document.getElementById("voim-mode-style");
     if (modeStyle) {
         modeStyle.remove();
     }
@@ -119,7 +119,7 @@ export function removeAllStyles(): void {
                     });
 
                     const modeStyle =
-                        document.getElementById("webeye-mode-style");
+                        document.getElementById("voim-mode-style");
                     if (modeStyle) {
                         modeStyle.remove();
                     }
@@ -298,6 +298,7 @@ export function loadAndApplySettings(): void {
  */
 export function removeAllStyleSheets(): void {
     chrome.storage.local.set({ [STORAGE_KEYS.STYLES_ENABLED]: false }, () => {
+        // 모든 요소의 스타일 속성 제거
         const elements = document.querySelectorAll("*");
         elements.forEach((el) => {
             const htmlEl = el as HTMLElement;
@@ -306,14 +307,18 @@ export function removeAllStyleSheets(): void {
                 htmlEl.style.removeProperty("fontWeight");
                 htmlEl.style.removeProperty("filter");
                 htmlEl.style.removeProperty("backgroundColor");
+                htmlEl.style.removeProperty("color");
+                htmlEl.style.removeProperty("border-color");
             }
         });
 
-        const modeStyle = document.getElementById("webeye-mode-style");
+        // 테마 모드 스타일시트 제거
+        const modeStyle = document.getElementById("voim-mode-style");
         if (modeStyle) {
             modeStyle.remove();
         }
 
+        // 폰트 스타일시트 제거
         const globalFontStyle = document.getElementById(
             "webeye-global-font-style",
         );
@@ -321,14 +326,24 @@ export function removeAllStyleSheets(): void {
             globalFontStyle.remove();
         }
 
+        // 추가 스타일 속성 제거
         const fontStyles = document.querySelectorAll(
-            '[style*="font-size"], [style*="font-weight"]',
+            '[style*="font-size"], [style*="font-weight"], [style*="background-color"], [style*="color"]',
         );
         fontStyles.forEach((el) => {
             const htmlEl = el as HTMLElement;
             htmlEl.style.removeProperty("font-size");
             htmlEl.style.removeProperty("font-weight");
+            htmlEl.style.removeProperty("background-color");
+            htmlEl.style.removeProperty("color");
+            htmlEl.style.removeProperty("border-color");
         });
+
+        // html과 body 요소의 스타일 직접 초기화
+        document.documentElement.style.backgroundColor = "";
+        document.documentElement.style.color = "";
+        document.body.style.backgroundColor = "";
+        document.body.style.color = "";
 
         checkExtensionState();
     });
