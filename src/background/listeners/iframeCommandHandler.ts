@@ -14,8 +14,9 @@ export async function handleIframeToggle(): Promise<void> {
                 func: function () {
                     try {
                         const iframeId = "floating-button-extension-iframe";
-                        const existingIframe =
-                            document.getElementById(iframeId);
+                        const existingIframe = document.getElementById(
+                            iframeId,
+                        ) as HTMLIFrameElement;
 
                         // 현재 iframeInvisible 상태 확인
                         chrome.storage.local.get(
@@ -121,8 +122,9 @@ export async function handleIframeMessage(visible: boolean): Promise<void> {
                 func: function (shouldBeVisible: boolean) {
                     try {
                         const iframeId = "floating-button-extension-iframe";
-                        const existingIframe =
-                            document.getElementById(iframeId);
+                        const existingIframe = document.getElementById(
+                            iframeId,
+                        ) as HTMLIFrameElement;
 
                         if (shouldBeVisible) {
                             if (!existingIframe) {
@@ -181,12 +183,42 @@ export async function handleIframeMessage(visible: boolean): Promise<void> {
                                 });
                             }
                         } else {
-                            if (existingIframe) {
-                                existingIframe.remove();
-                                chrome.storage.local.set({
-                                    iframeInvisible: true,
-                                    iframeHiddenByAltA: false,
-                                });
+                            if (
+                                existingIframe &&
+                                existingIframe.contentWindow
+                            ) {
+                                // iframe이 닫힐 때 제거하는 이벤트 리스너 추가
+                                const handleClose = function (
+                                    event: MessageEvent,
+                                ) {
+                                    if (
+                                        event.source !==
+                                        existingIframe.contentWindow
+                                    ) {
+                                        return;
+                                    }
+                                    if (
+                                        event.data.type === "RESIZE_IFRAME" &&
+                                        !event.data.isOpen
+                                    ) {
+                                        existingIframe.remove();
+                                        window.removeEventListener(
+                                            "message",
+                                            handleClose,
+                                        );
+                                        chrome.storage.local.set({
+                                            iframeInvisible: true,
+                                            iframeHiddenByAltA: false,
+                                        });
+                                    }
+                                };
+                                window.addEventListener("message", handleClose);
+
+                                // iframe을 닫는 메시지 전송
+                                existingIframe.contentWindow.postMessage(
+                                    { type: "RESIZE_IFRAME", isOpen: false },
+                                    "*",
+                                );
                             }
                         }
                     } catch (err) {
