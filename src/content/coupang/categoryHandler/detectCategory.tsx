@@ -1,68 +1,49 @@
 export const detectCategoryType = (): Promise<
     "food" | "cosmetic" | "health" | null
 > => {
+    console.log("[voim] 카테고리 감지 시작");
+
     return new Promise((resolve) => {
-        console.log("[voim] 카테고리 감지 시작");
-
         const detect = () => {
-            const breadcrumbEl = document.querySelector(
-                ".breadcrumb, #breadcrumb",
-            );
+            const el = document.querySelector(".breadcrumb, #breadcrumb");
+            if (!el) return null;
 
-            if (!breadcrumbEl) {
-                console.log("[voim] breadcrumb 요소가 아직 존재하지 않음");
-                return null;
-            }
+            const text = (el.textContent || "").replace(/\s+/g, "");
+            console.log("[voim] breadcrumb 텍스트:", text);
 
-            const rawText = breadcrumbEl.textContent || "";
-            const cleanedText = rawText.replace(/\s+/g, "");
-            console.log("[voim] breadcrumb 텍스트:", cleanedText);
-
-            if (
-                cleanedText.includes("식품") &&
-                !cleanedText.includes("건강식품")
-            ) {
-                console.log("[voim] 감지된 카테고리: food");
+            if (text.includes("식품") && !text.includes("건강식품"))
                 return "food";
-            }
-            if (cleanedText.includes("뷰티")) {
-                console.log("[voim] 감지된 카테고리: cosmetic");
-                return "cosmetic";
-            }
+            if (text.includes("뷰티")) return "cosmetic";
             if (
-                cleanedText.includes("건강") &&
-                !cleanedText.includes("건강가전") &&
-                !cleanedText.includes("건강도서")
-            ) {
-                console.log("[voim] 감지된 카테고리: health");
+                text.includes("건강") &&
+                !text.includes("건강가전") &&
+                !text.includes("건강도서")
+            )
                 return "health";
-            }
-
-            console.log("[voim] 감지된 카테고리 없음");
             return null;
         };
 
-        const found = detect();
-        if (found) {
-            resolve(found);
+        const result = detect();
+        if (result) {
+            resolve(result);
             return;
         }
 
         const observer = new MutationObserver(() => {
-            const result = detect();
-            if (result) {
-                console.log("[voim] MutationObserver 통해 감지 성공:", result);
+            const found = detect();
+            if (found) {
+                console.log("[voim] MutationObserver 통해 감지됨:", found);
                 observer.disconnect();
-                resolve(result);
+                resolve(found);
             }
         });
 
         observer.observe(document.body, { childList: true, subtree: true });
 
         setTimeout(() => {
-            console.warn("[voim] 10초 안에 breadcrumb을 감지하지 못함");
+            console.warn("[voim] 카테고리 감지 실패 (타임아웃)");
             observer.disconnect();
             resolve(null);
-        }, 10000);
+        }, 3000);
     });
 };

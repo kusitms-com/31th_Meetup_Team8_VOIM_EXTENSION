@@ -44,7 +44,7 @@ initDomObserver(() => true);
 
 processImages();
 
-export const observeAndStoreCategoryType = () => {
+export const observeAndStoreCategoryType = async () => {
     const isCoupangProductPage =
         /^https:\/\/www\.coupang\.com\/vp\/products\/[0-9]+/.test(
             location.href,
@@ -55,26 +55,20 @@ export const observeAndStoreCategoryType = () => {
         return;
     }
 
-    const observer = new MutationObserver(() => {
-        const type = detectCategoryType();
-        if (type !== null) {
-            chrome.storage.local.set({ "voim-category-type": type });
-            clearTimeout(timeoutId);
-            observer.disconnect();
+    const category = await detectCategoryType();
+    console.log("[voim] 감지된 카테고리:", category);
+
+    chrome.storage.local.set({ "voim-category-type": category }, () => {
+        if (chrome.runtime.lastError) {
+            console.error(
+                "[voim] 카테고리 저장 실패:",
+                chrome.runtime.lastError.message,
+            );
+        } else {
+            console.log("[voim] 카테고리 저장 성공:", category);
         }
     });
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
-
-    const timeoutId = setTimeout(() => {
-        chrome.storage.local.set({ "voim-category-type": null });
-        observer.disconnect();
-    }, 1500);
 };
-
 observeAndStoreCategoryType();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
