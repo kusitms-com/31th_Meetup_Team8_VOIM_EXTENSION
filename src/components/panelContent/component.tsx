@@ -9,9 +9,13 @@ import { menuItems } from "@src/constants/menuItems";
 
 interface PanelContentProps {
     menuId: string | null;
+    setMenuId: (id: string | null) => void;
 }
 
-export const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
+export const PanelContent: React.FC<PanelContentProps> = ({
+    menuId,
+    setMenuId,
+}) => {
     const panelRef = useRef<HTMLDivElement>(null);
     const { firstFocusableRef, lastFocusableRef, isPanelFocused } =
         useFocusManagement(menuId, panelRef);
@@ -19,15 +23,15 @@ export const PanelContent: React.FC<PanelContentProps> = ({ menuId }) => {
     const renderPanelContent = () => {
         switch (menuId) {
             case "high-contrast":
-                return <ControlMode />;
+                return <ControlMode onClose={() => setMenuId(null)} />;
             case "font":
-                return <ControlFont />;
+                return <ControlFont onClose={() => setMenuId(null)} />;
             case "shortcut":
                 return <ShortcutTab />;
             case "my-info":
                 return <MyInfo />;
             case "service":
-                return <ControlService />;
+                return <ControlService onClose={() => setMenuId(null)} />;
             default:
                 return null;
         }
