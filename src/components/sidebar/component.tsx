@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "../closeButton/component";
 import { InfoComponent } from "@src/components/productComponents/infoComponent";
-import { observeBreadcrumbFoodAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerFood";
-import { observeBreadcrumbCosmeticAndRender } from "@src/content/coupang/categoryHandler/categoryHandlerCosmetic";
 import { HealthComponent } from "@src/components/productComponents/healthComponent";
 import { ReviewSummaryComponent } from "../productComponents/ReviewSummaryComponent";
 import CartSummaryComponent from "../productComponents/CartSummaryComponent";
+import { FoodComponent } from "../productComponents/foodComponent";
+import { CosmeticComponent } from "../productComponents/cosmeticComponent";
 
 interface ModalProps {
     isOpen: boolean;
@@ -59,27 +59,6 @@ export function Sidebar({
                   : "detail",
         );
     }, [type, isCartPage]);
-
-    const foodMountRef = useRef<HTMLDivElement>(null);
-    const cosmeticMountRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (
-            isOpen &&
-            selectedTab === "ingredient" &&
-            type &&
-            type !== "none" &&
-            !isCartPage
-        ) {
-            if (type === "food" && foodMountRef.current) {
-                observeBreadcrumbFoodAndRender(foodMountRef.current);
-            }
-            if (type === "cosmetic" && cosmeticMountRef.current) {
-                observeBreadcrumbCosmeticAndRender(cosmeticMountRef.current);
-            }
-        }
-    }, [isOpen, selectedTab, type, isCartPage]);
-
     useEffect(() => {
         if (!isCartPage) {
             // 리뷰 요약 데이터 수신
@@ -130,18 +109,16 @@ export function Sidebar({
                 if (!type || type === "none") return null;
                 switch (type) {
                     case "food":
-                        return <div ref={foodMountRef} className="w-full" />;
+                        return <FoodComponent />;
                     case "cosmetic":
-                        return (
-                            <div ref={cosmeticMountRef} className="w-full" />
-                        );
+                        return <CosmeticComponent />;
                     case "health":
                         return <HealthComponent />;
                     default:
                         return null;
                 }
             case "detail":
-                return <InfoComponent />;
+                return <InfoComponent categoryType={type} />;
             case "review":
                 return (
                     <ReviewSummaryComponent

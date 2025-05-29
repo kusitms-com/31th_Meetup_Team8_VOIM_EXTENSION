@@ -7,6 +7,27 @@ import { IconButton } from "@src/components/IconButton";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { ContentBox } from "@src/components/contentBox";
 import { CloseIcon } from "@src/components/icons/CloseIcon";
+export enum AllergyType {
+    EGG = "EGG", // 계란
+    MILK = "MILK", // 우유
+    BUCKWHEAT = "BUCKWHEAT", // 메밀
+    PEANUT = "PEANUT", // 땅콩
+    SOYBEAN = "SOYBEAN", // 대두
+    WHEAT = "WHEAT", // 밀
+    PINE_NUT = "PINE_NUT", // 잣
+    WALNUT = "WALNUT", // 호두
+    CRAB = "CRAB", // 게
+    SHRIMP = "SHRIMP", // 새우
+    SQUID = "SQUID", // 오징어
+    MACKEREL = "MACKEREL", // 고등어
+    SHELLFISH = "SHELLFISH", // 조개류
+    PEACH = "PEACH", // 복숭아
+    TOMATO = "TOMATO", // 토마토
+    CHICKEN = "CHICKEN", // 닭고기
+    PORK = "PORK", // 돼지고기
+    BEEF = "BEEF", // 쇠고기
+    SULFITE = "SULFITE", // 아황산류
+}
 
 const allergyData = {
     식물성: ["메밀", "대두", "밀", "땅콩", "잣", "호두", "토마토", "복숭아"],
@@ -14,6 +35,27 @@ const allergyData = {
     해산물: ["게", "새우", "오징어", "고등어", "조개류"],
     "첨가물 및 기타": ["아황산류"],
 } as const;
+const allergyNameToEnumMap: Record<string, AllergyType> = {
+    계란: AllergyType.EGG,
+    우유: AllergyType.MILK,
+    메밀: AllergyType.BUCKWHEAT,
+    땅콩: AllergyType.PEANUT,
+    대두: AllergyType.SOYBEAN,
+    밀: AllergyType.WHEAT,
+    잣: AllergyType.PINE_NUT,
+    호두: AllergyType.WALNUT,
+    게: AllergyType.CRAB,
+    새우: AllergyType.SHRIMP,
+    오징어: AllergyType.SQUID,
+    고등어: AllergyType.MACKEREL,
+    조개류: AllergyType.SHELLFISH,
+    복숭아: AllergyType.PEACH,
+    토마토: AllergyType.TOMATO,
+    닭고기: AllergyType.CHICKEN,
+    돼지고기: AllergyType.PORK,
+    쇠고기: AllergyType.BEEF,
+    아황산류: AllergyType.SULFITE,
+};
 
 type AllergyCategory = keyof typeof allergyData;
 
@@ -113,6 +155,9 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
 
                 <BaseFillButton
                     onClick={() => {
+                        const allergyEnumArray = selectedAllergies
+                            .map((name) => allergyNameToEnumMap[name])
+                            .filter(Boolean) as AllergyType[];
                         const menuButtons = document.querySelectorAll(
                             '[data-testid="menubar-content"] button',
                         );
@@ -128,7 +173,7 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
 
                         chrome.storage.local.set(
                             {
-                                Allergies: selectedAllergies,
+                                Allergies: allergyEnumArray,
                             },
                             () => {
                                 onComplete?.();

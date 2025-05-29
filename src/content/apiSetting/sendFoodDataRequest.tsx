@@ -17,13 +17,18 @@ interface FoodAPIResponse {
     message?: string;
     data?: {
         allergyTypes: string[];
-        overRecommendationNutrients: Nutrient[];
+        nutrientResponse: {
+            nutrientReferenceAmount: number;
+            overRecommendationNutrients: Nutrient[];
+        };
     };
 }
-
 export const sendFoodDataRequest = (
     payload: FoodRequestPayload,
-): Promise<FoodAPIResponse["data"]> => {
+): Promise<{
+    allergyTypes: string[];
+    overRecommendationNutrients: Nutrient[];
+}> => {
     return new Promise((resolve, reject) => {
         chrome.runtime.sendMessage(
             {
@@ -44,13 +49,19 @@ export const sendFoodDataRequest = (
                     return reject(new Error(`API 실패 status: ${res.status}`));
                 }
 
-                const actual = res.data?.data;
+                const data = res.data?.data;
 
-                if (!actual) {
-                    return reject(new Error("data.data 필드가 없습니다"));
+                if (
+                    !data ||
+                    !data.nutrientResponse ||
+                    !Array.isArray(data.allergyTypes)
+                ) {
+                    return reject(new Error("올바르지 않은 응답 형식"));
                 }
 
-                const { allergyTypes, overRecommendationNutrients } = actual;
+                const { allergyTypes, nutrientResponse } = data;
+                const overRecommendationNutrients =
+                    nutrientResponse.overRecommendationNutrients;
 
                 const nutrientsValid =
                     Array.isArray(overRecommendationNutrients) &&
@@ -60,14 +71,17 @@ export const sendFoodDataRequest = (
                             typeof n.percentage === "number",
                     );
 
-                const allergiesValid =
-                    Array.isArray(allergyTypes) &&
-                    allergyTypes.every((item) => typeof item === "string");
+                const allergiesValid = allergyTypes.every(
+                    (item) => typeof item === "string",
+                );
 
                 if (nutrientsValid && allergiesValid) {
-                    resolve(actual);
+                    resolve({
+                        allergyTypes,
+                        overRecommendationNutrients,
+                    });
                 } else {
-                    console.error(" allergyTypes or nutrients 타입 오류", {
+                    console.error("응답 검증 실패:", {
                         allergyTypes,
                         overRecommendationNutrients,
                     });

@@ -1,179 +1,213 @@
 import React, { useEffect, useState } from "react";
+import { sendHealthDataRequest } from "../../content/apiSetting/sendHealthDataRequest";
+import Loading from "../Loading/component";
+
+const healthEffectMap: Record<string, string> = {
+    IMMUNE: "면역기능",
+    SKIN: "피부건강",
+    BLOOD: "혈액건강",
+    BODY_FAT: "체지방 감소",
+    BLOOD_SUGAR: "혈당조절",
+    MEMORY: "기억력",
+    ANTIOXIDANT: "항산화",
+    GUT: "장건강",
+    LIVER: "간건강",
+    EYE: "눈건강",
+    JOINT: "관절건강",
+    SLEEP: "수면건강",
+    STRESS_FATIGUE: "스트레스/피로개선",
+    MENOPAUSE: "갱년기건강",
+    PROSTATE: "전립선건강",
+    URINARY: "요로건강",
+    ENERGY: "에너지대사",
+    BONE: "뼈건강",
+    MUSCLE: "근력/운동수행능력",
+    COGNITION: "인지기능",
+    STOMACH: "위건강",
+    ORAL: "구강건강",
+    HAIR: "모발건강",
+    GROWTH: "어린이 성장",
+    BLOOD_PRESSURE: "혈압",
+    URINATION: "배뇨건강",
+    FOLATE: "엽산대사",
+    NOSE: "코건강",
+    MALE_HEALTH: "남성건강",
+    ELECTROLYTE: "전해질 균형",
+    DIETARY_FIBER: "식이섬유",
+    ESSENTIAL_FATTY_ACID: "필수지방산",
+};
 
 export const HealthComponent = () => {
-    const [healthEffects, setHealthEffects] = useState<string[] | null>(null);
-    const [showAll, setShowAll] = useState(false);
+    const [healthTypes, setHealthTypes] = useState<string[] | null>(null);
 
     const commonTextStyle: React.CSSProperties = {
         fontFamily: "KoddiUD OnGothic",
         fontSize: "28px",
-        fontStyle: "normal",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "left",
+    };
+    const commonTextStyle24: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "24px",
         fontWeight: 700,
         lineHeight: "150%",
         textAlign: "left",
     };
 
+    const getProductTitle = (): Promise<string> => {
+        return new Promise((resolve) => {
+            chrome.runtime.sendMessage({ type: "GET_PRODUCT_TITLE" }, (res) => {
+                if (chrome.runtime.lastError || !res?.title) {
+                    console.warn("[voim][HealthComponent] title 가져오기 실패");
+                    return resolve("");
+                }
+                resolve(res.title);
+            });
+        });
+    };
+
     useEffect(() => {
-        const fetchData = async (targetEl: Element) => {
-            const productId =
-                window.location.href.match(/products\/(\d+)/)?.[1];
-            if (!productId) {
-                return;
+        const fetchData = async () => {
+            try {
+                const { birthYear, gender, Allergies } =
+                    await chrome.storage.local.get([
+                        "birthYear",
+                        "gender",
+                        "Allergies",
+                    ]);
+
+                if (!birthYear || !gender) return;
+
+                const title = await getProductTitle();
+                const response = await new Promise<{
+                    html: string;
+                    productId: string;
+                }>((resolve, reject) => {
+                    chrome.runtime.sendMessage(
+                        { type: "FETCH_VENDOR_HTML" },
+                        (res) => {
+                            if (!res?.html?.trim() || !res?.productId) {
+                                let retries = 10;
+                                const interval = setInterval(() => {
+                                    chrome.runtime.sendMessage(
+                                        { type: "FETCH_VENDOR_HTML" },
+                                        (retryRes) => {
+                                            if (
+                                                retryRes?.html?.trim() &&
+                                                retryRes?.productId
+                                            ) {
+                                                clearInterval(interval);
+                                                resolve(retryRes);
+                                            } else if (--retries === 0) {
+                                                clearInterval(interval);
+                                                reject(
+                                                    new Error(
+                                                        "HTML 또는 productId 누락",
+                                                    ),
+                                                );
+                                            }
+                                        },
+                                    );
+                                }, 500);
+                            } else {
+                                resolve(res);
+                            }
+                        },
+                    );
+                });
+
+                const payload = {
+                    productId: response.productId,
+                    title,
+                    html: response.html,
+                    birthYear: Number(birthYear),
+                    gender: gender.toUpperCase(),
+                    allergies: Allergies || [],
+                };
+
+                console.log("[voim] HEALTH API 요청 payload:", payload);
+
+                const result = await sendHealthDataRequest(payload);
+                console.log("[voim] HEALTH API 응답:", result);
+                setHealthTypes(result || []);
+            } catch (e) {
+                console.error("[voim] HEALTH API 실패:", e);
             }
-
-            const { birthYear, gender } = await chrome.storage.local.get([
-                "birthYear",
-                "gender",
-            ]);
-
-            const rawHtml = targetEl.outerHTML
-                .replace(/\sonerror=\"[^\"]*\"/g, "")
-                .replace(/\n/g, "")
-                .trim();
-
-            chrome.runtime.sendMessage(
-                {
-                    type: "FETCH_HEALTH_DATA",
-                    payload: {
-                        productId,
-                        title: document.title,
-                        html: rawHtml,
-                        birthYear: Number(birthYear),
-                        gender: gender?.toUpperCase() || "UNKNOWN",
-                        allergies: [],
-                    },
-                },
-                (res) => {
-                    const data = res?.data?.types || [];
-                    setHealthEffects(data);
-                    if (res?.data?.types) {
-                        setHealthEffects(res.data.types);
-                    }
-                },
-            );
         };
 
-        const targetEl =
-            document.querySelector(".vendor-item") ||
-            document.querySelector(".product-detail-content") ||
-            document.querySelector(".prod-image");
-
-        if (targetEl) {
-            fetchData(targetEl);
-        } else {
-            const observer = new MutationObserver(() => {
-                const el =
-                    document.querySelector(".vendor-item") ||
-                    document.querySelector(".product-detail-content") ||
-                    document.querySelector(".prod-image");
-                if (el) {
-                    observer.disconnect();
-                    fetchData(el);
-                }
-            });
-            observer.observe(document.body, { childList: true, subtree: true });
-            return () => observer.disconnect();
-        }
+        fetchData();
     }, []);
 
-    if (!healthEffects) {
+    if (healthTypes === null) {
         return (
             <div
                 style={{
                     padding: "16px",
-                    borderRadius: "20px",
-                    width: "618px",
-                    border: "4px solid #8914FF",
-                    backgroundColor: "#ffffff",
-                    position: "absolute",
-                    top: "610px",
-                    right: "280px",
-                    zIndex: 1,
-                    fontFamily: "KoddiUDOnGothic",
-                    textAlign: "center",
-                    fontSize: "20px",
-                    fontWeight: "bold",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "320px",
                 }}
             >
-                제품 효능을 분석 중입니다...
+                <div style={{ width: "260px", height: "243px" }}>
+                    <Loading />
+                </div>
+                <div
+                    style={{
+                        marginTop: "12px",
+                        ...commonTextStyle24,
+                        color: "#505156",
+                    }}
+                >
+                    제품 정보를 분석 중입니다.
+                </div>
             </div>
         );
     }
-
-    const visibleItems = showAll ? healthEffects : healthEffects.slice(0, 3);
 
     return (
         <div
             style={{
                 padding: "16px",
-                borderRadius: "20px",
-                width: "618px",
-                border: "4px solid #8914FF",
                 backgroundColor: "#ffffff",
-                position: "absolute",
-                top: "610px",
-                right: "280px",
-                zIndex: 1,
                 fontFamily: "KoddiUDOnGothic",
             }}
         >
-            <p style={commonTextStyle}>[건강기능식품] 제품 효능</p>
-            <p
-                style={{
-                    marginTop: "12px",
-                    fontFamily: "KoddiUD OnGothic",
-                    fontSize: "24px",
-                    fontStyle: "normal",
-                    fontWeight: 700,
-                    lineHeight: "150%",
-                    textAlign: "left",
-                }}
-            >
-                아래의 {healthEffects.length}가지 기능성 효능을 가진 제품입니다.
-                <br />
-                섭취 시 참고해주세요.
+            <p style={commonTextStyle}>
+                해당 제품의 기능성 효능 {healthTypes.length}가지
             </p>
-
-            <div
-                style={{
-                    backgroundColor: "#F5F7FB",
-                    borderRadius: "12px",
-                    padding: "16px",
-                    margin: "16px 0",
-                }}
-            >
-                {visibleItems.map((item, idx) => (
-                    <div
-                        key={idx}
-                        style={{
-                            fontWeight: 700,
-                            fontSize: "24px",
-                            marginBottom:
-                                idx < visibleItems.length - 1 ? "12px" : "0",
-                        }}
-                    >
-                        {item}
-                    </div>
-                ))}
-            </div>
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setShowAll(!showAll);
-                }}
-            >
-                {showAll ? "전체 보기 닫기" : "전체 보기"}
-            </button>
+            <div style={{ margin: "16px 0" }} />
+            {healthTypes.length > 0 && (
+                <div
+                    style={{
+                        backgroundColor: "#F5F7FB",
+                        padding: "16px",
+                        marginTop: "12px",
+                        borderRadius: "12px",
+                    }}
+                >
+                    {healthTypes.map((item, idx) => (
+                        <div
+                            key={idx}
+                            style={{
+                                backgroundColor: "#F5F7FB",
+                                ...commonTextStyle24,
+                                marginBottom:
+                                    idx < healthTypes.length - 1 ? "12px" : "0",
+                                borderBottom:
+                                    idx < healthTypes.length - 1
+                                        ? "1px solid #EAEDF4"
+                                        : "none",
+                                paddingBottom: "12px",
+                            }}
+                        >
+                            {healthEffectMap[item] || item}
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

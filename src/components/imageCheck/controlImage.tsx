@@ -110,9 +110,7 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                             setShowModal(true);
                         }}
                     >
-                        이미지 분석 클릭
-                        <br />
-                        단축키: ALT + I
+                        이미지 분석
                     </div>
                 )}
             </div>

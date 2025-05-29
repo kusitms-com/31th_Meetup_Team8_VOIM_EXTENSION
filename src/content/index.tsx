@@ -44,7 +44,7 @@ initDomObserver(() => true);
 
 processImages();
 
-export const observeAndStoreCategoryType = () => {
+export const observeAndStoreCategoryType = async () => {
     const isCoupangProductPage =
         /^https:\/\/www\.coupang\.com\/vp\/products\/[0-9]+/.test(
             location.href,
@@ -55,6 +55,19 @@ export const observeAndStoreCategoryType = () => {
         return;
     }
 
+    const category = await detectCategoryType();
+    console.log("[voim] 감지된 카테고리:", category);
+
+    chrome.storage.local.set({ "voim-category-type": category }, () => {
+        if (chrome.runtime.lastError) {
+            console.error(
+                "[voim] 카테고리 저장 실패:",
+                chrome.runtime.lastError.message,
+            );
+        } else {
+            console.log("[voim] 카테고리 저장 성공:", category);
+        }
+    });
     const observer = new MutationObserver(() => {
         const type = detectCategoryType();
         if (type !== "none") {
@@ -74,28 +87,69 @@ export const observeAndStoreCategoryType = () => {
         observer.disconnect();
     }, 1500);
 };
-
 observeAndStoreCategoryType();
 
+const waitForEl = (
+    selector: string,
+    timeout = 10000,
+): Promise<Element | null> => {
+    return new Promise((resolve) => {
+        const el = document.querySelector(selector);
+        if (el) return resolve(el);
+
+        const observer = new MutationObserver(() => {
+            const found = document.querySelector(selector);
+            if (found) {
+                observer.disconnect();
+                resolve(found);
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        setTimeout(() => {
+            observer.disconnect();
+            resolve(null);
+        }, timeout);
+    });
+};
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "GET_PRODUCT_TITLE") {
+        const titleEl = document.querySelector("h1.prod-buy-header__title");
+        const title = titleEl?.textContent?.trim() ?? "";
+        console.debug("[voim][content] 추출된 title:", title);
+        sendResponse({ title });
+        return true;
+    }
+    return false;
+});
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.type === "GET_VENDOR_HTML") {
-        try {
-            const vendorEl = document.querySelector(".vendor-item");
-            const rawHtml =
-                vendorEl?.outerHTML
-                    ?.replace(/\sonerror=\"[^\"]*\"/g, "")
-                    .replace(/\n/g, "")
-                    .trim() ?? "";
+        waitForEl(".vendor-item").then((vendorEl) => {
+            if (!vendorEl) {
+                console.warn("[voim][content] .vendor-item 감지 실패");
+                sendResponse({ html: "", productId: "" });
+                return;
+            }
 
-            sendResponse({ html: rawHtml });
-        } catch (e) {
-            sendResponse({ html: "" });
-        }
+            const rawHtml = vendorEl.outerHTML
+                .replace(/\sonerror=\"[^\"]*\"/g, "")
+                .replace(/\n/g, "")
+                .trim();
+
+            const match = window.location.href.match(/products\/(\d+)/);
+            const productId = match?.[1] ?? "";
+
+            console.log("[voim][content] 감지 성공:", {
+                html: rawHtml.slice(0, 100),
+                productId,
+            });
+
+            sendResponse({ html: rawHtml, productId });
+        });
 
         return true;
     }
-
-    return false;
 });
 
 const isProductDetailPage = () => {

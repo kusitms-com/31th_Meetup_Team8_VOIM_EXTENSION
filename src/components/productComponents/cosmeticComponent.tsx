@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { sendCosmeticDataRequest } from "../../content/apiSetting/sendCosmeticDataRequest";
+import Loading from "../Loading/component";
 
 const INGREDIENT_KO_MAP: Record<string, string> = {
     avobenzone: "아보벤존",
@@ -25,76 +27,89 @@ const INGREDIENT_KO_MAP: Record<string, string> = {
 };
 
 export const CosmeticComponent = () => {
-    const [dangerIngredients, setDangerIngredients] = useState<string[]>([]);
-    const [allergyIngredients, setAllergyIngredients] = useState<string[]>([]);
-    const [dangerOpen, setDangerOpen] = useState(true);
-    const [allergyOpen, setAllergyOpen] = useState(false);
+    const [detectedIngredients, setDetectedIngredients] = useState<string[]>(
+        [],
+    );
     const [isLoading, setIsLoading] = useState(true);
 
     const commonTextStyle: React.CSSProperties = {
         fontFamily: "KoddiUD OnGothic",
         fontSize: "28px",
-        fontStyle: "normal",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "left",
+    };
+    const commonTextStyle24: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "24px",
         fontWeight: 700,
         lineHeight: "150%",
         textAlign: "left",
     };
 
     useEffect(() => {
-        const fetchData = async (vendorEl: Element) => {
+        const fetchData = async () => {
             try {
-                const productId =
-                    window.location.href.match(/products\/(\d+)/)?.[1];
-                if (!productId) {
-                    return;
-                }
+                const response = await new Promise<{
+                    html: string;
+                    productId: string;
+                }>((resolve, reject) => {
+                    chrome.runtime.sendMessage(
+                        { type: "FETCH_VENDOR_HTML" },
+                        (res) => {
+                            if (
+                                chrome.runtime.lastError ||
+                                !res?.html ||
+                                !res?.productId ||
+                                res.html.trim() === ""
+                            ) {
+                                let retries = 10;
+                                const interval = setInterval(() => {
+                                    chrome.runtime.sendMessage(
+                                        { type: "FETCH_VENDOR_HTML" },
+                                        (retryRes) => {
+                                            if (
+                                                retryRes?.html?.trim() &&
+                                                retryRes?.productId
+                                            ) {
+                                                clearInterval(interval);
+                                                resolve(retryRes);
+                                            } else if (--retries === 0) {
+                                                clearInterval(interval);
+                                                reject(
+                                                    new Error(
+                                                        "HTML 또는 productId 누락",
+                                                    ),
+                                                );
+                                            }
+                                        },
+                                    );
+                                }, 500);
+                            } else {
+                                resolve(res);
+                            }
+                        },
+                    );
+                });
 
-                const rawHtml = vendorEl.outerHTML
-                    .replace(/\sonerror=\"[^\"]*\"/g, "")
-                    .replace(/\n/g, "")
-                    .trim();
-
-                if (!rawHtml.includes("<img")) {
-                    return;
-                }
-
-                chrome.runtime.sendMessage(
-                    {
-                        type: "FETCH_COSMETIC_DATA",
-                        payload: { productId, html: rawHtml },
-                    },
-                    (res) => {
-                        const data = res?.data || {};
-                        const allList = Object.entries(data)
-                            .filter(([_, v]) => v === true)
-                            .map(([k]) => INGREDIENT_KO_MAP[k] || k);
-
-                        setDangerIngredients(allList.slice(0, 20));
-                        setAllergyIngredients(allList.slice(20));
-                        setIsLoading(false);
-                    },
+                const { html, productId } = response;
+                const detectedKeys = await sendCosmeticDataRequest({
+                    productId,
+                    html,
+                });
+                const detected = detectedKeys.map(
+                    (key) => INGREDIENT_KO_MAP[key] || key,
                 );
-            } catch (e) {
+
+                setDetectedIngredients(detected);
+                setIsLoading(false);
+            } catch (err) {
+                console.error("[voim] 화장품 성분 분석 실패:", err);
                 setIsLoading(false);
             }
         };
 
-        const vendorEl = document.querySelector(".vendor-item");
-
-        if (vendorEl) {
-            fetchData(vendorEl);
-        } else {
-            const observer = new MutationObserver(() => {
-                const target = document.querySelector(".vendor-item");
-                if (target) {
-                    observer.disconnect();
-                    fetchData(target);
-                }
-            });
-
-            observer.observe(document.body, { childList: true, subtree: true });
-            return () => observer.disconnect();
-        }
+        fetchData();
     }, []);
 
     if (isLoading) {
@@ -102,21 +117,25 @@ export const CosmeticComponent = () => {
             <div
                 style={{
                     padding: "16px",
-                    borderRadius: "20px",
-                    width: "618px",
-                    border: "4px solid #8914FF",
-                    backgroundColor: "#ffffff",
-                    position: "absolute",
-                    top: "610px",
-                    right: "280px",
-                    zIndex: 1,
-                    fontFamily: "KoddiUDOnGothic",
-                    textAlign: "center",
-                    fontSize: "20px",
-                    fontWeight: "bold",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "320px",
                 }}
             >
-                화장품 성분을 분석 중입니다...
+                <div style={{ width: "260px", height: "243px" }}>
+                    <Loading />
+                </div>
+                <div
+                    style={{
+                        marginTop: "12px",
+                        ...commonTextStyle24,
+                        color: "#505156",
+                    }}
+                >
+                    제품 정보를 분석 중입니다.
+                </div>
             </div>
         );
     }
@@ -125,21 +144,11 @@ export const CosmeticComponent = () => {
         <div
             style={{
                 padding: "16px",
-                borderRadius: "20px",
-                width: "618px",
-                border: "4px solid #8914FF",
                 backgroundColor: "#ffffff",
-                position: "absolute",
-                top: "580px",
-                right: "280px",
-                zIndex: 1,
                 fontFamily: "KoddiUDOnGothic",
             }}
         >
             <p style={commonTextStyle}>[화장품] 성분 안내</p>
-
-            <div style={{ borderTop: "1px solid #EAEDF4", margin: "16px 0" }} />
-
             <div
                 style={{
                     display: "flex",
@@ -148,140 +157,34 @@ export const CosmeticComponent = () => {
                     ...commonTextStyle,
                 }}
             >
-                <span>20가지 주의 성분</span>
-                <span>총 {dangerIngredients.length}개</span>
-            </div>
-
-            {dangerOpen && (
-                <div
-                    style={{
-                        backgroundColor: "#F5F7FB",
-                        borderRadius: "12px",
-                        padding: "16px",
-                        marginBottom: "16px",
-                    }}
-                >
-                    {dangerIngredients.length > 0 ? (
-                        dangerIngredients.map((item, idx) => (
+                {detectedIngredients.length > 0 && (
+                    <div
+                        style={{
+                            backgroundColor: "#F5F7FB",
+                            padding: "16px",
+                            marginTop: "12px",
+                            borderRadius: "12px",
+                        }}
+                    >
+                        {detectedIngredients.map((item, idx) => (
                             <div
                                 key={idx}
                                 style={{
-                                    fontWeight: 700,
-                                    fontSize: "24px",
+                                    display: "flex",
+                                    justifyContent: "space-between",
+                                    ...commonTextStyle24,
                                     marginBottom:
-                                        idx < dangerIngredients.length - 1
+                                        idx < detectedIngredients.length - 1
                                             ? "12px"
                                             : "0",
                                 }}
                             >
                                 {item}
                             </div>
-                        ))
-                    ) : (
-                        <div
-                            style={{
-                                fontWeight: 500,
-                                fontSize: "20px",
-                                color: "#666",
-                            }}
-                        >
-                            표시할 주의 성분이 없습니다.
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    marginBottom: "20px",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setDangerOpen(!dangerOpen);
-                }}
-            >
-                {dangerOpen ? "전체 보기 닫기" : "전체 보기"}
-            </button>
-
-            <div
-                style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: "12px",
-                    ...commonTextStyle,
-                }}
-            >
-                <span>알레르기 유발 성분</span>
-                <span>총 {allergyIngredients.length}개</span>
+                        ))}
+                    </div>
+                )}
             </div>
-
-            {allergyOpen && (
-                <div
-                    style={{
-                        backgroundColor: "#F5F7FB",
-                        borderRadius: "12px",
-                        padding: "16px",
-                        marginTop: "12px",
-                    }}
-                >
-                    {allergyIngredients.length > 0 ? (
-                        allergyIngredients.map((item, idx) => (
-                            <div
-                                key={idx}
-                                style={{
-                                    fontWeight: 600,
-                                    marginBottom:
-                                        idx < allergyIngredients.length - 1
-                                            ? "12px"
-                                            : "0",
-                                }}
-                            >
-                                {item}
-                            </div>
-                        ))
-                    ) : (
-                        <div
-                            style={{
-                                fontWeight: 500,
-                                fontSize: "20px",
-                                color: "#666",
-                            }}
-                        >
-                            표시할 알레르기 유발 성분이 없습니다.
-                        </div>
-                    )}
-                </div>
-            )}
-
-            <button
-                style={{
-                    width: "100%",
-                    padding: "12px 0",
-                    backgroundColor: "#8914FF",
-                    color: "white",
-                    borderRadius: "12px",
-                    fontWeight: "bold",
-                    fontSize: "16px",
-                    border: "none",
-                    marginBottom: "20px",
-                    cursor: "pointer",
-                }}
-                onClick={() => {
-                    setAllergyOpen(!allergyOpen);
-                }}
-            >
-                {allergyOpen
-                    ? "전체 보기 닫기"
-                    : "알레르기 유발 성분 전체 보기"}
-            </button>
         </div>
     );
 };

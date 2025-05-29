@@ -116,39 +116,57 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
-        const payload = message.payload;
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (!activeTab?.url) {
+                sendResponse({
+                    status: 400,
+                    error: "상품 페이지를 찾을 수 없습니다.",
+                });
+                return;
+            }
 
-        fetch("https://voim.store/api/v1/products/foods", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                logger.debug("FOOD API 응답 성공:", data);
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "FOOD_DATA_RESPONSE",
-                        data,
+            const productId = activeTab.url.match(/vp\/products\/(\d+)/)?.[1];
+            if (!productId) {
+                sendResponse({
+                    status: 400,
+                    error: "상품 ID를 찾을 수 없습니다.",
+                });
+                return;
+            }
+
+            const payload = {
+                ...message.payload,
+                productId,
+            };
+
+            fetch("https://voim.store/api/v1/products/foods", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            }).then(async (res) => {
+                const text = await res.text();
+                console.log("[voim] 응답 상태 코드:", res.status);
+                console.log("[voim] 응답 원문:", text);
+                try {
+                    const json = JSON.parse(text);
+                    if (res.ok) {
+                        sendResponse({ status: 200, data: json });
+                    } else {
+                        sendResponse({
+                            status: res.status,
+                            error: json?.message ?? "에러 발생",
+                        });
+                    }
+                } catch (err) {
+                    console.error("[voim] JSON 파싱 실패", text);
+                    sendResponse({
+                        status: res.status,
+                        error: "JSON 파싱 실패",
                     });
                 }
-                sendResponse({ status: 200, data });
-            })
-            .catch((err) => {
-                console.error(
-                    "[voim][background] FOOD API 요청 실패:",
-                    err.message,
-                );
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "FOOD_DATA_ERROR",
-                        error: err.message,
-                    });
-                }
-                sendResponse({ status: 500, error: err.message });
             });
+        });
 
         return true;
     }
@@ -256,26 +274,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // COSMETIC API
     if (message.type === "FETCH_COSMETIC_DATA") {
         const { productId, html } = message.payload;
+
         fetch("https://voim.store/api/v1/cosmetic", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ productId, html }),
         })
-            .then((res) => {
-                return res.json();
+            .then(async (res) => {
+                const json = await res.json();
+                console.log("[voim][background] 응답 원문:", json);
+                return json;
             })
             .then((data) => {
                 const raw = data?.data;
+
                 if (!raw || typeof raw !== "object") {
                     console.warn(
                         "[voim][background] data.data 형식 이상함:",
                         raw,
                     );
+                    sendResponse({
+                        type: "COSMETIC_DATA_ERROR",
+                        error: "API 응답 형식 오류",
+                    });
+                    return;
                 }
 
-                const parsedList = Object.entries(raw || {})
-                    .filter(([_, v]) => v === true)
-                    .map(([k]) => k);
+                sendResponse({
+                    type: "COSMETIC_DATA_RESPONSE",
+                    data: raw,
+                });
 
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
@@ -283,30 +311,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         data: raw,
                     });
                 }
-
-                sendResponse({
-                    type: "COSMETIC_DATA_RESPONSE",
-                    data: raw,
-                });
             })
             .catch((err) => {
-                console.error("[voim][background]  COSMETIC 요청 실패:", err);
+                console.error("[voim][background] COSMETIC 요청 실패:", err);
+                sendResponse({
+                    type: "COSMETIC_DATA_ERROR",
+                    error: err.message,
+                });
+
                 if (sender.tab?.id) {
                     chrome.tabs.sendMessage(sender.tab.id, {
                         type: "COSMETIC_DATA_ERROR",
                         error: err.message,
                     });
                 }
-                sendResponse({
-                    type: "COSMETIC_DATA_ERROR",
-                    error: err.message,
-                });
             });
 
         return true;
     }
 
-    // REVIEW SUMMARY API
+    // // REVIEW SUMMARY API
     if (message.type === "FETCH_REVIEW_SUMMARY") {
         const { productId, reviewRating, reviews } = message.payload;
 
@@ -425,4 +449,35 @@ chrome.action.onClicked.addListener(async (tab) => {
     } catch (error) {
         logger.error("툴바 아이콘 클릭 처리 중 오류 발생:", error);
     }
+});
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "GET_PRODUCT_TITLE") {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tabId = tabs[0]?.id;
+            if (!tabId) {
+                sendResponse({ title: "" });
+                return;
+            }
+
+            chrome.tabs.sendMessage(
+                tabId,
+                { type: "GET_PRODUCT_TITLE" },
+                (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            "[voim][background] title 요청 실패:",
+                            chrome.runtime.lastError.message,
+                        );
+                        sendResponse({ title: "" });
+                    } else {
+                        sendResponse(response);
+                    }
+                },
+            );
+        });
+
+        return true;
+    }
+
+    return false;
 });
