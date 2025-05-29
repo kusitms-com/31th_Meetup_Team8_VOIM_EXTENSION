@@ -9,6 +9,7 @@ import {
 } from "./constants";
 import { initCommandListeners } from "./listeners/commandListeners";
 import { handleModalToggle } from "./listeners/modalCommandHandler";
+import { handleIconToggle } from "./listeners/iconHandler";
 
 /**
  * 백그라운드 스크립트 초기화
@@ -420,7 +421,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 chrome.action.onClicked.addListener(async (tab) => {
     try {
         logger.debug("툴바 아이콘 클릭됨");
-        await handleModalToggle();
+        await handleIconToggle();
     } catch (error) {
         logger.error("툴바 아이콘 클릭 처리 중 오류 발생:", error);
     }

@@ -8,19 +8,29 @@ export async function handleStyleToggle(): Promise<void> {
     });
 
     if (tabs[0]?.id) {
-        const currentStyleState = await chrome.storage.local.get([
+        const result = await chrome.storage.local.get([
+            "iframeHiddenByAltV",
             "stylesEnabled",
         ]);
-        const isStylesEnabled = currentStyleState.stylesEnabled ?? true;
+        const isStylesEnabled = result.stylesEnabled ?? true;
+        const wasHiddenByAltV = result.iframeHiddenByAltV ?? false;
 
         settingsService.setStylesEnabled(isStylesEnabled);
 
         await chrome.scripting.executeScript({
             target: { tabId: tabs[0].id },
-            func: function () {
+            func: (wasHiddenByAltV: boolean) => {
                 const iframeId = "floating-button-extension-iframe";
                 const existingIframe = document.getElementById(iframeId);
-
+                if (!existingIframe && wasHiddenByAltV) {
+                    // ALT+V로 숨겨진 경우에는 iframe을 생성하지 않음
+                    chrome.storage.local.set({
+                        iframeInvisible: true,
+                        iframeHiddenByAltA: true,
+                        iframeHiddenByAltV: false,
+                    });
+                    return;
+                }
                 if (existingIframe) {
                     existingIframe.remove();
                     chrome.storage.local.set({
@@ -74,9 +84,11 @@ export async function handleStyleToggle(): Promise<void> {
                     chrome.storage.local.set({
                         iframeInvisible: false,
                         iframeHiddenByAltA: false,
+                        iframeHiddenByAltV: false,
                     });
                 }
             },
+            args: [wasHiddenByAltV],
         });
 
         if (isStylesEnabled) {

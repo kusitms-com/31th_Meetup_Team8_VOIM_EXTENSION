@@ -27,11 +27,17 @@ export async function handleIframeToggle(): Promise<void> {
                                 const hiddenByAltA =
                                     result.iframeHiddenByAltA ?? false;
 
+                                if (hiddenByAltA) {
+                                    // ALT+A로 숨긴 경우에는 iframe을 생성하지 않음
+                                    return;
+                                }
+
                                 if (existingIframe) {
                                     existingIframe.remove();
                                     chrome.storage.local.set({
                                         iframeInvisible: true,
-                                        iframeHiddenByAltA: true,
+                                        iframeHiddenByAltA: false,
+                                        iframeHiddenByAltV: true,
                                     });
                                 } else if (!hiddenByAltA) {
                                     // hiddenByAltA가 false일 때만 iframe 생성
@@ -93,6 +99,7 @@ export async function handleIframeToggle(): Promise<void> {
                                     chrome.storage.local.set({
                                         iframeInvisible: false,
                                         iframeHiddenByAltA: false,
+                                        iframeHiddenByAltV: false,
                                     });
                                 }
                             },
