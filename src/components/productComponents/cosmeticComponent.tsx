@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { sendCosmeticDataRequest } from "../../content/apiSetting/sendCosmeticDataRequest";
+import Loading from "../Loading/component";
 
 const INGREDIENT_KO_MAP: Record<string, string> = {
     avobenzone: "아보벤존",
@@ -116,11 +117,25 @@ export const CosmeticComponent = () => {
             <div
                 style={{
                     padding: "16px",
-                    textAlign: "center",
-                    ...commonTextStyle24,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "320px",
                 }}
             >
-                화장품 성분을 분석 중입니다...
+                <div style={{ width: "260px", height: "243px" }}>
+                    <Loading />
+                    <div
+                        style={{
+                            marginTop: "12px",
+                            ...commonTextStyle24,
+                            color: "#505156",
+                        }}
+                    >
+                        제품 정보를 분석 중입니다.
+                    </div>
+                </div>
             </div>
         );
     }
@@ -134,7 +149,6 @@ export const CosmeticComponent = () => {
             }}
         >
             <p style={commonTextStyle}>[화장품] 성분 안내</p>
-            <div style={{ borderTop: "1px solid #EAEDF4", margin: "16px 0" }} />
             <div
                 style={{
                     display: "flex",
