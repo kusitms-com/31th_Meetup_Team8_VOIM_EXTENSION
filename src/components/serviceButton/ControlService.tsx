@@ -9,9 +9,12 @@ const ControlService = () => {
     const [isLogoVisible, setIsLogoVisible] = useState(true);
 
     const stopExtension = () => {
-        chrome.runtime.sendMessage({ type: "STOP_EXTENSION" }, () => {
-            window.close();
-        });
+        chrome.runtime.sendMessage(
+            { type: "SET_STYLES_ENABLED", enabled: false },
+            () => {
+                window.close();
+            },
+        );
     };
 
     const toggleLogo = (visible: boolean) => {
