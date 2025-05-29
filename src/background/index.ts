@@ -140,20 +140,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload),
-            })
-                .then((res) => res.json())
-                .then((data) => {
-                    logger.debug("FOOD API 응답 성공:", data);
-                    sendResponse({ status: 200, data });
-                })
-                .catch((err) => {
-                    console.error(
-                        "[voim][background] FOOD API 요청 실패:",
-                        err.message,
-                    );
-                    sendResponse({ status: 500, error: err.message });
-                });
-            console.log("payload", payload);
+            }).then(async (res) => {
+                const text = await res.text();
+                console.log("[voim] 응답 상태 코드:", res.status);
+                console.log("[voim] 응답 원문:", text);
+                try {
+                    const json = JSON.parse(text);
+                    if (res.ok) {
+                        sendResponse({ status: 200, data: json });
+                    } else {
+                        sendResponse({
+                            status: res.status,
+                            error: json?.message ?? "에러 발생",
+                        });
+                    }
+                } catch (err) {
+                    console.error("[voim] JSON 파싱 실패", text);
+                    sendResponse({
+                        status: res.status,
+                        error: "JSON 파싱 실패",
+                    });
+                }
+            });
         });
 
         return true;

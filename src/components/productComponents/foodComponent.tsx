@@ -21,6 +21,27 @@ const nutrientNameMap: Record<string, string> = {
     VITAMIN_B: "비타민 B",
     VITAMIN_E: "비타민 E",
 };
+const allergyNameMap: Record<string, string> = {
+    EGG: "계란",
+    MILK: "우유",
+    BUCKWHEAT: "메밀",
+    PEANUT: "땅콩",
+    SOYBEAN: "대두",
+    WHEAT: "밀",
+    PINE_NUT: "잣",
+    WALNUT: "호두",
+    CRAB: "게",
+    SHRIMP: "새우",
+    SQUID: "오징어",
+    MACKEREL: "고등어",
+    SHELLFISH: "조개류",
+    PEACH: "복숭아",
+    TOMATO: "토마토",
+    CHICKEN: "닭고기",
+    PORK: "돼지고기",
+    BEEF: "쇠고기",
+    SULFITE: "아황산류",
+};
 
 export const FoodComponent = () => {
     console.log("FoodComponent 등장");
@@ -29,11 +50,18 @@ export const FoodComponent = () => {
     );
     const [allergyTypes, setAllergyTypes] = useState<string[] | null>(null);
     const [nutrientOpen, setNutrientOpen] = useState(true);
-    const [allergyOpen, setAllergyOpen] = useState(false);
+    const [allergyOpen, setAllergyOpen] = useState(true);
 
     const commonTextStyle: React.CSSProperties = {
         fontFamily: "KoddiUD OnGothic",
         fontSize: "28px",
+        fontWeight: 700,
+        lineHeight: "150%",
+        textAlign: "left",
+    };
+    const commonTextStyle24: React.CSSProperties = {
+        fontFamily: "KoddiUD OnGothic",
+        fontSize: "24px",
         fontWeight: 700,
         lineHeight: "150%",
         textAlign: "left",
@@ -53,17 +81,17 @@ export const FoodComponent = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const { birthYear, gender, allergies } =
+                const { birthYear, gender, Allergies } =
                     await chrome.storage.local.get([
                         "birthYear",
                         "gender",
-                        "allergies",
+                        "Allergies",
                     ]);
 
                 console.debug("[voim] 스토리지에서 가져온 값:", {
                     birthYear,
                     gender,
-                    allergies,
+                    Allergies,
                 });
 
                 if (!birthYear || !gender) return;
@@ -93,7 +121,7 @@ export const FoodComponent = () => {
                                                 retryRes?.html?.trim() &&
                                                 retryRes?.productId
                                             ) {
-                                                console.debug(
+                                                console.log(
                                                     "[voim] FETCH_VENDOR_HTML 재시도 성공:",
                                                     retryRes,
                                                 );
@@ -111,7 +139,7 @@ export const FoodComponent = () => {
                                     );
                                 }, 500);
                             } else {
-                                console.debug(
+                                console.log(
                                     "[voim] FETCH_VENDOR_HTML 성공 응답:",
                                     res,
                                 );
@@ -127,14 +155,14 @@ export const FoodComponent = () => {
                     html: response.html,
                     birthYear: Number(birthYear),
                     gender: gender.toUpperCase(),
-                    allergies: allergies,
+                    allergies: Allergies || [],
                 };
 
-                console.debug("[voim] FOOD API 요청 payload:", payload);
+                console.log("[voim] FOOD API 요청 payload:", payload);
 
                 const result = await sendFoodDataRequest(payload);
 
-                console.debug("[voim] FOOD API 응답:", result);
+                console.log("[voim] FOOD API 응답:", result);
 
                 setNutrientAlerts(result.overRecommendationNutrients || []);
                 setAllergyTypes(result.allergyTypes || []);
@@ -163,8 +191,7 @@ export const FoodComponent = () => {
                 style={{
                     padding: "16px",
                     textAlign: "center",
-                    fontSize: "20px",
-                    fontWeight: "bold",
+                    ...commonTextStyle24,
                 }}
             >
                 제품 정보를 분석 중입니다...
@@ -180,9 +207,7 @@ export const FoodComponent = () => {
                 fontFamily: "KoddiUDOnGothic",
             }}
         >
-            <p style={commonTextStyle}>
-                [식품] 영양 및 알레르기 유발 식재료 안내
-            </p>
+            <p style={commonTextStyle}>식품 영양 및 알러지 성분</p>
             <div style={{ margin: "16px 0" }} />
             <div
                 style={{
@@ -210,8 +235,7 @@ export const FoodComponent = () => {
                             style={{
                                 display: "flex",
                                 justifyContent: "space-between",
-                                fontSize: "24px",
-                                fontWeight: 700,
+                                ...commonTextStyle24,
                                 marginBottom:
                                     idx < nutrientAlerts.length - 1
                                         ? "12px"
@@ -252,14 +276,16 @@ export const FoodComponent = () => {
                         <div
                             key={idx}
                             style={{
-                                fontWeight: 600,
+                                display: "flex",
+                                justifyContent: "space-between",
+                                ...commonTextStyle24,
                                 marginBottom:
                                     idx < allergyTypes.length - 1
                                         ? "12px"
                                         : "0",
                             }}
                         >
-                            {item}
+                            {allergyNameMap[item] || item}
                         </div>
                     ))}
                 </div>
