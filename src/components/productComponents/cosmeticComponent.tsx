@@ -164,6 +164,7 @@ export const CosmeticComponent = () => {
                             padding: "16px",
                             marginTop: "12px",
                             borderRadius: "12px",
+                            width: "100%",
                         }}
                     >
                         {detectedIngredients.map((item, idx) => (
