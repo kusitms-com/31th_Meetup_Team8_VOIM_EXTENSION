@@ -69,7 +69,7 @@ const initAutoCollectReview = async () => {
         await new Promise((resolve) => setTimeout(resolve, 1000));
 
         const reviewSections = await waitForElement(
-            ".review-summary-survey-container ,.sdp-review__average__summary",
+            ".review-star-search-item-counts, .js_reviewArticleOptionStarAllCount",
         );
         if (!reviewSections) {
             console.error("[voim] 리뷰 섹션 로드 실패");
