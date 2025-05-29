@@ -15,18 +15,12 @@
 
 우리팀의 청일점인 최호를 위해 모두가 공주가 되었다…
 
-유일한 청일점 '호와 각자의 개성과 실력을 가진 **일곱 명의 프린세스들**이 함께 만들어가는 **조화롭고 유쾌한 팀워크** 를 상징합니다.
+유일한 청일점 호와 각자의 개성과 실력을 가진 **일곱 명의 프린세스들**이 함께 만들어가는 **조화롭고 유쾌한 팀워크** 를 상징합니다.
 
 ![팀소개](https://github.com/user-attachments/assets/6b7b13ab-d90c-4712-9347-811c972593a0)
 
-# VOIM 소개
+<img width="1920" alt="KakaoTalk_Photo_2025-05-29-22-55-04" src="https://github.com/user-attachments/assets/c1123590-aff7-4e90-bcf2-bb1c264bb3bb" />
 
-## 💽 ERD
-![erd](https://github.com/user-attachments/assets/61ff16b0-7b29-4b45-b4a6-6e5c6f6cd0e7)
-## 📁 System Architecture
-![KakaoTalk_Photo_2025-05-29-21-49-52](https://github.com/user-attachments/assets/dcda7b30-0e83-4f84-b03b-6b66e1824fcd)
-## 📁 API 명세서 
-[Swagger](https://voim.store/api/swagger-ui/index.html#/)
 ## 🧩 주요 기능
 
 | **기능 명**             | **설명** |
@@ -41,6 +35,13 @@
 | 성분 안내 기능          | 성분이 중요한 식품, 화장품, 건강기능식품에 한하여 다음과 같은 정보를 제공합니다: <br><br>**[식품]**<br>- 상품의 특정 영양성분(하루 권장치 기준 40% 이상)이 포함되어 있을 경우 주의표시를 제공합니다.<br>- 상품에 사용자가 입력한 알레르기가 있을 경우 강조해 제공합니다.<br><br>**[화장품]**<br>- 상품에 20가지 주의성분 및 알레르기 유발 성분이 포함되어 있을 경우 안내합니다.<br><br>**[건강기능식품]**<br>- 해당 건강기능식품의 성분이 제공하는 효능에 대한 정보를 제공합니다. |
 | 장바구니 요약           | 장바구니에 담긴 상품의 이름, 수량, 가격 등 핵심 정보를 요약하여 정리해 보여줍니다. |
 
+# VOIM DEVELOPMENT
+## 💽 ERD
+![erd](https://github.com/user-attachments/assets/61ff16b0-7b29-4b45-b4a6-6e5c6f6cd0e7)
+## 📁 System Architecture
+![KakaoTalk_Photo_2025-05-29-21-49-52](https://github.com/user-attachments/assets/dcda7b30-0e83-4f84-b03b-6b66e1824fcd)
+## 📁 API 명세서 
+[Swagger](https://voim.store/api/swagger-ui/index.html#/)
 ## 🛠️ 기술 스택
 
 ### Frontend
