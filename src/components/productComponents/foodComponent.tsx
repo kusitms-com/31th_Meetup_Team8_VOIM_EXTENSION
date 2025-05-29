@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { sendFoodDataRequest } from "../../content/apiSetting/sendFoodDataRequest";
+import Loading from "../Loading/component";
 
 interface Nutrient {
     nutrientType: string;
@@ -190,11 +191,25 @@ export const FoodComponent = () => {
             <div
                 style={{
                     padding: "16px",
-                    textAlign: "center",
-                    ...commonTextStyle24,
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    height: "320px",
                 }}
             >
-                제품 정보를 분석 중입니다...
+                <div style={{ width: "260px", height: "243px" }}>
+                    <Loading />
+                </div>
+                <div
+                    style={{
+                        marginTop: "12px",
+                        ...commonTextStyle24,
+                        color: "#505156",
+                    }}
+                >
+                    제품 정보를 분석 중입니다.
+                </div>
             </div>
         );
     }
