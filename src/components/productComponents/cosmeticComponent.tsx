@@ -126,15 +126,15 @@ export const CosmeticComponent = () => {
             >
                 <div style={{ width: "260px", height: "243px" }}>
                     <Loading />
-                    <div
-                        style={{
-                            marginTop: "12px",
-                            ...commonTextStyle24,
-                            color: "#505156",
-                        }}
-                    >
-                        제품 정보를 분석 중입니다.
-                    </div>
+                </div>
+                <div
+                    style={{
+                        marginTop: "12px",
+                        ...commonTextStyle24,
+                        color: "#505156",
+                    }}
+                >
+                    제품 정보를 분석 중입니다.
                 </div>
             </div>
         );
