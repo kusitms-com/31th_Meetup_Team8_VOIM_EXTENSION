@@ -111,8 +111,6 @@ export const ControlImage: React.FC<ControlImageProps> = ({ targetImg }) => {
                         }}
                     >
                         이미지 분석 클릭
-                        <br />
-                        단축키: ALT + I
                     </div>
                 )}
             </div>

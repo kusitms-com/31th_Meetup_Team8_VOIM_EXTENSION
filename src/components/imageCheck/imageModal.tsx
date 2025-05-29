@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { sendImageAnalysisRequest } from "../../content/apiSetting/sendImageAnalysisRequest";
 import { Player } from "@lottiefiles/react-lottie-player";
+import Loading from "../Loading/component";
 
 interface ImageModalProps {
     imageUrl: string;
@@ -86,13 +87,21 @@ export const ImageModal: React.FC<ImageModalProps> = ({
                                 {analysis}
                             </p>
                         ) : (
-                            <div style={{ textAlign: "center" }}>
-                                {/* <Player
-                                    autoplay
-                                    loop
-                                    src="https://lottie.host/aa702275-ad1e-4b56-9baa-b8226f5a2efc/0XpUpYljD5.json"
-                                    style={{ height: "150px", width: "150px" }}
-                                /> */}
+                            <div
+                                style={{
+                                    padding: "16px",
+                                    display: "flex",
+                                    flexDirection: "column",
+                                    justifyContent: "center",
+                                    alignItems: "center",
+                                    height: "320px",
+                                }}
+                            >
+                                <div
+                                    style={{ width: "260px", height: "243px" }}
+                                >
+                                    <Loading />
+                                </div>
                                 <p
                                     style={{
                                         marginTop: "8px",
