@@ -15,8 +15,6 @@ export const sendHealthDataRequest = (
     payload: HealthRequestPayload,
 ): Promise<string[]> => {
     return new Promise((resolve, reject) => {
-        console.log("[voim] HEALTH API 요청 payload:", payload);
-
         chrome.runtime.sendMessage(
             {
                 type: "FETCH_HEALTH_DATA",
@@ -38,10 +36,6 @@ export const sendHealthDataRequest = (
                 };
 
                 if (res.type === "HEALTH_DATA_RESPONSE" && res.data?.types) {
-                    console.log(
-                        "[voim] HEALTH API 응답 데이터:",
-                        res.data.types,
-                    );
                     resolve(res.data.types);
                 } else {
                     console.error(

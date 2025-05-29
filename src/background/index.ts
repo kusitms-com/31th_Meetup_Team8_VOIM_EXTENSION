@@ -146,8 +146,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 body: JSON.stringify(payload),
             }).then(async (res) => {
                 const text = await res.text();
-                console.log("[voim] 응답 상태 코드:", res.status);
-                console.log("[voim] 응답 원문:", text);
+
                 try {
                     const json = JSON.parse(text);
                     if (res.ok) {
@@ -282,7 +281,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         })
             .then(async (res) => {
                 const json = await res.json();
-                console.log("[voim][background] 응답 원문:", json);
+
                 return json;
             })
             .then((data) => {

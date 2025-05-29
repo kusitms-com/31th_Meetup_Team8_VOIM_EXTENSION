@@ -56,7 +56,6 @@ export const observeAndStoreCategoryType = async () => {
     }
 
     const category = await detectCategoryType();
-    console.log("[voim] 감지된 카테고리:", category);
 
     chrome.storage.local.set({ "voim-category-type": category }, () => {
         if (chrome.runtime.lastError) {
@@ -64,8 +63,6 @@ export const observeAndStoreCategoryType = async () => {
                 "[voim] 카테고리 저장 실패:",
                 chrome.runtime.lastError.message,
             );
-        } else {
-            console.log("[voim] 카테고리 저장 성공:", category);
         }
     });
     const observer = new MutationObserver(() => {
@@ -139,11 +136,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             const match = window.location.href.match(/products\/(\d+)/);
             const productId = match?.[1] ?? "";
-
-            console.log("[voim][content] 감지 성공:", {
-                html: rawHtml.slice(0, 100),
-                productId,
-            });
 
             sendResponse({ html: rawHtml, productId });
         });
