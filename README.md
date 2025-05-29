@@ -86,21 +86,20 @@ src/
 ```
 ### backend
 ```
-📦 VOIM
-┗━ 📦 backend
-    ┣━ 📂 domain
-    ┃   ┣━ 📂 application         # 비즈니스 로직 서비스 계층
-    ┃   ┣━ 📂 domain              # 엔티티, VO, 도메인 모델
-    ┃   ┣━ 📂 dto
-    ┃   ┃   ┣━ 📂 request         # 클라이언트 요청 DTO
-    ┃   ┃   ┗━ 📂 response        # 클라이언트 응답 DTO
-    ┃   ┣━ 📂 infrastructure      # AI Client, 전처리 등 외부 시스템 연동
-    ┃   ┃   ┗━ 📂 mapper          # DB 매핑, 엔티티 ↔ DTO 변환 등
-    ┃   ┣━ 📂 persistent          # Repository 등 DB 접근 계층
-    ┃   ┗━ 📂 presentation        # Controller 계층 (API 요청 처리)
-    ┃       ┗━ 📂 swagger         # Swagger API 문서 설정
-    ┣━ 📂 global                  # 공통 유틸리티, 예외, 설정 등
-    ┗━ 📄 BackendApplication.java # Spring Boot 메인 클래스 (앱 진입점)
+📦 backend
+   ┣━ 📂 domain
+   ┃   ┣━ 📂 application         # 비즈니스 로직 서비스 계층
+   ┃   ┣━ 📂 domain              # 엔티티, VO, 도메인 모델
+   ┃   ┣━ 📂 dto
+   ┃   ┃   ┣━ 📂 request         # 클라이언트 요청 DTO
+   ┃   ┃   ┗━ 📂 response        # 클라이언트 응답 DTO
+   ┃   ┣━ 📂 infrastructure      # AI Client, 전처리 등 외부 시스템 연동
+   ┃   ┃   ┗━ 📂 mapper          # DB 매핑, 엔티티 ↔ DTO 변환 등
+   ┃   ┣━ 📂 persistent          # Repository 등 DB 접근 계층
+   ┃   ┗━ 📂 presentation        # Controller 계층 (API 요청 처리)
+   ┃       ┗━ 📂 swagger         # Swagger API 문서 설정
+   ┣━ 📂 global                  # 공통 유틸리티, 예외, 설정 등
+   ┗━ 📄 BackendApplication.java # Spring Boot 메인 클래스 (앱 진입점)
 ```
 ## 🖥️ Developer Members
   
