@@ -93,19 +93,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true; // 비동기 응답을 위해 true 반환
     }
 
-    if (message.type === "CART_ITEMS_UPDATE") {
+    if (message.type === "CART_ITEMS_UPDATED") {
         // 장바구니 아이템 정보를 저장
         chrome.storage.local.set({ cartItems: message.data }, () => {
-            // 모든 탭에 업데이트된 장바구니 정보 전달
-            chrome.tabs.query({}, (tabs) => {
-                tabs.forEach((tab) => {
-                    if (tab.id) {
-                        chrome.tabs.sendMessage(tab.id, {
+            // 현재 활성화된 탭에만 업데이트된 장바구니 정보 전달
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                const activeTab = tabs[0];
+                if (activeTab?.id) {
+                    chrome.tabs
+                        .sendMessage(activeTab.id, {
                             type: "CART_ITEMS_UPDATED",
                             data: message.data,
+                        })
+                        .catch(() => {
+                            // 메시지 전송 실패 시 무시
                         });
-                    }
-                });
+                }
             });
         });
     }
