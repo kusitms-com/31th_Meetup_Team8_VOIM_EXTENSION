@@ -2,22 +2,29 @@ import React, { useState } from "react";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { ServiceButton } from "./component";
 
-const ControlService = () => {
+interface ControlServiceProps {
+    onClose: () => void;
+}
+
+const ControlService: React.FC<ControlServiceProps> = ({ onClose }) => {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     const [isLogoVisible, setIsLogoVisible] = useState(true);
+    const [hasChanged, setHasChanged] = useState(false);
 
     const stopExtension = () => {
         chrome.runtime.sendMessage(
             { type: "SET_STYLES_ENABLED", enabled: false },
             () => {
+                setHasChanged(true);
                 window.close();
             },
         );
     };
 
     const toggleLogo = (visible: boolean) => {
+        if (visible !== isLogoVisible) setHasChanged(true);
         chrome.runtime.sendMessage(
             { type: "SET_IFRAME_VISIBLE", visible },
             () => {
@@ -61,6 +68,13 @@ const ControlService = () => {
                     </ServiceButton>
                 </div>
             </div>
+
+            <button
+                onClick={onClose}
+                className="w-full h-[68px] mt-[18px] py-[10px] rounded-[14px] bg-purple-default text-white font-20-Bold"
+            >
+                {hasChanged ? "완료" : "닫기"}
+            </button>
         </div>
     );
 };
