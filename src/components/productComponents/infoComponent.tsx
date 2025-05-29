@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { sendOutlineInfoRequest } from "../../content/apiSetting/sendInfoRequest";
 import { BaseFillButton } from "../baseFillButton/component";
 import { BaseButton } from "../baseButton/component";
@@ -6,34 +6,42 @@ import { useTheme } from "@src/contexts/ThemeContext";
 
 type OutlineCategory = "MAIN" | "USAGE" | "WARNING" | "SPECS" | "CERTIFICATION";
 
-const OUTLINE_CATEGORIES = [
-    { key: "MAIN", label: "주요 성분" },
-    { key: "USAGE", label: "사용 방법 및 대상" },
-    { key: "WARNING", label: "주의 및 보관" },
-    { key: "SPECS", label: "규격 및 옵션" },
-    { key: "CERTIFICATION", label: "인증 및 기타" },
-] as const;
+interface InfoComponentProps {
+    categoryType: "food" | "cosmetic" | "health" | "none" | null;
+}
 
-export const InfoComponent = () => {
+export const InfoComponent: React.FC<InfoComponentProps> = ({
+    categoryType,
+}) => {
     const { theme, fontClasses } = useTheme();
     const isDarkMode = theme === "dark";
 
     const [selected, setSelected] = useState<OutlineCategory | null>(null);
     const [info, setInfo] = useState<string>("");
     const [loading, setLoading] = useState(false);
+    const [mainLabel, setMainLabel] = useState("스펙 및 제조 정보");
+
+    useEffect(() => {
+        if (categoryType === "food" || categoryType === "health") {
+            setMainLabel("영양 및 원재료");
+        } else {
+            setMainLabel("스펙 및 제조 정보");
+        }
+    }, [categoryType]);
+
+    const outlineCategories = [
+        { key: "MAIN", label: mainLabel },
+        { key: "USAGE", label: "사용 방법 및 대상" },
+        { key: "WARNING", label: "주의 및 보관" },
+        { key: "SPECS", label: "구성 및 디자인" },
+    ] as const;
 
     const fetchVendorHtml = (): Promise<string> => {
         return new Promise((resolve, reject) => {
             chrome.runtime.sendMessage(
-                {
-                    type: "FETCH_VENDOR_HTML",
-                },
+                { type: "FETCH_VENDOR_HTML" },
                 (response) => {
                     if (chrome.runtime.lastError) {
-                        console.error(
-                            "HTML 요청 실패:",
-                            chrome.runtime.lastError.message,
-                        );
                         reject(new Error(chrome.runtime.lastError.message));
                     } else {
                         resolve(response?.html ?? "");
@@ -66,7 +74,7 @@ export const InfoComponent = () => {
 
     return (
         <div className="p-8">
-            {OUTLINE_CATEGORIES.map(({ key, label }) => (
+            {outlineCategories.map(({ key, label }) => (
                 <div key={key}>
                     {selected === key ? (
                         <div>

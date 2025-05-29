@@ -118,7 +118,7 @@ export function Sidebar({
                         return null;
                 }
             case "detail":
-                return <InfoComponent />;
+                return <InfoComponent categoryType={type} />;
             case "review":
                 return (
                     <ReviewSummaryComponent
