@@ -154,6 +154,7 @@ export function Sidebar({
                                 keywords: [],
                             }
                         }
+                        isLoading={!reviewSummary}
                     />
                 );
             default:
