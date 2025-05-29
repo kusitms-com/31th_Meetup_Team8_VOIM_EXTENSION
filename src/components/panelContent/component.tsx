@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
 import { useFocusManagement } from "@src/hooks/useFocusManagement";
-import ControlMode from "@src/components/modeButton/ControlMode";
-import ControlFont from "@src/components/fontButton/ControlFont";
-import { ShortcutTab } from "@src/components/shortcutTab";
 import { MyInfo } from "@src/tabs/myInfo";
-import ControlService from "@src/components/serviceButton/ControlService";
 import { menuItems } from "@src/constants/menuItems";
+import ControlMode from "@src/tabs/modeButton/ControlMode";
+import ControlFont from "@src/tabs/fontButton/ControlFont";
+import { ShortcutTab } from "@src/tabs/shortcutTab";
+import ControlService from "@src/tabs/serviceButton/ControlService";
 
 interface PanelContentProps {
     menuId: string | null;
@@ -29,7 +29,7 @@ export const PanelContent: React.FC<PanelContentProps> = ({
             case "shortcut":
                 return <ShortcutTab />;
             case "my-info":
-                return <MyInfo />;
+                return <MyInfo onComplete={() => setMenuId(null)} />;
             case "service":
                 return <ControlService onClose={() => setMenuId(null)} />;
             default:
