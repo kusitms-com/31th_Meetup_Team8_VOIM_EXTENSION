@@ -1,6 +1,6 @@
 import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
-import { CheckmarkIcon } from "../icons";
+import { CheckmarkIcon } from "@src/components/icons";
 
 interface ServiceButtonProps {
     children: React.ReactNode;

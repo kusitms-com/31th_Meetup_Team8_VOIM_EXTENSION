@@ -62,6 +62,8 @@ type AllergyCategory = keyof typeof allergyData;
 const ALL_CATEGORY = Object.keys(allergyData) as AllergyCategory[];
 
 export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
+    const { theme } = useTheme();
+    const isDarkMode = theme === "dark";
     const [selectedCategory, setSelectedCategory] = useState<AllergyCategory>(
         ALL_CATEGORY[0],
     );
@@ -131,7 +133,9 @@ export function AllergySelectForm({ onComplete }: { onComplete?: () => void }) {
             <div>
                 <div className="mb-2">선택한 알러지 확인하기</div>
 
-                <div className="p-2 flex flex-wrap gap-2 mb-[44px] rounded-[18px] min-h-[92px] bg-grayscale-200">
+                <div
+                    className={`p-2 flex flex-wrap gap-2 mb-[44px] rounded-[18px] min-h-[92px] ${isDarkMode ? "bg-grayscale-800" : "bg-grayscale-200"}`}
+                >
                     {selectedAllergies.map((item) => (
                         <BaseButton
                             nonCheck={true}

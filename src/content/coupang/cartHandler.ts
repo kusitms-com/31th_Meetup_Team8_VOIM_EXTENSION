@@ -57,7 +57,7 @@ export const extractCartItems = (): CartItem[] => {
 
 export const sendCartItemsToBackground = () => {
     const cartItems = extractCartItems();
-    console.log("[CartHandler] 추출된 장바구니 아이템:", cartItems);
+
     chrome.runtime.sendMessage({
         type: "CART_ITEMS_UPDATED",
         data: cartItems,
