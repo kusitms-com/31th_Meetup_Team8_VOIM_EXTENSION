@@ -1,5 +1,5 @@
 import React from "react";
-import { CheckmarkIcon } from "../icons";
+import { CheckmarkIcon } from "@src/components/icons";
 import { useTheme } from "@src/contexts/ThemeContext";
 
 interface ModeButtonProps {

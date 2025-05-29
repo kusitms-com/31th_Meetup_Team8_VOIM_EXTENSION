@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "voim",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "시각 정보 해독이 어려운 사용자를 위한 크롬 확장 프로그램",
     "action": {
         "default_icon": {
@@ -46,14 +46,14 @@
         "128": "icons/icon-128.png"
     },
     "host_permissions": ["<all_urls>", "https://voim.store/*"],
-    "permissions": ["scripting", "activeTab", "storage", "tabs", "sidePanel"],
+    "permissions": ["scripting", "activeTab", "storage", "tabs"],
     "commands": {
         "toggle_iframe": {
             "suggested_key": {
                 "default": "Alt+V",
                 "mac": "Alt+V"
             },
-            "description": "Toggle floating iframe"
+            "description": "아이콘 끄기/키기"
         },
         "toggle_modal": {
             "suggested_key": {
@@ -74,7 +74,7 @@
                 "default": "Alt+A",
                 "mac": "Alt+A"
             },
-            "description": "모든 기능 토글"
+            "description": "모든 기능 끄기/키기"
         }
     }
 }

@@ -1,6 +1,6 @@
 import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
-import { ContentBox } from "../contentBox";
+import { ContentBox } from "@src/components/contentBox";
 
 export function ShortcutTab() {
     const { theme, fontClasses } = useTheme();
@@ -26,6 +26,14 @@ export function ShortcutTab() {
                     aria-label="단축키 목록"
                     tabIndex={0}
                 >
+                    <ContentBox ariaLabel="쿠팡 제품정보 열기 또는 접기 단축키: ALT + I">
+                        <div tabIndex={-1} role="listitem">
+                            쿠팡 제품정보 열기 또는 접기
+                        </div>
+                        <div tabIndex={-1} role="listitem">
+                            ALT + I
+                        </div>
+                    </ContentBox>
                     <ContentBox ariaLabel="메뉴 열기 또는 닫기 단축키: ALT + O">
                         <div tabIndex={-1} role="listitem">
                             메뉴 열기 또는 닫기
@@ -48,14 +56,6 @@ export function ShortcutTab() {
                         </div>
                         <div tabIndex={-1} role="listitem">
                             ALT + A
-                        </div>
-                    </ContentBox>
-                    <ContentBox ariaLabel="쿠팡 제품정보 열기 또는 접기 단축키: ALT + I">
-                        <div tabIndex={-1} role="listitem">
-                            쿠팡 제품정보 열기 또는 접기
-                        </div>
-                        <div tabIndex={-1} role="listitem">
-                            ALT + I
                         </div>
                     </ContentBox>
                 </div>

@@ -45,7 +45,6 @@ const allergyNameMap: Record<string, string> = {
 };
 
 export const FoodComponent = () => {
-    console.log("FoodComponent 등장");
     const [nutrientAlerts, setNutrientAlerts] = useState<Nutrient[] | null>(
         null,
     );
@@ -122,10 +121,6 @@ export const FoodComponent = () => {
                                                 retryRes?.html?.trim() &&
                                                 retryRes?.productId
                                             ) {
-                                                console.log(
-                                                    "[voim] FETCH_VENDOR_HTML 재시도 성공:",
-                                                    retryRes,
-                                                );
                                                 clearInterval(interval);
                                                 resolve(retryRes);
                                             } else if (--retries === 0) {
@@ -140,10 +135,6 @@ export const FoodComponent = () => {
                                     );
                                 }, 500);
                             } else {
-                                console.log(
-                                    "[voim] FETCH_VENDOR_HTML 성공 응답:",
-                                    res,
-                                );
                                 resolve(res);
                             }
                         },
@@ -159,11 +150,7 @@ export const FoodComponent = () => {
                     allergies: Allergies || [],
                 };
 
-                console.log("[voim] FOOD API 요청 payload:", payload);
-
                 const result = await sendFoodDataRequest(payload);
-
-                console.log("[voim] FOOD API 응답:", result);
 
                 setNutrientAlerts(result.overRecommendationNutrients || []);
                 setAllergyTypes(result.allergyTypes || []);

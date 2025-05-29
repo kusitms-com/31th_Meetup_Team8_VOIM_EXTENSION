@@ -126,10 +126,8 @@ export const HealthComponent = () => {
                     allergies: Allergies || [],
                 };
 
-                console.log("[voim] HEALTH API 요청 payload:", payload);
-
                 const result = await sendHealthDataRequest(payload);
-                console.log("[voim] HEALTH API 응답:", result);
+
                 setHealthTypes(result || []);
             } catch (e) {
                 console.error("[voim] HEALTH API 실패:", e);

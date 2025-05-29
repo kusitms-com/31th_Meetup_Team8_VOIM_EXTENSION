@@ -4,9 +4,9 @@ interface CosmeticRequestPayload {
 }
 
 interface CosmeticAPIResponse {
-    status: number;
-    message?: string;
-    data: Record<string, boolean>;
+    type: string;
+    data?: Record<string, boolean>;
+    error?: string;
 }
 
 export const sendCosmeticDataRequest = (
@@ -19,22 +19,20 @@ export const sendCosmeticDataRequest = (
                 payload,
             },
             (response: unknown) => {
+                console.log("[voim] ⬅️ 응답 확인:", response);
                 if (!response || typeof response !== "object") {
                     return reject(new Error("Invalid response format"));
                 }
 
                 const res = response as CosmeticAPIResponse;
 
-                if (res.status !== 200) {
-                    return reject(new Error(`API 실패 status: ${res.status}`));
+                if (!res.data || typeof res.data !== "object") {
+                    return reject(
+                        new Error("data 필드가 없거나 잘못된 형식입니다."),
+                    );
                 }
 
-                const data = res.data;
-                if (!data || typeof data !== "object") {
-                    return reject(new Error("올바르지 않은 응답 형식"));
-                }
-
-                const detected = Object.entries(data)
+                const detected = Object.entries(res.data)
                     .filter(([_, v]) => v === true)
                     .map(([k]) => k);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { onboardingData } from "@src/assets/onboardingData";
 import { useTheme } from "@src/contexts/ThemeContext";
 import { CloseButton } from "@src/components/closeButton";
@@ -12,6 +12,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     const [currentPage, setCurrentPage] = useState<number>(0);
     const { fontClasses, theme } = useTheme();
     const isDarkMode = theme === "dark";
+
+    const titleRef = useRef<HTMLDivElement>(null); // 👈 제목에 포커스하기 위한 ref
 
     const sections = [
         onboardingData.info,
@@ -45,6 +47,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
 
+    useEffect(() => {
+        titleRef.current?.focus();
+    }, [currentPage]);
+
     return (
         <div
             className={`font-koddi px-[18px] py-[24px] rounded-[20px] w-[755px] shadow-[0px_0px_4px_0px_rgba(0,0,0,0.25)] flex flex-col gap-[26px] ${
@@ -56,7 +62,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             <div
                 className={`${fontClasses.fontHeading} flex justify-between items-center`}
             >
-                <div>{sections[currentPage].title}</div>
+                <div
+                    ref={titleRef}
+                    tabIndex={-1} // 스크립트로 포커스 가능하게
+                    aria-label={sections[currentPage].title}
+                >
+                    {sections[currentPage].title}
+                </div>
                 <CloseButton onClick={handleClose} />
             </div>
             <div>
@@ -65,10 +77,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         {text.split("\n").map((line, i) => (
                             <React.Fragment key={i}>
                                 {line}
-                                <br />
+                                <br aria-hidden="true" />
                             </React.Fragment>
                         ))}
-                        <br />
                     </div>
                 ))}
             </div>
@@ -80,5 +91,3 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         </div>
     );
 }
-
-export default Onboarding;
