@@ -22,6 +22,7 @@ export type MessageType =
     | "DISABLE_ALL_STYLES"
     | "RESTORE_ALL_STYLES"
     | "TOGGLE_MODAL"
+    | "TOGGLE_SIDEBAR"
     | "APPLY_SETTINGS";
 
 export type CommandType = string;

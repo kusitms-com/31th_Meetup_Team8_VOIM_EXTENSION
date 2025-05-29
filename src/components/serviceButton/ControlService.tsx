@@ -9,24 +9,21 @@ const ControlService = () => {
     const [isLogoVisible, setIsLogoVisible] = useState(true);
 
     const stopExtension = () => {
-        chrome.runtime.sendMessage({ type: "STOP_EXTENSION" }, () => {
-            window.close();
-        });
+        chrome.runtime.sendMessage(
+            { type: "SET_STYLES_ENABLED", enabled: false },
+            () => {
+                window.close();
+            },
+        );
     };
 
     const toggleLogo = (visible: boolean) => {
-        const iframe = document.getElementById(
-            "floating-button-extension-iframe",
-        ) as HTMLIFrameElement;
-
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage(
-                { type: visible ? "SHOW_LOGO" : "HIDE_LOGO" },
-                "*",
-            );
-        }
-        chrome.storage.local.set({ "logo-hidden": !visible });
-        setIsLogoVisible(visible);
+        chrome.runtime.sendMessage(
+            { type: "SET_IFRAME_VISIBLE", visible },
+            () => {
+                setIsLogoVisible(visible);
+            },
+        );
     };
 
     return (

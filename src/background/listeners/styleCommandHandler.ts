@@ -98,3 +98,44 @@ export async function handleStyleToggle(): Promise<void> {
         }
     }
 }
+
+export async function handleStyleMessage(enabled: boolean): Promise<void> {
+    logger.debug(`스타일 메시지 처리 중: enabled=${enabled}`);
+    try {
+        const tabs = await chrome.tabs.query({
+            active: true,
+            currentWindow: true,
+        });
+
+        if (tabs[0]?.id) {
+            if (enabled) {
+                await chrome.tabs.sendMessage(tabs[0].id, {
+                    type: "RESTORE_ALL_STYLES",
+                });
+                await chrome.storage.local.set({
+                    stylesEnabled: true,
+                });
+                chrome.storage.local.set({
+                    iframeInvisible: false,
+                    iframeHiddenByAltA: false,
+                });
+                settingsService.setStylesEnabled(true);
+            } else {
+                await chrome.tabs.sendMessage(tabs[0].id, {
+                    type: "DISABLE_ALL_STYLES",
+                });
+                await chrome.storage.local.set({
+                    stylesEnabled: false,
+                });
+                chrome.storage.local.set({
+                    iframeInvisible: true,
+                    iframeHiddenByAltA: true,
+                });
+                settingsService.setStylesEnabled(false);
+            }
+            logger.debug("스타일 메시지 처리 완료");
+        }
+    } catch (error) {
+        logger.error("스타일 메시지 처리 중 오류:", error);
+    }
+}

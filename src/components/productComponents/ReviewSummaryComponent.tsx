@@ -10,14 +10,32 @@ interface ReviewSummary {
 }
 
 interface ReviewSummaryComponentProps {
-    summary: ReviewSummary;
+    summary: ReviewSummary | null;
+    isLoading?: boolean;
 }
 
 export const ReviewSummaryComponent = ({
     summary,
+    isLoading = false,
 }: ReviewSummaryComponentProps) => {
     const { fontClasses, theme } = useTheme();
     const isDarkMode = theme === "dark";
+
+    if (isLoading) {
+        return (
+            <div
+                className={`${fontClasses.fontCommon} ${
+                    isDarkMode ? "text-grayscale-100" : "text-grayscale-900"
+                } text-center py-10`}
+            >
+                불러오는중입니다...
+            </div>
+        );
+    }
+
+    if (!summary) {
+        return null;
+    }
 
     return (
         <div

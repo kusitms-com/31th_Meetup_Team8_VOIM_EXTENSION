@@ -2,6 +2,7 @@ import { logger } from "@src/utils/logger";
 import { handleIframeToggle } from "./iframeCommandHandler";
 import { handleModalToggle } from "./modalCommandHandler";
 import { handleStyleToggle } from "./styleCommandHandler";
+import { handleSidebarToggle } from "./sidebarCommandHandler";
 
 /**
  * 명령어 리스너 초기화
@@ -30,6 +31,11 @@ export function initCommandListeners(): void {
                     logger.debug("toggle_modal 명령어 처리 시작");
                     await handleModalToggle();
                     logger.debug("toggle_modal 명령어 처리 완료");
+                    break;
+                case "toggle_sidebar":
+                    logger.debug("toggle_sidebar 명령어 처리 시작");
+                    await handleSidebarToggle();
+                    logger.debug("toggle_sidebar 명령어 처리 완료");
                     break;
                 case "toggle_all_features":
                     logger.debug("toggle_all_features 명령어 처리 시작");

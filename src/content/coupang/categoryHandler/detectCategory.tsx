@@ -1,4 +1,9 @@
-export const detectCategoryType = (): "food" | "cosmetic" | "health" | null => {
+export const detectCategoryType = ():
+    | "food"
+    | "cosmetic"
+    | "health"
+    | "none"
+    | null => {
     const breadcrumbEl = document.querySelector(".breadcrumb, #breadcrumb");
     if (!breadcrumbEl) {
         return null;
@@ -23,5 +28,5 @@ export const detectCategoryType = (): "food" | "cosmetic" | "health" | null => {
         return "health";
     }
 
-    return null;
+    return "none";
 };

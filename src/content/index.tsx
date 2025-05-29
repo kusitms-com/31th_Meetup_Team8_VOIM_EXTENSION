@@ -51,13 +51,13 @@ export const observeAndStoreCategoryType = () => {
         );
 
     if (!isCoupangProductPage) {
-        chrome.storage.local.set({ "voim-category-type": null });
+        chrome.storage.local.set({ "voim-category-type": "none" });
         return;
     }
 
     const observer = new MutationObserver(() => {
         const type = detectCategoryType();
-        if (type !== null) {
+        if (type !== "none") {
             chrome.storage.local.set({ "voim-category-type": type });
             clearTimeout(timeoutId);
             observer.disconnect();
@@ -70,7 +70,7 @@ export const observeAndStoreCategoryType = () => {
     });
 
     const timeoutId = setTimeout(() => {
-        chrome.storage.local.set({ "voim-category-type": null });
+        chrome.storage.local.set({ "voim-category-type": "none" });
         observer.disconnect();
     }, 1500);
 };
