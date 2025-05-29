@@ -3,6 +3,7 @@ import { sendOutlineInfoRequest } from "../../content/apiSetting/sendInfoRequest
 import { BaseFillButton } from "../baseFillButton/component";
 import { BaseButton } from "../baseButton/component";
 import { useTheme } from "@src/contexts/ThemeContext";
+import Loading from "../Loading/component";
 
 type OutlineCategory = "MAIN" | "USAGE" | "WARNING" | "SPECS" | "CERTIFICATION";
 
@@ -89,7 +90,19 @@ export const InfoComponent: React.FC<InfoComponentProps> = ({
                                 }`}
                             >
                                 {loading ? (
-                                    "불러오는 중..."
+                                    <div
+                                        style={{
+                                            padding: "16px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                            alignItems: "center",
+                                            height: "320px",
+                                        }}
+                                    >
+                                        <Loading />
+                                        <div>불러오는 중</div>
+                                    </div>
                                 ) : (
                                     <ul className="pl-6 space-y-2 list-disc">
                                         {info
