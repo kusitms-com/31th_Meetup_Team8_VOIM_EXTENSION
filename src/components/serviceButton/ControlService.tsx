@@ -15,18 +15,12 @@ const ControlService = () => {
     };
 
     const toggleLogo = (visible: boolean) => {
-        const iframe = document.getElementById(
-            "floating-button-extension-iframe",
-        ) as HTMLIFrameElement;
-
-        if (iframe && iframe.contentWindow) {
-            iframe.contentWindow.postMessage(
-                { type: visible ? "SHOW_LOGO" : "HIDE_LOGO" },
-                "*",
-            );
-        }
-        chrome.storage.local.set({ "logo-hidden": !visible });
-        setIsLogoVisible(visible);
+        chrome.runtime.sendMessage(
+            { type: "SET_IFRAME_VISIBLE", visible },
+            () => {
+                setIsLogoVisible(visible);
+            },
+        );
     };
 
     return (

@@ -147,18 +147,6 @@ const App: React.FC = () => {
                             },
                         );
                         break;
-                    case "HIDE_LOGO":
-                        document
-                            .getElementById("logo")
-                            ?.classList.add("hidden");
-                        chrome.storage.local.set({ "logo-hidden": true });
-                        break;
-                    case "SHOW_LOGO":
-                        document
-                            .getElementById("logo")
-                            ?.classList.remove("hidden");
-                        chrome.storage.local.set({ "logo-hidden": false });
-                        break;
                     case "PAGE_TYPE":
                         setIsDetailPage(Boolean(event.data.value));
                         break;
