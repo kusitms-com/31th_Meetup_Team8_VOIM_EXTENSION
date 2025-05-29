@@ -7,6 +7,7 @@ import { observeBreadcrumbCosmeticAndRender } from "@src/content/coupang/categor
 import { HealthComponent } from "@src/components/productComponents/healthComponent";
 import { ReviewSummaryComponent } from "../productComponents/ReviewSummaryComponent";
 import CartSummaryComponent from "../productComponents/CartSummaryComponent";
+import { FoodComponent } from "../productComponents/foodComponent";
 
 interface ModalProps {
     isOpen: boolean;
@@ -114,7 +115,7 @@ export function Sidebar({
                 if (!type) return null;
                 switch (type) {
                     case "food":
-                        return <div ref={foodMountRef} className="w-full" />;
+                        return <FoodComponent />;
                     case "cosmetic":
                         return (
                             <div ref={cosmeticMountRef} className="w-full" />

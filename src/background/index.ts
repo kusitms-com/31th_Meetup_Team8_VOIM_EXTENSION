@@ -112,39 +112,49 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     // FOOD API
     if (message.type === "FETCH_FOOD_DATA") {
-        const payload = message.payload;
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const activeTab = tabs[0];
+            if (!activeTab?.url) {
+                sendResponse({
+                    status: 400,
+                    error: "상품 페이지를 찾을 수 없습니다.",
+                });
+                return;
+            }
 
-        fetch("https://voim.store/api/v1/products/foods", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                logger.debug("FOOD API 응답 성공:", data);
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "FOOD_DATA_RESPONSE",
-                        data,
-                    });
-                }
-                sendResponse({ status: 200, data });
+            const productId = activeTab.url.match(/vp\/products\/(\d+)/)?.[1];
+            if (!productId) {
+                sendResponse({
+                    status: 400,
+                    error: "상품 ID를 찾을 수 없습니다.",
+                });
+                return;
+            }
+
+            const payload = {
+                ...message.payload,
+                productId,
+            };
+
+            fetch("https://voim.store/api/v1/products/foods", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
             })
-            .catch((err) => {
-                console.error(
-                    "[voim][background] FOOD API 요청 실패:",
-                    err.message,
-                );
-                if (sender.tab?.id) {
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        type: "FOOD_DATA_ERROR",
-                        error: err.message,
-                    });
-                }
-                sendResponse({ status: 500, error: err.message });
-            });
+                .then((res) => res.json())
+                .then((data) => {
+                    logger.debug("FOOD API 응답 성공:", data);
+                    sendResponse({ status: 200, data });
+                })
+                .catch((err) => {
+                    console.error(
+                        "[voim][background] FOOD API 요청 실패:",
+                        err.message,
+                    );
+                    sendResponse({ status: 500, error: err.message });
+                });
+            console.log("payload", payload);
+        });
 
         return true;
     }
@@ -405,4 +415,35 @@ chrome.action.onClicked.addListener(async (tab) => {
     } catch (error) {
         logger.error("툴바 아이콘 클릭 처리 중 오류 발생:", error);
     }
+});
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "GET_PRODUCT_TITLE") {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            const tabId = tabs[0]?.id;
+            if (!tabId) {
+                sendResponse({ title: "" });
+                return;
+            }
+
+            chrome.tabs.sendMessage(
+                tabId,
+                { type: "GET_PRODUCT_TITLE" },
+                (response) => {
+                    if (chrome.runtime.lastError) {
+                        console.error(
+                            "[voim][background] title 요청 실패:",
+                            chrome.runtime.lastError.message,
+                        );
+                        sendResponse({ title: "" });
+                    } else {
+                        sendResponse(response);
+                    }
+                },
+            );
+        });
+
+        return true;
+    }
+
+    return false;
 });
