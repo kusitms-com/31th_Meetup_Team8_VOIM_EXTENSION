@@ -28,7 +28,7 @@ export const ReviewSummaryComponent = ({
                     isDarkMode ? "text-grayscale-100" : "text-grayscale-900"
                 } text-center py-10`}
             >
-                불러오는중입니다...
+                리뷰를 불러오는 중입니다. 잠시만 기다려주세요.
             </div>
         );
     }
