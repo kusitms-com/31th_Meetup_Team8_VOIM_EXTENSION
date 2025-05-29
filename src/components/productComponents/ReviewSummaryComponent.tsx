@@ -1,5 +1,6 @@
 import { useTheme } from "@src/contexts/ThemeContext";
 import React from "react";
+import Loading from "../Loading/component";
 
 interface ReviewSummary {
     totalCount: number;
@@ -26,8 +27,9 @@ export const ReviewSummaryComponent = ({
             <div
                 className={`${fontClasses.fontCommon} ${
                     isDarkMode ? "text-grayscale-100" : "text-grayscale-900"
-                } text-center py-10`}
+                } flex flex-col items-center justify-center py-10`}
             >
+                <Loading />
                 리뷰를 불러오는 중입니다. 잠시만 기다려주세요.
             </div>
         );
